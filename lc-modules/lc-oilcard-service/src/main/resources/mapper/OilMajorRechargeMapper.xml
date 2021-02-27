@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.oilcard.mapper.OilMajorRechargeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zhkj.lc.oilcard.model.OilMajorRecharge">
+        <id column="major_recharge_id" property="majorRechargeId" />
+        <result column="major_recharge_date" property="majorRechargeDate" />
+        <result column="major_id" property="majorId" />
+        <result column="major_number" property="majorNumber" />
+        <result column="major_name" property="majorName" />
+        <result column="major_recharge_amount" property="majorRechargeAmount" />
+        <result column="del_flag" property="delFlag" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="tenant_id" property="tenantId" />
+        <result column="remark" property="remark" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        major_recharge_id AS majorRechargeId, major_recharge_date AS majorRechargeDate, major_id AS majorId, major_recharge_amount AS majorRechargeAmount, del_flag AS delFlag, create_by AS createBy, create_time AS createTime, update_by AS updateBy, update_time AS updateTime, tenant_id AS tenantId, remark
+    </sql>
+
+    <sql id="selectVOJoin">
+        select a.major_recharge_id, a.major_recharge_date, a.major_id, a.major_recharge_amount, a.del_flag, a.create_by, a.create_time, a.update_by, a.update_time, a.tenant_id, a.remark
+        , b.major_number, b.major_name
+        from oil_major_recharge a
+        left join oil_major b on  a.major_id = b.major_id
+    </sql>
+
+    <select id="selectMajorRechargeList" resultMap="BaseResultMap" >
+       <include refid="selectVOJoin"/>
+        where a.del_flag = '0'
+        <if test="majorRechargeId != null  "> and a.major_recharge_id = #{majorRechargeId}</if>
+        <if test="majorRechargeDate != null  "> and a.major_recharge_date = #{majorRechargeDate}</if>
+        <if test="majorId != null  "> and a.major_id = #{majorId}</if>
+        <if test="majorNumber != null and majorNumber != '' "> and b.major_number = #{majorNumber}</if>
+        <if test="majorName != null and majorName != '' "> and b.major_name = #{majorName}</if>
+        <if test="majorRechargeAmount != null and majorRechargeAmount != ''  "> and a.major_recharge_amount = #{majorRechargeAmount}</if>
+        <if test="tenantId != null  "> and a.tenant_id = #{tenantId}</if>
+        <if test="yearMonth != null and yearMonth != '' "> and DATE_FORMAT(a.major_recharge_date, '%Y-%m') = #{yearMonth}</if>
+        order by a.create_time desc
+    </select>
+
+    <select id="selectMajorRechargeByIds" resultMap="BaseResultMap" parameterType="String">
+        <include refid="selectVOJoin"/>
+        where a.del_flag = '0' and a.major_recharge_id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectMajorRecharge" resultMap="BaseResultMap" parameterType="Integer">
+        <include refid="selectVOJoin"/>
+        where a.del_flag = '0' and
+        <if test="majorRechargeId != null  "> and a.major_recharge_id = #{majorRechargeId}</if>
+    </select>
+
+    <update id="updateMajorRecharge" parameterType="com.zhkj.lc.oilcard.model.OilMajorRecharge">
+        update oil_major_recharge
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="majorRechargeDate != null  ">major_recharge_date = #{majorRechargeDate},</if>
+            <if test="majorId != null  ">major_id = #{majorId},</if>
+            <if test="majorRechargeAmount != null and majorRechargeAmount != ''  "> major_recharge_amount = #{majorRechargeAmount},</if>
+            <if test="remark != null and remark != '' "> remark = #{remark},</if>
+            <if test="delFlag != null  and delFlag != ''  ">del_flag = #{delFlag},</if>
+            <if test="createBy != null  and createBy != ''  ">create_by = #{createBy},</if>
+            <if test="createTime != null  ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            update_time = sysdate(),
+            <if test="tenantId != null "> tenant_id = #{tenantId},</if>
+        </trim>
+        where major_recharge_id = #{majorRechargeId}
+    </update>
+
+    <insert id="insertMajorRecharge" parameterType="com.zhkj.lc.oilcard.model.OilMajorRecharge">
+        insert into oil_major_recharge
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="majorRechargeDate != null  ">major_recharge_date,</if>
+            <if test="majorId != null  ">major_id,</if>
+            <if test="majorRechargeAmount != null and majorRechargeAmount != ''  "> major_recharge_amount,</if>
+            <if test="remark != null and remark != '' "> remark,</if>
+            <if test="delFlag != null  and delFlag != ''  ">del_flag,</if>
+            <if test="createBy != null  and createBy != ''  ">create_by,</if>
+            create_time,
+            <if test="tenantId != null "> tenant_id, </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="majorRechargeDate != null  ">#{majorRechargeDate},</if>
+            <if test="majorId != null  ">#{majorId},</if>
+            <if test="majorRechargeAmount != null and majorRechargeAmount != ''  "> #{majorRechargeAmount},</if>
+            <if test="remark != null and remark != '' "> #{remark},</if>
+            <if test="delFlag != null  and delFlag != ''  ">#{delFlag},</if>
+            <if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+            sysdate(),
+            <if test="tenantId != null "> #{tenantId}, </if>
+        </trim>
+    </insert>
+
+    <update id="deleteMajorRecharge" parameterType="String">
+        update oil_major_recharge
+        set update_time = sysdate() and del_flag = #{delFlag} and update_by = #{updateBy}
+        where del_flag = '0'
+        <if test="null != ids and ids.length > 0 "> and major_recharge_id in
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+    </update>
+
+</mapper>

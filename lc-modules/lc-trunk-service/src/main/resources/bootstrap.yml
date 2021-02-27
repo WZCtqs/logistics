@@ -1,0 +1,81 @@
+spring:
+  jackson:
+    time-zone: GMT+8
+  application:
+    name: lc-truck-service
+  profiles:
+    active: dev
+  cloud:
+    config:
+      fail-fast: false
+      discovery:
+        service-id: lc-config-server
+        enabled: true
+      profile: ${spring.profiles.active}
+      label: ${spring.profiles.active}
+logging:
+  level:
+    com.zhkj.lc.trunk.mapper: debug
+
+---
+spring:
+  profiles: dev
+eureka:
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 5
+    lease-expiration-duration-in-seconds: 20
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:3025/eureka
+    registry-fetch-interval-seconds: 10
+
+---
+spring:
+  profiles: prd
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:3025/eureka
+
+
+#zhkj:
+#  profile: D:/profile/
+#server:
+#  port: 8082
+#  context-path: /
+#    datasource:
+#        type: com.alibaba.druid.pool.DruidDataSource
+#        driverClassName: com.mysql.jdbc.Driver
+#        druid:
+#            master:
+#                url: jdbc:mysql://192.168.16.116:3306/logistics_truckdb?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false
+#                username: wcx
+#                password: 123456
+#            slave:
+#                enabled: false
+#                url:
+#                username:
+#                password:
+#            initial-size: 10
+#            max-active: 100
+#            min-idle: 10
+#            max-wait: 60000
+#            pool-prepared-statements: true
+#            max-pool-prepared-statement-per-connection-size: 20
+#            timeBetweenEvictionRunsMillis: 60000
+#            min-evictable-idle-time-millis: 300000
+#            validation-query: SELECT 1 FROM DUAL
+#            test-while-idle: true
+#            test-on-borrow: false
+#            test-on-return: false
+#            filter:
+#                stat:
+#                    log-slow-sql: true
+#                    slow-sql-millis: 1000
+#                    merge-sql: false
+#                wall:
+#                    config:
+#                        multi-statement-allow: true

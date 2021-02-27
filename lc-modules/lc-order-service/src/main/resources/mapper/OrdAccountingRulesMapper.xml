@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.order.mapper.OrdAccountingRulesMapper">
+    
+    <resultMap type="com.zhkj.lc.order.dto.OrdAccountingRulesDTO" id="BaseResultMap">
+        <result property="id"    column="id"    />
+        <result property="ruleName"    column="rule_name"    />
+        <result property="objType"    column="obj_type"    />
+        <result property="ruleObjId"    column="rule_obj_id"    />
+        <result property="ruleType"    column="rule_type"    />
+        <result property="startNum"    column="start_num"    />
+        <result property="delFalg"    column="del_falg"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="tenantId"    column="tenant_id"    />
+        <collection property="ordAccountingRule" column="id" select="com.zhkj.lc.order.mapper.OrdAccountingRuleMapper.selectRuleListByRuleId"/>
+    </resultMap>
+	
+	<sql id="Base_column_List">
+        select id, rule_name, obj_type, rule_obj_id, rule_type, start_num, del_flag, create_by, create_time, update_by, update_time, tenant_id from ord_accounting_rules
+    </sql>
+	
+    <select id="selectRulesList" parameterType="com.zhkj.lc.order.dto.OrdAccountingRulesDTO" resultMap="BaseResultMap">
+        <include refid="Base_column_List"/>
+        <where>
+            <if test="ruleName != null and ruleObjIds.length == 0"> and rule_name LIKE CONCAT('%',#{ruleName},'%')</if>
+            <if test="objType != null "> and obj_type = #{objType}</if>
+            <if test="ruleName == null and ruleObjIds.length > 0 "> and rule_obj_id in
+                <foreach item="ruleObjId" collection="ruleObjIds" open="(" separator="," close=")">
+                    #{ruleObjId}
+                </foreach>
+            </if>
+            <if test="ruleName != null and ruleObjIds.length > 0 ">
+                and (
+                rule_name LIKE CONCAT('%',#{ruleName},'%')
+                or
+                rule_obj_id in
+                <foreach item="ruleObjId" collection="ruleObjIds" open="(" separator="," close=")">
+                    #{ruleObjId}
+                </foreach>
+                )
+            </if>
+             and del_flag = '0'
+             <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+         </where>
+    </select>
+    
+    <select id="selectAccountingRulesById" parameterType="Integer" resultMap="BaseResultMap">
+        <include refid="Base_column_List"/>
+        where id = #{id} and tenant_id = #{tenantId}
+    </select>
+    
+</mapper>

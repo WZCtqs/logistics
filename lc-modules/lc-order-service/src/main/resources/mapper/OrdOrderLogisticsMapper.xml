@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.order.mapper.OrdOrderLogisticsMapper">
+
+    <select id="selectOrderYHX" resultMap="BaseResultMap">
+        <include refid="Base_Column_List"/>
+        <where> 1=1
+            and order_id = #{orderId}
+            <!--<if test="orderId != null and orderId.indexOf('CN') == 0">
+                and order_status = '11'
+            </if>
+            <if test="orderId != null and orderId.indexOf('PH') == 0">
+                and order_status = '9'
+            </if>-->
+        </where>
+    </select>
+
+    <!--判断签收凭证信息是否存在-->
+    <select id="hasqsInfo" resultType="java.lang.Integer">
+     select 1 from ord_order_logistics where order_id=#{orderId} and order_status='9' limit 1;
+    </select>
+
+    <!-- 通用查询结果列 -->
+    <resultMap id="BaseResultMap" type="com.zhkj.lc.order.model.entity.OrdOrderLogistics">
+        <id column="id" property="id" />
+        <result column="order_id" property="orderId" />
+        <result column="order_status" property="orderStatus" />
+        <result column="logistics_msg" property="logisticsMsg" />
+        <result column="logistics_address" property="logisticsAddress" />
+        <result column="logistics_time" property="logisticsTime" />
+        <result column="seal_number" property="sealNumber" />
+        <result column="seal_status" property="sealStatus" />
+        <result column="goods_status" property="goodsStatus" />
+        <result column="truck_status" property="truckStatus" />
+        <result column="photos" property="photos" />
+        <result column="remark" property="remark" />
+        <result column="tenant_id" property="tenantId" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+       select id, order_id, order_status, logistics_msg, logistics_address, logistics_time, seal_number, seal_status,
+       goods_status, truck_status, photos,  remark,tenant_id from ord_order_logistics
+</sql>
+
+    <select id="selectOrderLogisticsList" resultMap="BaseResultMap">
+        <include refid="Base_Column_List"/>
+        where order_id = #{orderId}
+        order by logistics_time desc
+    </select>
+    <select id="selectOrderListByTenantId" resultMap="BaseResultMap">
+        <include refid="Base_Column_List"/>
+        <where>
+            <if test="orderId != null  and orderId != ''  ">and order_id = #{orderId}</if>
+            <if test="tenantId != null  ">and tenant_id = #{tenantId}</if>
+        </where>
+        order by logistics_time desc
+    </select>
+    <insert id="insertOrderLogistics" parameterType="OrdOrderLogistics">
+        insert into ord_order_logistics
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orderId != null  and orderId != ''  ">order_id,</if>
+            <if test="orderStatus != null  and orderStatus != ''  ">order_status,</if>
+            <if test="logisticsMsg != null  and logisticsMsg != ''  ">logistics_msg,</if>
+            <if test="logisticsAddress != null  and logisticsAddress != ''  ">logistics_address,</if>
+            logistics_time,
+            <if test="sealNumber != null  and sealNumber != ''  ">seal_number,</if>
+            <if test="sealStatus != null  and sealStatus != ''  ">seal_status,</if>
+            <if test="goodsStatus != null  and goodsStatus != ''  ">goods_status,</if>
+            <if test="truckStatus != null  and truckStatus != ''  ">truck_status,</if>
+
+            <if test="photos != null  and photos != ''  ">photos,</if>
+            <if test="remark != null  and remark != ''  ">remark,</if>
+            <if test="tenantId != null">tenant_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orderId != null  and orderId != ''  ">#{orderId},</if>
+            <if test="orderStatus != null  and orderStatus != ''  ">#{orderStatus},</if>
+            <if test="logisticsMsg != null  and logisticsMsg != ''  ">#{logisticsMsg},</if>
+            <if test="logisticsAddress != null  and logisticsAddress != ''  ">#{logisticsAddress},</if>
+            sysdate(),
+            <if test="sealNumber != null  and sealNumber != ''  ">#{sealNumber},</if>
+            <if test="sealStatus != null  and sealStatus != ''  ">#{sealStatus},</if>
+            <if test="goodsStatus != null  and goodsStatus != ''  ">#{goodsStatus},</if>
+            <if test="truckStatus != null  and truckStatus != ''  ">#{truckStatus},</if>
+
+            <if test="photos != null  and photos != ''  ">#{photos},</if>
+            <if test="remark != null  and remark != ''  ">#{remark},</if>
+            <if test="tenantId != null  ">#{tenantId},</if>
+        </trim>
+    </insert>
+
+    <update id="updateOrderLogistics" parameterType="OrdOrderLogistics">
+        update ord_order_logistics
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="orderId != null  and orderId != ''  ">order_id = #{orderId},</if>
+            <if test="logisticsMsg != null  and logisticsMsg != ''  ">logistics_msg = #{logisticsMsg},</if>
+            <if test="logisticsAddress != null  and logisticsAddress != ''  ">logistics_address = #{logisticsAddress},</if>
+            <if test="logisticsTime != null  ">logistics_time = #{logisticsTime},</if>
+            <if test="sealNumber != null  and sealNumber != ''  ">seal_number = #{sealNumber},</if>
+            <if test="sealStatus != null  and sealStatus != ''  ">seal_status = #{sealStatus},</if>
+            <if test="goodsStatus != null  and goodsStatus != ''  ">goods_status = #{goodsStatus},</if>
+            <if test="truckStatus != null  and truckStatus != ''  ">truck_status = #{truckStatus},</if>
+
+            <if test="photos != null  and photos != ''  ">photos = #{photos},</if>
+            <if test="remark != null  and remark != ''  ">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteOrderLogisticsById" parameterType="Integer">
+        delete from ord_order_logistics where id = #{id}
+    </delete>
+
+
+    <select id="countOrders"  resultType="Integer">
+       SELECT count(order_id) FROM
+       ord_order_logistics
+        where order_status = '3' and TO_DAYS(logistics_time) = TO_DAYS(NOW())  and tenant_id = #{tenantId}
+    </select>
+
+    <select id="countAllOrders"  resultType="Integer">
+       SELECT count(distinct order_id)
+         FROM ord_order_logistics
+         where TO_DAYS(logistics_time) = TO_DAYS(NOW()) and order_status in ('3','5')  and tenant_id = #{tenantId}
+    </select>
+
+
+    <select id="selectFirstOrderLogistics" resultMap="BaseResultMap">
+        <include refid="Base_Column_List"/>
+        where order_id = #{orderId}
+        and  order_status = #{orderStatus}
+    </select>
+
+    <select id="selectLastOrderLogistics" resultMap="BaseResultMap">
+        <include refid="Base_Column_List"/>
+        where order_id = #{orderId}
+        and  order_status = #{orderStatus}
+    </select>
+
+    <select id="selectByOrderIdAndStatus" resultMap="BaseResultMap">
+        <include refid="Base_Column_List"/>
+        where order_id = #{orderId}
+        and  order_status = #{orderStatus}
+    </select>
+</mapper>

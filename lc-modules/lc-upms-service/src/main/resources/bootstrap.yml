@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: lc-upms-service
+  profiles:
+    active: dev
+  cloud:
+    config:
+      fail-fast: false
+      discovery:
+        service-id: lc-config-server
+        enabled: true
+      profile: ${spring.profiles.active}
+      label: ${spring.profiles.active}
+logging:
+  level:
+    com.zhkj.lc.admin.mapper: DEBUG
+---
+spring:
+  profiles: dev
+eureka:
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 5
+    lease-expiration-duration-in-seconds: 20
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:3025/eureka
+    registry-fetch-interval-seconds: 10
+
+---
+spring:
+  profiles: prd
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:3025/eureka

@@ -1,0 +1,68 @@
+﻿server:
+  port: 4002
+
+spring:
+  application:
+    name: lc-config-server
+  profiles:
+    active: dev
+  cloud:
+    config:
+      server:
+        git:
+#          uri: https://gitee.com/chaocan/lc-config-center
+#          uri: https://gitee.com/chaocan/lc-config-local
+          uri: https://gitee.com/chaocan/lc-config-wins
+          username: 17638568129
+          password: 12981mayun521
+          default-label: ${spring.profiles.active}   #解决监控down
+
+# 关闭安全管理
+management:
+  security:
+    enabled: false
+endpoints:
+  health:
+    sensitive: false
+---
+spring:
+  profiles: dev
+#  rabbitmq:
+#    host: 171.15.132.160
+#    port: 5672
+#    username: zhkj
+#    password: zhkjrabbitmq
+#    host: localhost
+#    port: 5672
+#    username: guest
+#    password: guest
+eureka:
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 5
+    lease-expiration-duration-in-seconds: 20
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:3025/eureka
+    registry-fetch-interval-seconds: 10
+---
+spring:
+  profiles: prd
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5682
+    username: lc
+    password: lengleng
+  cloud:
+    config:
+      retry:
+        initial-interval: 3000
+        multiplier: 1.5
+        max-interval: 20000
+        max-attempts: 6
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:3025/eureka

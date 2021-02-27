@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.order.mapper.OrdAccountingRuleMapper">
+    
+    <resultMap type="com.zhkj.lc.order.model.entity.OrdAccountingRule" id="BaseResultMap">
+        <result property="id"    column="id"    />
+        <result property="ruleId"    column="rule_id"    />
+        <result property="limitNum"    column="limit_num"    />
+        <result property="price"    column="price"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="tenantId"    column="tenant_id"    />
+    </resultMap>
+	
+	<sql id="Base_column_List">
+        select id, rule_id, limit_num, price, create_by, create_time, update_by, update_time, tenant_id from ord_accounting_rule
+    </sql>
+
+    <select id="selectRuleListByRuleId" resultMap="BaseResultMap">
+        <include refid="Base_column_List"/>
+        where rule_id = #{ruleId} and tenant_id = #{tenantId} order by limit_num asc
+    </select>
+
+    <select id="selecteList" parameterType="com.zhkj.lc.order.model.entity.OrdAccountingRule" resultMap="BaseResultMap">
+        <include refid="Base_column_List"/>
+        <where>  
+            <if test="id != null "> and id = #{id}</if>
+             <if test="ruleId != null "> and rule_id = #{ruleId}</if>
+             <if test="limitNum != null "> and limit_num = #{limitNum}</if>
+             <if test="price != null "> and price = #{price}</if>
+             <if test="createBy != null  and createBy != '' "> and create_by = #{createBy}</if>
+             <if test="createTime != null "> and create_time = #{createTime}</if>
+             <if test="updateBy != null  and updateBy != '' "> and update_by = #{updateBy}</if>
+             <if test="updateTime != null "> and update_time = #{updateTime}</if>
+             <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+         </where>
+        order by limit_num asc
+    </select>
+
+	<delete id="deleteAccountingRuleById" parameterType="Integer">
+        delete from ord_accounting_rule where rule_id = #{id} and tenant_id = #{tenantId}
+    </delete>
+    
+</mapper>

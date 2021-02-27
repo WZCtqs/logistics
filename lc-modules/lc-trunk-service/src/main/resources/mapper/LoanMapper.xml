@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.trunk.mapper.LoanMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zhkj.lc.trunk.model.Loan">
+        <id column="loan_id" property="loanId" />
+        <result column="truck_id" property="truckId" />
+        <result column="is_driver" property="isDriver" />
+        <result column="apply_man" property="applyMan" />
+        <result column="apply_date" property="applyDate" />
+        <result column="apply_sum" property="applySum" />
+        <result column="apply_reason" property="applyReason" />
+        <result column="loan_card_number" property="loanCardNumber" />
+        <result column="status" property="status" />
+        <result column="remark" property="remark" />
+        <result column="del_flag" property="delFlag" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="tenant_id" property="tenantId" />
+        <result column="repayment_way" property="repaymentWay" />
+        <result column="repayment_date" property="repaymentDate" />
+        <result column="repayment_rate" property="repaymentRate" />
+    </resultMap>
+
+    <resultMap type="com.zhkj.lc.trunk.model.Loan" id="LoanTruck">
+        <result property="loanId"    column="loan_id"    />
+        <result property="isDriver"  column="is_driver"/>
+        <result property="truckId"    column="truck_id"    />
+        <result property="applyMan"    column="apply_man"    />
+        <result property="applyDate"    column="apply_date"    />
+        <result property="applySum"    column="apply_sum"    />
+        <result property="applyReason"    column="apply_reason"    />
+        <result property="loanCardNumber"    column="loan_card_number"    />
+        <result property="status"    column="status"    />
+        <result column="tenant_id" property="tenantId" />
+        <result column="remark" property="remark" />
+        <result column="repayment_way" property="repaymentWay" />
+        <result column="repayment_date" property="repaymentDate" />
+        <result column="repayment_rate" property="repaymentRate" />
+        <collection property="truTruck" ofType="com.zhkj.lc.trunk.model.TruTruck">
+            <result property="truckId"    column="truck_id"    />
+            <result property="plateNumber" column="plate_number"/>
+            <result property="truckOwner" column="truck_owner"/>
+            <result property="truckOwnerPhone" column="truck_owner_phone"/>
+            <result property="depositBank"    column="deposit_bank"    />
+            <result property="truckCardNumber"    column="truck_card_number"    />
+            <result column="tenant_id" property="tenantId" />
+        </collection>
+        <collection property="truDriver" ofType="com.zhkj.lc.trunk.model.TruDriver">
+            <result property="driverId"    column="driver_id"    />
+            <result property="driverName" column="driver_name"/>
+            <result property="plateId" column="plate_id"/>
+        </collection>
+    </resultMap>
+    <!--借款车辆表联合查询-->
+    <select id="selectLoanTruckList" parameterType="com.zhkj.lc.trunk.model.Loan" resultMap="BaseResultMap">
+        select l.loan_id,l.truck_id,l.apply_man,l.apply_date,l.apply_sum,l.apply_reason,l.is_driver,
+        l.loan_card_number,l.status,l.remark,l.tenant_id,l.repayment_way,l.repayment_date,l.repayment_rate,
+        t.plate_number plateNumber,d.driver_name driverName, tto.truckown_name truckOwnName from
+        (select * from loan where del_flag = '0' ORDER BY create_time desc)as l
+        left join tru_driver as d on l.apply_man = d.driver_id and d.del_flag = '0' and l.tenant_id = d.tenant_id
+        left join tru_truck_own as tto on l.apply_man = tto.id and tto.del_flag = '0' and l.tenant_id = tto.tenant_id
+        left join tru_truck as t on d.plate_id = t.truck_id and t.del_flag = '0' and l.tenant_id = t.tenant_id
+        <where>
+            <if test="plateNumber != null and plateNumber !=''"> and t.plate_number = #{plateNumber}</if>
+            <if test="tenantId != null "> and l.tenant_id = #{tenantId}</if>
+            <if test="driverName != null  and driverName != '' ">
+             and d.driver_name LIKE CONCAT(CONCAT('%',#{driverName},'%')) </if>
+            <if test="beginTime != null"><!-- 开始时间检索 -->
+                and date_format(l.apply_date,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+            </if>
+            <if test="endTime != null"><!-- 结束时间检索 -->
+                and date_format(l.apply_date,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+            </if>
+        </where>
+        order by l.create_time desc
+    </select>
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        loan_id AS loanId, truck_id AS truckId, apply_man AS applyMan, apply_date AS applyDate, apply_sum AS applySum, apply_reason AS applyReason, loan_card_number AS loanCardNumber, status, remark, del_flag AS delFlag, create_by AS createBy, create_time AS createTime, update_by AS updateBy, update_time AS updateTime, tenant_id AS tenantId, repayment_way AS repaymentWay, repayment_date AS repaymentDate, repayment_rate AS repaymentRate
+    </sql>
+
+    <update id="deleteByIds" parameterType="com.zhkj.lc.trunk.model.Loan">
+        update loan
+        set del_flag='1',update_time=#{updateTime}
+        <if test="updateBy != null  and updateBy != ''  ">,update_by = #{updateBy}</if>
+        where loan_id in
+        <foreach item="id" collection="loanIds" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!-- 还款管理列表条件查询 -->
+    <select id="repaymentList" resultMap="BaseResultMap" parameterType="com.zhkj.lc.trunk.model.Loan" >
+        /*select l.loan_id,l.truck_id,l.apply_man,l.apply_date,l.apply_sum,l.apply_reason,
+        l.loan_card_number,l.status,l.remark,l.tenant_id,l.repayment_way,l.repayment_date,l.repayment_rate,
+        t.truck_id,t.plate_number,t.truck_owner,t.truck_owner_phone,t.deposit_bank,t.truck_card_number,
+        t.tenant_id,d.driver_id,d.driver_name,d.plate_id from*/
+        select l.loan_id,l.truck_id,l.apply_man,l.apply_date,l.apply_sum,l.apply_reason,l.is_driver,
+        l.loan_card_number,l.status,l.remark,l.tenant_id,l.repayment_way,l.repayment_date,l.repayment_rate,
+        t.plate_number plateNumber,d.driver_name driverName, tto.truckown_name truckOwnName  from
+        (select * from loan where del_flag = '0' and status = '2' ORDER BY create_time desc)as l
+        left join tru_driver as d on l.apply_man = d.driver_id and d.del_flag = '0' and l.tenant_id = d.tenant_id
+        left join tru_truck_own as tto on l.apply_man = tto.id and tto.del_flag = '0' and l.tenant_id = tto.tenant_id
+        left join tru_truck as t on d.plate_id = t.truck_id and t.del_flag = '0' and l.tenant_id = t.tenant_id
+        <where>
+            <if test="plateNumber != null and plateNumber != '' "> and t.plate_number = #{plateNumber}</if>
+            <if test="tenantId != null "> and l.tenant_id = #{tenantId}</if>
+            <if test="driverName != null  and driverName != '' ">
+                and d.driver_name LIKE CONCAT(CONCAT('%',#{driverName},'%')) </if>
+            <if test="beginTime != null"><!-- 开始时间检索 -->
+                and date_format(l.apply_date,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+            </if>
+            <if test="endTime != null"><!-- 结束时间检索 -->
+                and date_format(l.apply_date,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+            </if>
+        </where>
+        order by l.create_time desc
+    </select>
+
+    <!-- 查询全部还款信息(不分页，没有条件搜索) -->
+    <select id="selectAllRepayment" resultMap="BaseResultMap" >
+        select loan_id,apply_man, apply_date, apply_sum, apply_reason, loan_card_number, status,is_driver,
+        remark, del_flag, create_by, create_time, update_by, update_time, tenant_id, repayment_way,
+        repayment_date, repayment_rate
+        from loan
+        where del_flag = '0' and status = '2'
+    </select>
+
+    <!-- 根据id查询借款信息 -->
+    <select id="selectByIoanId" parameterType="Integer" resultMap="BaseResultMap" >
+        select loan_id,apply_man, apply_date, apply_sum, apply_reason, loan_card_number, status,is_driver,
+        remark, del_flag, create_by, create_time, update_by, update_time, tenant_id, repayment_way,
+        repayment_date, repayment_rate
+        from loan
+        where del_flag = '0' and loan_id = #{loanId}
+    </select>
+
+    <!-- 根据司机id和租户id查询借款信息 -->
+    <select id="selectByApply" parameterType="com.zhkj.lc.trunk.model.Loan" resultMap="BaseResultMap" >
+        select loan_id,apply_man, apply_date, apply_sum, apply_reason, loan_card_number, status,is_driver,
+        remark, del_flag, create_by, create_time, update_by, update_time, tenant_id, repayment_way,
+        repayment_date, repayment_rate
+        from loan
+        <where>
+            and del_flag = '0'
+            <if test="applyMan != null "> and apply_man = #{applyMan}</if>
+            <if test="applyMan != null "> and is_driver = #{isDriver}</if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="isDriver != null "> and is_driver = #{isDriver}</if>
+            <if test="beginTime != null"><!-- 开始时间检索 -->
+                and date_format(apply_date,'%y%m%d') = date_format(#{beginTime},'%y%m%d')
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="countNoFinishLoan" resultType="Integer">
+        select count(loan_id)
+        from loan
+        <where> del_flag = '0'
+            <if test="driverIds != null and driverIds.length > 0 "> and apply_man in
+                <foreach item="driverId" collection="driverIds" open="(" separator="," close=")">
+                    #{driverId}
+                </foreach>
+            </if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+            and status not in ('3','1')
+        </where>
+        order by create_time desc
+    </select>
+</mapper>

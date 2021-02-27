@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.order.mapper.OrdPickupArrivalAddMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zhkj.lc.order.model.entity.OrdPickupArrivalAdd">
+        <id column="id" property="id" />
+        <result column="order_id" property="orderId" />
+        <result column="add_type" property="addType" />
+        <result column="sort" property="sort" />
+        <result column="receipt_code" property="receiptCode" />
+        <result column="is_send_ok" property="isSendOk" />
+        <result column="plan_time" property="planTime" />
+        <result column="address_city" property="addressCity" />
+        <result column="address_detail_place" property="addressDetailPlace" />
+        <result column="address_lnglat" property="addressLnglat" />
+        <result column="contacts" property="contacts" />
+        <result column="contacts_phone" property="contactsPhone" />
+        <result column="success_add" property="successAdd" />
+        <result column="success_time" property="successTime" />
+        <result column="files" property="files" />
+        <result column="remark" property="remark" />
+        <result column="tenant_id" property="tenantId" />
+        <result column="contacts_tel" property="contactsTel" />
+
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column">
+        select id, order_id, add_type, sort, receipt_code, is_send_ok, plan_time, address_city, address_detail_place, contacts, contacts_phone, tenant_id,
+          success_add, success_time, files, remark, address_lnglat,contacts_tel
+        from ord_pickup_arrival_add
+    </sql>
+
+    <select id="selectByOrderId" resultMap="BaseResultMap">
+        <include refid="Base_Column"/>
+        where order_id = #{orderId}
+    </select>
+
+    <select id="selectArrivalByOrderId" resultMap="BaseResultMap">
+        <include refid="Base_Column"/>
+        where order_id = #{orderId} and add_type = 1 order by sort
+    </select>
+
+    <select id="selectPickupByOrderId" resultMap="BaseResultMap">
+        <include refid="Base_Column"/>
+        where order_id = #{orderId} and add_type = 0 order by sort
+    </select>
+
+    <select id="selectStartEndAdd" resultType="map">
+        SELECT
+            ( SELECT address_city FROM ord_pickup_arrival_add WHERE order_id = #{orderId} AND add_type = 0 ORDER BY sort LIMIT 1 ) pickupadd,
+            ( SELECT address_city FROM ord_pickup_arrival_add WHERE order_id = #{orderId} AND add_type = 1 ORDER BY sort DESC LIMIT 1 ) arrivaladd
+    </select>
+
+    <delete id="deleteByOrderId">
+        delete from ord_pickup_arrival_add where order_id = #{orderId}
+    </delete>
+
+    <update id="updateByOrderSort" parameterType="OrdPickupArrivalAdd">
+        update ord_pickup_arrival_add
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="receiptCode != null  and receiptCode != ''  ">receipt_code = #{receiptCode},</if>
+            <if test="isSendOk != null  and isSendOk != ''  ">is_send_ok = #{isSendOk},</if>
+            <if test="successAdd != null and successAdd != ''  ">success_add = #{successAdd},</if>
+            <if test="successTime != null  ">success_time = #{successTime},</if>
+            <if test="files != null  and files != ''  ">files = #{files},</if>
+        </trim>
+        where order_id = #{orderId} and add_type = #{addType} and sort = #{sort}
+    </update>
+    <select id="selectNowReceivingPhoto" resultMap="BaseResultMap">
+        <include refid="Base_Column"/>
+        where order_id = #{orderId} and add_type = 1 and success_time is null order by sort limit 1
+    </select>
+        
+</mapper>

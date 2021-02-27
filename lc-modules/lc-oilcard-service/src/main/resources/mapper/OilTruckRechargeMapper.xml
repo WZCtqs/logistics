@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.oilcard.mapper.OilTruckRechargeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zhkj.lc.oilcard.model.OilTruckRecharge">
+        <id column="id" property="id" />
+        <result column="truck_id" property="truckId" />
+        <result column="plate_number" property="plateNumber" />
+        <result column="recharge" property="recharge" />
+        <result column="recharge_time" property="rechargeTime" />
+        <result column="create_by" property="createBy" />
+        <result column="tenant_id" property="tenantId" />
+        <result column="balance" property="balance" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, truck_id AS truckId, plate_number AS plateNumber, recharge, recharge_time AS rechargeTime, create_by AS createBy, tenant_id AS tenantId,balance AS balance
+    </sql>
+
+
+    <select id="findAllTruckRechargeRecordsByTruckId" resultType="com.zhkj.lc.oilcard.model.OilTruckRecharge">
+        SELECT
+        o.truck_id as truckId,
+        o.plate_number as plateNumber,
+        o.recharge as recharge,
+        o.recharge_time as rechargeTime,
+        o.balance as balance,
+        o.create_by as createBy
+        FROM
+        oil_truck_recharge o
+        <where>
+            o.tenant_id = #{tenantId}
+            and o.truck_id = #{truckId}
+        </where>
+
+    </select>
+    <insert id="insertOilTruckRecharge" parameterType="com.zhkj.lc.oilcard.model.OilTruckRecharge">
+        insert into oil_truck_recharge
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="truckId != null  and truckId != ''  "> truck_id,</if>
+            <if test="plateNumber != null  and plateNumber != ''  "> plate_number,</if>
+            <if test="recharge != null  and recharge != ''  ">recharge,</if>
+            recharge_time,
+            <if test="tenantId != null "> tenant_id,</if>
+            <if test="createBy != null  and createBy != ''  ">create_by,</if>
+            <if test="balance != null "> balance, </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="truckId != null  and truckId != ''  "> #{truckId},</if>
+            <if test="plateNumber != null  and plateNumber != ''  "> #{plateNumber},</if>
+            <if test="recharge != null  and recharge != ''  ">#{recharge},</if>
+            #{rechargeTime},
+            <if test="tenantId != null "> #{tenantId},</if>
+            <if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+            <if test="balance != null "> #{balance}, </if>
+        </trim>
+    </insert>
+
+
+</mapper>

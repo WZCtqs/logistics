@@ -1,0 +1,977 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.order.mapper.OrdCommonGoodsMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zhkj.lc.order.dto.OrdCommonGoodsVo">
+        <id column="id" property="id" />
+        <result column="order_id" property="morderId" />
+        <result column="status" property="status" />
+        <result column="customer_id" property="customerId" />
+        <result column="send_goods_place" property="sendGoodsPlace" />
+        <result column="send_goods_date" property="sendGoodsDate" />
+        <result column="pick_goods_place" property="pickGoodsPlace" />
+        <result column="pick_goods_date" property="pickGoodsDate" />
+        <result column="pick_goods_way" property="pickGoodsWay" />
+        <result column="doc_operator" property="docOperator" />
+        <result column="shipper" property="shipper" />
+        <result column="shipper_city" property="shipperCity" />
+        <result column="shipper_place" property="shipperPlace" />
+        <result column="shipper_phone" property="shipperPhone" />
+        <result column="picker" property="picker" />
+        <result column="picker_city" property="pickerCity" />
+        <result column="picker_place" property="pickerPlace" />
+        <result column="picker_phone" property="pickerPhone" />
+        <result column="balance_way" property="balanceWay" />
+        <result column="charged_mileage" property="mchargedMileage" />
+        <result column="transport_fee" property="mtransportFee" />
+        <result column="pick_fee" property="mpickFee" />
+        <result column="pack_fee" property="mpackFee" />
+        <result column="release_fee" property="mreleaseFee" />
+        <result column="insurance_fee" property="minsuranceFee" />
+        <result column="other_fee" property="motherFee" />
+        <result column="is_invoice" property="isInvoice" />
+        <result column="receipt_code" property="receiptCode" />
+        <result column="is_send" property="isSend" />
+        <result column="send_truck_date" property="sendTruckDate" />
+        <result column="total_fee" property="mtotalFee" />
+        <result column="driver_id" property="driverId" />
+        <result column="del_flag" property="delFlag" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="tenant_id" property="mtenantId" />
+
+        <association property="ordCommonTruck" javaType="com.zhkj.lc.order.dto.OrdCommonTruckVO" column="order_id" select="com.zhkj.lc.order.mapper.OrdCommonTruckMapper.selectCommonTruck"/>
+        <association property="ordCommonFile"  javaType="com.zhkj.lc.order.model.entity.OrdCommonFile" column="order_id" select="com.zhkj.lc.order.mapper.OrdCommonFileMapper.selectCommonOrdFileById"/>
+        <collection property="commonGoodsInfos" column="order_id" select="com.zhkj.lc.order.mapper.CommonGoodsInfoMapper.selectCommonGoodsInfoById"/>
+        <collection property="ordOrderLogistics" column="order_id" select="com.zhkj.lc.order.mapper.OrdOrderLogisticsMapper.selectOrderLogisticsList"/>
+        <collection property="exceptionConditions" column="order_id" select="com.zhkj.lc.order.mapper.OrdExceptionConditionMapper.selectExCondition"/>
+        <collection property="exceptionFees" column="order_id" select="com.zhkj.lc.order.mapper.OrdExceptionFeeMapper.selectExFee"/>
+
+        <collection property="arrivalAdds" column="order_id" select="com.zhkj.lc.order.mapper.OrdPickupArrivalAddMapper.selectArrivalByOrderId"/>
+        <collection property="pickupAdds" column="order_id" select="com.zhkj.lc.order.mapper.OrdPickupArrivalAddMapper.selectPickupByOrderId"/>
+    </resultMap>
+
+    <!-- 小程序端获取订单详情 -->
+    <resultMap id="ResultMapForApp" type="com.zhkj.lc.order.dto.OrdCommonGoodsForApp">
+        <id column="id" property="id" />
+        <result column="order_id" property="morderId" />
+        <result column="status" property="status" />
+        <result column="customer_id" property="customerId" />
+        <result column="send_goods_place" property="sendGoodsPlace" />
+        <result column="send_goods_date" property="sendGoodsDate" />
+        <result column="pick_goods_place" property="pickGoodsPlace" />
+        <result column="pick_goods_date" property="pickGoodsDate" />
+        <result column="pick_goods_way" property="pickGoodsWay" />
+        <result column="shipper" property="shipper" />
+        <result column="shipper_place" property="shipperPlace" />
+        <result column="shipper_phone" property="shipperPhone" />
+        <result column="picker" property="picker" />
+        <result column="picker_place" property="pickerPlace" />
+        <result column="picker_phone" property="pickerPhone" />
+
+
+        <association property="ordCommonTruck" javaType="com.zhkj.lc.order.dto.OrdCommonTruckVO" column="order_id" select="com.zhkj.lc.order.mapper.OrdCommonTruckMapper.selectCommonTruck"/>
+        <association property="ordCommonFile"  javaType="com.zhkj.lc.order.model.entity.OrdCommonFile" column="order_id" select="com.zhkj.lc.order.mapper.OrdCommonFileMapper.selectCommonOrdFileById"/>
+        <collection property="commonGoodsInfos" column="order_id" select="com.zhkj.lc.order.mapper.CommonGoodsInfoMapper.selectCommonGoodsInfoById"/>
+        <collection property="ordOrderLogistics" column="order_id" select="com.zhkj.lc.order.mapper.OrdOrderLogisticsMapper.selectOrderLogisticsList"/>
+        <collection property="exceptionConditions" column="order_id" select="com.zhkj.lc.order.mapper.OrdExceptionConditionMapper.selectExCondition"/>
+        <collection property="exceptionFees" column="order_id" select="com.zhkj.lc.order.mapper.OrdExceptionFeeMapper.selectExFee"/>
+
+        <collection property="arrivalAdds" column="order_id" select="com.zhkj.lc.order.mapper.OrdPickupArrivalAddMapper.selectArrivalByOrderId"/>
+        <collection property="pickupAdds" column="order_id" select="com.zhkj.lc.order.mapper.OrdPickupArrivalAddMapper.selectPickupByOrderId"/>
+    </resultMap>
+
+    <!-- 订单管理导出映射结果 -->
+    <resultMap id="ManageExportMap" type="com.zhkj.lc.order.dto.OrdCommonGoodsVo">
+        <id column="id" property="id" />
+        <result column="order_id" property="morderId" />
+        <result column="status" property="status" />
+        <result column="customer_id" property="customerId" />
+        <result column="send_goods_place" property="sendGoodsPlace" />
+        <result column="send_goods_date" property="sendGoodsDate" />
+        <result column="pick_goods_place" property="pickGoodsPlace" />
+        <result column="pick_goods_date" property="pickGoodsDate" />
+        <result column="pick_goods_way" property="pickGoodsWay" />
+        <result column="doc_operator" property="docOperator" />
+        <result column="shipper" property="shipper" />
+        <result column="shipper_city" property="shipperCity" />
+        <result column="shipper_place" property="shipperPlace" />
+        <result column="shipper_phone" property="shipperPhone" />
+        <result column="picker" property="picker" />
+        <result column="picker_city" property="pickerCity" />
+        <result column="picker_place" property="pickerPlace" />
+        <result column="picker_phone" property="pickerPhone" />
+        <result column="balance_way" property="balanceWay" />
+        <result column="charged_mileage" property="mchargedMileage" />
+        <result column="transport_fee" property="mtransportFee" />
+        <result column="pick_fee" property="mpickFee" />
+        <result column="pack_fee" property="mpackFee" />
+        <result column="release_fee" property="mreleaseFee" />
+        <result column="insurance_fee" property="minsuranceFee" />
+        <result column="other_fee" property="motherFee" />
+        <result column="is_invoice" property="isInvoice" />
+        <result column="receipt_code" property="receiptCode" />
+        <result column="is_send" property="isSend" />
+        <result column="send_truck_date" property="sendTruckDate" />
+        <result column="total_fee" property="mtotalFee" />
+        <result column="del_flag" property="delFlag" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="tenant_id" property="mtenantId" />
+
+        <association property="ordCommonTruck" javaType="com.zhkj.lc.order.dto.OrdCommonTruckVO" column="order_id" select="com.zhkj.lc.order.mapper.OrdCommonTruckMapper.selectCommonTruck"/>
+
+        <collection property="commonGoodsInfos" column="order_id" select="com.zhkj.lc.order.mapper.CommonGoodsInfoMapper.selectCommonGoodsInfoById"/>
+
+    </resultMap>
+
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="centerExportMap" type="com.zhkj.lc.order.dto.OrdCommonGoodsVo">
+        <id column="id" property="id" />
+        <result column="order_id" property="morderId" />
+        <result column="status" property="status" />
+        <result column="customer_id" property="customerId" />
+        <result column="send_goods_place" property="sendGoodsPlace" />
+        <result column="send_goods_date" property="sendGoodsDate" />
+        <result column="pick_goods_place" property="pickGoodsPlace" />
+        <result column="pick_goods_date" property="pickGoodsDate" />
+        <result column="pick_goods_way" property="pickGoodsWay" />
+        <result column="doc_operator" property="docOperator" />
+        <result column="shipper" property="shipper" />
+        <result column="shipper_city" property="shipperCity" />
+        <result column="shipper_place" property="shipperPlace" />
+        <result column="shipper_phone" property="shipperPhone" />
+        <result column="picker" property="picker" />
+        <result column="picker_city" property="pickerCity" />
+        <result column="picker_place" property="pickerPlace" />
+        <result column="picker_phone" property="pickerPhone" />
+        <result column="balance_way" property="balanceWay" />
+        <result column="charged_mileage" property="mchargedMileage" />
+        <result column="transport_fee" property="mtransportFee" />
+        <result column="pick_fee" property="mpickFee" />
+        <result column="pack_fee" property="mpackFee" />
+        <result column="release_fee" property="mreleaseFee" />
+        <result column="insurance_fee" property="minsuranceFee" />
+        <result column="other_fee" property="motherFee" />
+        <result column="is_invoice" property="isInvoice" />
+        <result column="receipt_code" property="receiptCode" />
+        <result column="is_send" property="isSend" />
+        <result column="send_truck_date" property="sendTruckDate" />
+        <result column="total_fee" property="mtotalFee" />
+        <result column="del_flag" property="delFlag" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="tenant_id" property="mtenantId" />
+
+        <association property="ordCommonTruck" javaType="com.zhkj.lc.order.dto.OrdCommonTruckVO" column="order_id" select="com.zhkj.lc.order.mapper.OrdCommonTruckMapper.selectCommonTruck"/>
+        <collection property="commonGoodsInfos" column="order_id" select="com.zhkj.lc.order.mapper.CommonGoodsInfoMapper.selectCommonGoodsInfoById"/>
+
+
+    </resultMap>
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="commonGoodsVo" type="com.zhkj.lc.order.dto.CommonGoodsVO">
+        <id column="id" property="id" />
+        <result column="order_id" property="morderId" />
+        <result column="status" property="status" />
+        <result column="customer_id" property="customerId" />
+        <result column="send_goods_place" property="sendGoodsPlace" />
+        <result column="send_goods_date" property="sendGoodsDate" />
+        <result column="pick_goods_place" property="pickGoodsPlace" />
+        <result column="pick_goods_way" property="pickGoodsWay" />
+        <result column="pick_goods_date" property="pickGoodsDate" />
+        <result column="shipper" property="shipper" />
+        <result column="picker" property="picker" />
+        <result column="charged_mileage" property="mchargedMileage" />
+        <result column="driver_id" property="mdriverId" />
+
+        <result column="del_flag" property="delFlag" />
+        <result column="create_time" property="createTime" />
+        <result column="tenant_id" property="mtenantId" />
+
+        <association property="ordCommonTruck" javaType="com.zhkj.lc.order.dto.OrdCommonTruckVO" column="order_id" select="com.zhkj.lc.order.mapper.OrdCommonTruckMapper.selectCommonTruck"/>
+        <collection property="commonGoodsInfos" column="order_id" select="com.zhkj.lc.order.mapper.CommonGoodsInfoMapper.selectCommonGoodsInfoById"/>
+
+        <collection property="ordOrderLogistics" column="order_id" select="com.zhkj.lc.order.mapper.OrdOrderLogisticsMapper.selectOrderLogisticsList"/>
+        <collection property="arrivalAdds" column="order_id" select="com.zhkj.lc.order.mapper.OrdPickupArrivalAddMapper.selectArrivalByOrderId"/>
+        <collection property="pickupAdds" column="order_id" select="com.zhkj.lc.order.mapper.OrdPickupArrivalAddMapper.selectPickupByOrderId"/>
+
+    </resultMap>
+
+    <!-- 更新结果列 -->
+    <resultMap id="commonGoodsUPD" type="com.zhkj.lc.order.dto.PhOrdForUpd">
+        <id column="id" property="id" />
+        <result column="order_id" property="orderId" />
+        <result column="status" property="status" />
+        <result column="driver_id" property="driverId" />
+        <result column="plate_number" property="plateNumber" />
+        <result column="picker_phone" property="pickerPhone" />
+        <result column="shipper_phone" property="shipperPhone" />
+        <collection property="arrivalAdds" column="order_id" select="com.zhkj.lc.order.mapper.OrdPickupArrivalAddMapper.selectArrivalByOrderId"/>
+        <collection property="pickupAdds" column="order_id" select="com.zhkj.lc.order.mapper.OrdPickupArrivalAddMapper.selectPickupByOrderId"/>
+    </resultMap>
+
+    <!-- 在途订单运踪记录的最新位置 -->
+    <resultMap id="ordOrderLogisticsVo" type="com.zhkj.lc.order.model.entity.OrdOrderLogisticsVo">
+        <result column="order_id" property="orderId" />
+        <result column="order_status" property="orderStatus" />
+        <result column="logistics_msg" property="logisticsMsg" />
+        <result column="logistics_address" property="logisticsAddress" />
+        <result column="driver_id" property="driverId" />
+        <result column="plate_number" property="plateNumber" />
+    </resultMap>
+    <resultMap id="ResultMapForWXpublic" type="com.zhkj.lc.order.dto.CommonGoodsWxSelect">
+        <result column="morderId" property="morderId"/>
+        <result column="status" property="status"/>
+        <result column="pickGoodsPlace" property="pickGoodsPlace"/>
+        <result column="sendGoodsPlace" property="sendGoodsPlace"/>
+        <result column="receiptCode" property="receiptCode"/>
+        <collection property="arrivalAdds" column="morderId" select="com.zhkj.lc.order.mapper.OrdPickupArrivalAddMapper.selectArrivalByOrderId"/>
+        <collection property="pickupAdds" column="morderId" select="com.zhkj.lc.order.mapper.OrdPickupArrivalAddMapper.selectPickupByOrderId"/>
+    </resultMap>
+    <!--判断签收码是否正确-->
+    <select id="hasRecCode" resultType="java.lang.Integer">
+     select 1 from ord_common_goods where order_id=#{orderId} and receipt_code=#{receiptCode} limit 1;
+    </select>
+    <!-- 订单管理查询结果列 -->
+    <sql id="manage_list">
+        select
+        id,
+        order_id,
+        status,
+        customer_id,
+        send_goods_place,
+        send_goods_date,
+        pick_goods_place,
+        pick_goods_date,
+        pick_goods_way,
+        shipper,
+        picker,
+        driver_id,
+        charged_mileage,
+        del_flag,
+        create_time,
+        tenant_id
+        from ord_common_goods
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        select
+        id,
+        order_id,
+        status,
+        customer_id,
+        send_goods_place,
+        send_goods_date,
+        pick_goods_place,
+        pick_goods_date,
+        pick_goods_way,
+        doc_operator,
+        shipper,
+        shipper_city,
+        shipper_place,
+        shipper_phone,
+        picker, picker_city,
+        picker_place,
+        picker_phone,
+        balance_way,
+        charged_mileage,
+        transport_fee,
+        pick_fee,
+        pack_fee,
+        release_fee,
+        insurance_fee,
+        other_fee,
+        is_invoice,
+        receipt_code,
+        send_truck_date,
+        is_send,
+        total_fee,
+        driver_id,
+        del_flag,
+        create_by,
+        create_time,
+        update_by,
+        update_time,
+        tenant_id
+        from ord_common_goods
+    </sql>
+
+    <!-- 小诚寻获取订单详情结果列 -->
+    <sql id="Column_For_App">
+        select
+        id,
+        order_id,
+        status,
+        customer_id,
+        send_goods_place,
+        send_goods_date,
+        pick_goods_place,
+        pick_goods_date,
+        pick_goods_way,
+        shipper,
+        shipper_place,
+        shipper_phone,
+        picker,
+        picker_place,
+        picker_phone
+
+        from ord_common_goods
+    </sql>
+
+    <!-- 小程序更新订单状态查询订单用 -->
+    <sql id="Column_For_UPD">
+        select
+        a.id,
+        a.order_id,
+        a.status,
+        a.driver_id,
+        b.plate_number,
+        a.picker_phone,
+        a.shipper_phone
+        from ord_common_goods a
+        left join ord_common_truck b on a.order_id=b.order_id
+    </sql>
+
+    <!--根据orderId查询订单状态更新所需的数据-->
+    <select id="selectUPDOrdByOrderId" resultMap="commonGoodsUPD">
+        <include refid="Column_For_UPD"/>
+        <where>
+            del_flag ='0'
+            <if test="orderId != null  and orderId != '' "> and a.order_id = #{orderId}</if>
+        </where>
+    </select>
+
+    <!--根据orderId查询订单状态,车牌号-->
+    <select id="selectCommongoodsByOrderId" resultMap="commonGoodsUPD">
+        <include refid="Column_For_UPD"/>
+        <where>
+            del_flag ='0'
+            <if test="orderId != null  and orderId != '' "> and a.order_id = #{orderId}</if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+        </where>
+    </select>
+
+    <!--根据司机id查询正在进行的订单-->
+    <select id="selectProcOrdByDriverId" resultMap="commonGoodsVo">
+        <include refid="manage_list"/>
+        where driver_id = #{driverId} and status not in ('0','9') and del_flag ='0'
+    </select>
+
+    <select id="selectPlateNumberByProcCG" resultMap="commonGoodsVo">
+        select DISTINCT b.order_id, a.driver_id
+        from ord_common_goods a
+        left join ord_common_truck b on a.order_id = b.order_id
+        where a.status not in ('0','9') and a.del_flag ='0'
+        <if test="tenantId != null "> and a.tenant_id = #{tenantId}</if>
+    </select>
+
+    <select id="selectProcCGByDriverIds" resultType="Integer">
+        select count(order_id)
+        from ord_common_goods
+        where status != '9' and del_flag ='0'
+        <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+        <if test="driverIds != null and driverIds.length > 0 "> and driver_id in
+            <foreach collection="driverIds" item="driverId" open="(" separator="," close=")">
+                #{driverId}
+            </foreach>
+        </if>
+    </select>
+
+    <!--小程序端根据订单标号获取订单详情-->
+    <select id="selectDetailByOrderId" resultMap="ResultMapForApp">
+        <include refid="Column_For_App"/>
+        <where>
+            del_flag ='0'
+            <if test="orderId != null  and orderId != '' "> and order_id = #{orderId}</if>
+        </where>
+
+    </select>
+
+    <select id="selectManageGoodsList" resultMap="commonGoodsVo">
+        <include refid="manage_list"/>
+        <where>
+            del_flag ='0'
+            and status='0'
+            <if test="orderId != null  and orderId != '' "> and order_id = #{orderId}</if>
+            <if test="customerId != null  and customerId != '' "> and customer_id = #{customerId}</if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+            <if test="createBy != null "> and create_by = #{createBy}</if>
+
+        </where>
+        order by update_time desc
+
+    </select>
+    <!--导出订单查询-->
+    <select id="selectExportGoodsList" resultMap="ManageExportMap">
+        <include refid="Base_Column_List"/>
+        <where>
+            del_flag ='0'
+            and status='0'
+            <if test="phid.length > 0">
+                and id in
+                <foreach item="id" collection="phid" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+
+        </where>
+        order by update_time desc
+
+    </select>
+
+    <!--导出订单中心查询-->
+    <select id="selectCenterExportList" resultMap="centerExportMap">
+        <include refid="Base_Column_List"/>
+        <where>
+            del_flag ='0'
+            and status!='0'
+            <if test="phid.length > 0">
+                and id in
+                <foreach item="id" collection="phid" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+
+        </where>
+        order by update_time desc
+
+    </select>
+
+
+    <!--查询客户普货收货订单-->
+    <select id="selectReceiveOrdCommonGoods" parameterType="String" resultMap="BaseResultMap">
+        <include refid="Base_Column_List"/>
+        <where>
+            del_flag ='0'
+            <if test="pickerPhone != null  and pickerPhone != ''  "> and picker_phone = #{pickerPhone}</if>
+            <if test="mtenantId != null "> and tenant_id = #{mtenantId}</if>
+        </where>
+    </select>
+    <!--查询客户普货发货订单-->
+    <select id="selectDispatchOrdCommonGoods" parameterType="String" resultMap="BaseResultMap">
+        <include refid="Base_Column_List"/>
+        <where>
+            del_flag ='0'
+            <if test="shipperPhone != null  and shipperPhone != ''  "> and shipper_phone = #{shipperPhone}</if>
+            <if test="mtenantId != null "> and tenant_id = #{mtenantId}</if>
+        </where>
+    </select>
+
+    <select id="selectOneById" resultMap="BaseResultMap">
+        <include refid="Base_Column_List"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectByOrderId" resultMap="BaseResultMap">
+        <include refid="Base_Column_List"/>
+        <where>
+            del_flag ='0'
+            <if test="morderId != null  and morderId != '' "> and order_id = #{morderId}</if>
+            <if test="mtenantId != null "> and tenant_id = #{mtenantId}</if>
+        </where>
+    </select>
+
+    <select id="selectPhOrdByOrderId" resultMap="commonGoodsVo">
+        <include refid="manage_list"/>
+
+        where order_id = #{orderId}
+    </select>
+
+
+
+    <select id="selectCommonOrdList" resultMap="BaseResultMap">
+        <include refid="Base_Column_List"/>
+        <where>
+            del_flag ='0'
+            and status != '0'
+            <if test="status != null  and status != '' "> and status = #{status}</if>
+            <if test="orderId != null  and orderId != '' "> and order_id = #{orderId}</if>
+            <if test="customerId != null  and customerId != '' "> and customer_id = #{customerId}</if>
+            <if test="customerIds != null and customerIds.length > 0 ">
+                and customer_id in
+                <foreach item="customerId" collection="customerIds"  open="(" separator="," close=")">
+                    #{customerId}
+                </foreach>
+            </if>
+            <if test="fromDate != null "> and create_time &gt;= #{fromDate}</if>
+            <if test="toDate != null "> and create_time &lt;= #{toDate}</if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+            <if test="createBy != null "> and create_by = #{createBy}</if>
+
+        </where>
+        order by update_time desc
+
+    </select>
+
+    <select id="getPhOrderId" statementType="CALLABLE" resultType="map">
+        {call generate_phorderNo(
+               #{prefix,mode=IN,jdbcType=VARCHAR},
+               #{orderId,mode=OUT,jdbcType=VARCHAR})}
+    </select>
+
+
+    <insert id="insertCommonOrder" parameterType="com.zhkj.lc.order.model.entity.OrdCommonGoods">
+        insert into ord_common_goods
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="morderId != null  and morderId != ''  ">order_id,</if>
+            <if test="status != null  and status != ''  ">status,</if>
+            <if test="customerId != null  and customerId != ''  ">customer_id,</if>
+            <if test="sendGoodsPlace != null  and sendGoodsPlace != ''  ">send_goods_place,</if>
+            <if test="sendGoodsDate != null">send_goods_date,</if>
+            <if test="pickGoodsPlace != null  and pickGoodsPlace != ''  ">pick_goods_place,</if>
+            <if test="pickGoodsDate != null">pick_goods_date,</if>
+            <if test="pickGoodsWay != null  and pickGoodsWay != ''  ">pick_goods_way,</if>
+            <if test="docOperator != null  and docOperator != ''  ">doc_operator,</if>
+
+            <if test="shipper != null  and shipper != ''  ">shipper,</if>
+            <if test="shipperCity != null  and shipperCity != ''  ">shipper_city,</if>
+            <if test="shipperPlace != null  and shipperPlace != ''  ">shipper_place,</if>
+            <if test="shipperPhone != null  and shipperPhone != ''  ">shipper_phone,</if>
+
+            <if test="picker != null  and picker != ''  ">picker,</if>
+            <if test="pickerCity != null  and pickerCity != ''  ">picker_city,</if>
+            <if test="pickerPlace != null  and pickerPlace != ''  ">picker_place,</if>
+            <if test="pickerPhone != null  and pickerPhone != ''  ">picker_phone,</if>
+
+            <if test="balanceWay != null  and balanceWay != ''  ">balance_way,</if>
+            <if test="mchargedMileage != null ">charged_mileage,</if>
+            <if test="mtransportFee != null  ">transport_fee,</if>
+            <if test="mpickFee != null  ">pick_fee,</if>
+            <if test="mpackFee != null  ">pack_fee,</if>
+            <if test="mreleaseFee != null  ">release_fee,</if>
+            <if test="minsuranceFee != null  ">insurance_fee,</if>
+            <if test="motherFee != null  ">other_fee,</if>
+            <if test="mtotalFee != null  ">total_fee,</if>
+            <if test="isInvoice != null  and isInvoice != ''  ">is_invoice,</if>
+            <if test="receiptCode != null  and receiptCode != ''  ">receipt_code,</if>
+            <if test="isSend != null  and isSend != ''  ">is_send,</if>
+            <if test="sendTruckDate != null ">send_truck_date,</if>
+            <if test="driverId != null ">driver_id,</if>
+            <if test="delFlag != null  and delFlag != ''  ">del_flag,</if>
+            <if test="createBy != null  and createBy != ''  ">create_by,</if>
+            create_time,
+            <if test="updateBy != null  and updateBy != ''  ">update_by,</if>
+            update_time,
+            <if test="mtenantId != null ">tenant_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="morderId != null  and morderId != ''  ">#{morderId},</if>
+            <if test="status != null  and status != ''  ">#{status},</if>
+            <if test="customerId != null  and customerId != ''  ">#{customerId},</if>
+            <if test="sendGoodsPlace != null  and sendGoodsPlace != ''  ">#{sendGoodsPlace},</if>
+            <if test="sendGoodsDate != null ">#{sendGoodsDate},</if>
+            <if test="pickGoodsPlace != null  and pickGoodsPlace != ''  ">#{pickGoodsPlace},</if>
+            <if test="pickGoodsDate != null  ">#{pickGoodsDate},</if>
+            <if test="pickGoodsWay != null  and pickGoodsWay != ''  ">#{pickGoodsWay},</if>
+            <if test="docOperator != null  and docOperator != ''  ">#{docOperator},</if>
+
+            <if test="shipper != null  and shipper != ''  ">#{shipper},</if>
+            <if test="shipperCity != null  and shipperCity != ''  ">#{shipperCity},</if>
+            <if test="shipperPlace != null  and shipperPlace != ''  ">#{shipperPlace},</if>
+            <if test="shipperPhone != null  and shipperPhone != ''  ">#{shipperPhone},</if>
+
+            <if test="picker != null  and picker != ''  ">#{picker},</if>
+            <if test="pickerCity != null  and pickerCity != ''  ">#{pickerCity},</if>
+            <if test="pickerPlace != null  and pickerPlace != ''  ">#{pickerPlace},</if>
+            <if test="pickerPhone != null  and pickerPhone != ''  ">#{pickerPhone},</if>
+
+            <if test="balanceWay != null  and balanceWay != ''  ">#{balanceWay},</if>
+            <if test="mchargedMileage != null">#{mchargedMileage},</if>
+            <if test="mtransportFee != null  ">#{mtransportFee},</if>
+            <if test="mpickFee != null  ">#{mpickFee},</if>
+            <if test="mpackFee != null  ">#{mpackFee},</if>
+            <if test="mreleaseFee != null  ">#{mreleaseFee},</if>
+            <if test="minsuranceFee != null  ">#{minsuranceFee},</if>
+            <if test="motherFee != null  ">#{motherFee},</if>
+            <if test="mtotalFee != null  ">#{mtotalFee},</if>
+            <if test="isInvoice != null  and isInvoice != ''  ">#{isInvoice},</if>
+            <if test="receiptCode != null  and receiptCode != ''  ">#{receiptCode},</if>
+            <if test="isSend != null  and isSend != ''  ">#{isSend},</if>
+            <if test="sendTruckDate != null ">#{sendTruckDate},</if>
+            <if test="driverId != null ">#{driverId},</if>
+
+
+            <if test="delFlag != null  and delFlag != ''  ">#{delFlag},</if>
+            <if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+            sysdate(),
+            <if test="updateBy != null  and updateBy != ''  ">#{updateBy},</if>
+            sysdate(),
+            <if test="mtenantId != null">#{mtenantId},</if>
+        </trim>
+    </insert>
+
+    <!--更新普货订单-->
+    <update id="updateCommonOrd" parameterType="com.zhkj.lc.order.model.entity.OrdCommonGoods">
+        update ord_common_goods
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="morderId != null  and morderId != ''  ">order_id = #{morderId},</if>
+            <if test="status != null  and status != ''  ">status = #{status},</if>
+            <if test="sendTruckDate != null  ">send_truck_date = #{sendTruckDate},</if>
+
+            <if test="customerId != null  and customerId != ''  ">customer_id = #{customerId},</if>
+            <if test="sendGoodsPlace != null  and sendGoodsPlace != ''  ">send_goods_place = #{sendGoodsPlace},</if>
+            <if test="sendGoodsDate != null ">send_goods_date = #{sendGoodsDate},</if>
+            <if test="pickGoodsPlace != null  and pickGoodsPlace != ''  ">pick_goods_place = #{pickGoodsPlace},</if>
+            <if test="pickGoodsDate != null  ">pick_goods_date = #{pickGoodsDate},</if>
+            <if test="pickGoodsWay != null  and pickGoodsWay != ''  ">pick_goods_way = #{pickGoodsWay},</if>
+            <if test="docOperator != null  and docOperator != ''  ">doc_operator = #{docOperator},</if>
+
+            <if test="shipper != null  and shipper != ''  ">shipper = #{shipper},</if>
+            <if test="shipperCity != null  and shipperCity != ''  ">shipper_city = #{shipperCity},</if>
+            <if test="shipperPlace != null  and shipperPlace != ''  ">shipper_place = #{shipperPlace},</if>
+            <if test="shipperPhone != null  and shipperPhone != ''  ">shipper_phone = #{shipperPhone},</if>
+
+            <if test="picker != null  and picker != ''  ">picker = #{picker},</if>
+            <if test="pickerCity != null  and pickerCity != ''  ">picker_city = #{pickerCity},</if>
+            <if test="pickerPlace != null  and pickerPlace != ''  ">picker_place = #{pickerPlace},</if>
+            <if test="pickerPhone != null  and pickerPhone != ''  ">picker_phone = #{pickerPhone},</if>
+
+            <if test="balanceWay != null  and balanceWay != ''  ">balance_way = #{balanceWay},</if>
+            <if test="mchargedMileage != null">charged_mileage = #{mchargedMileage},</if>
+            <if test="mtransportFee != null  ">transport_fee = #{mtransportFee},</if>
+            <if test="mpickFee != null  ">pick_fee = #{mpickFee},</if>
+            <if test="mpackFee != null  ">pack_fee = #{mpackFee},</if>
+            <if test="mreleaseFee != null  ">release_fee = #{mreleaseFee},</if>
+            <if test="minsuranceFee != null  ">insurance_fee = #{minsuranceFee},</if>
+            <if test="motherFee != null  ">other_fee = #{motherFee},</if>
+            <if test="mtotalFee != null  ">total_fee = #{mtotalFee},</if>
+            <if test="isInvoice != null  and isInvoice != ''  ">is_invoice = #{isInvoice},</if>
+            <if test="receiptCode != null  and receiptCode != ''  ">receipt_code = #{receiptCode},</if>
+            <if test="isSend != null  and isSend != ''  ">is_send = #{isSend},</if>
+            <if test="sendTruckDate != null ">send_truck_date = #{sendTruckDate},</if>
+            <if test="driverId!= null ">driver_id= #{driverId},</if>
+
+
+            <if test="delFlag != null  and delFlag != ''  ">del_flag = #{delFlag},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </trim>
+        where order_id = #{morderId}
+        <if test="mtenantId != null">and tenant_id = #{mtenantId}</if>
+    </update>
+
+    <!--普货订单调账-->
+    <update id="updateCommonOrder" parameterType="com.zhkj.lc.order.dto.ReceiveBillCommonGoods">
+        update ord_common_goods
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="orderId != null  and orderId != ''  ">order_id = #{orderId},</if>
+            <if test="chargedMileage != null">charged_mileage = #{chargedMileage},</if>
+            <if test="pickFee != null  ">pick_fee = #{pickFee},</if>
+            <if test="packFee != null  ">pack_fee = #{packFee},</if>
+            <if test="releaseFee != null  ">release_fee = #{releaseFee},</if>
+            update_time = sysdate()
+        </trim>
+        where order_id = #{orderId}
+    </update>
+
+    <update id="updateOrderBalanceStatus">
+        update ord_common_goods  set
+        balance_status = #{balanceStatus},update_time = #{updateTime}
+        where
+        order_id =  #{morderId}
+    </update>
+
+    <update id="updateCommonOrdAPP" parameterType="com.zhkj.lc.order.dto.PhOrdForUpd">
+        update ord_common_goods
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="status != null  and status != ''  ">status = #{status},</if>
+            <if test="sendTruckDate != null  ">send_truck_date = #{sendTruckDate},</if>
+            <if test="receiptCode != null  and receiptCode != ''  ">receipt_code = #{receiptCode},</if>
+            <if test="isSend != null  and isSend != ''  ">is_send = #{isSend},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </trim>
+        where order_id = #{orderId}
+    </update>
+<!--更新普货订单字段值(加入对账单)-->
+    <update id="updateByOrderIds">
+        UPDATE ord_common_goods
+        <trim prefix="SET" suffixOverrides=",">
+            is_add_to_bill = '1',
+            update_time = sysdate()
+        </trim>
+        <where>  and order_id in
+        <foreach item="orderId" collection="orderIds"  open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
+        </where>
+    </update>
+
+    <!--更新普货订单字段值(移除对账单)-->
+    <update id="updateBillByOrderIds">
+        UPDATE  ord_common_goods
+           SET  is_add_to_bill = '0',
+            update_time = sysdate(),
+            update_by = #{updateBy}
+        <where>  and order_id in
+        <foreach item="orderId" collection="orderIds"  open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
+        </where>
+    </update>
+    <!--查询司机正在运输的订单-->
+    <select id="selectOrderByDriverId" parameterType="String" resultType="com.zhkj.lc.order.dto.CommonOrdSearch">
+        select ocg.order_id orderId,ocg.status from ord_common_goods ocg
+        left join ord_common_truck oct on ocg.order_id = oct.order_id
+        <where>
+            del_flag ='0'
+            and status = '7'
+            <if test="driverId != null  and driverId != '' "> and oct.mdriver_id = #{driverId}</if>
+            <if test="mtenantId != null">and ocg.tenant_id = #{mtenantId}</if>
+        </where>
+    </select>
+
+    <!--外调：查询司机正在进行中的订单-->
+    <select id="selectOrderByDriverIdFeign" resultType="com.zhkj.lc.order.dto.CommonOrdSearch">
+        select ocg.order_id orderId,ocg.status from ord_common_goods ocg
+        left join ord_common_truck oct on ocg.order_id = oct.order_id
+        <where>
+            del_flag ='0'
+            and status not in ('0','7')
+            <if test="driverId != null  and driverId != '' "> and oct.mdriver_id = #{driverId}</if>
+            <if test="mtenantId != null">and ocg.tenant_id = #{mtenantId}</if>
+        </where>
+    </select>
+
+    <!--查询所有正在运输的订单的最新的运踪地点-->
+    <select id="selectOrder" resultMap="ordOrderLogisticsVo">
+        SELECT a.order_id,a.logistics_msg,a.logistics_address,a.driver_id,a.plate_number,a.order_status
+        FROM
+            (
+            SELECT
+                ool.order_id,ool.logistics_msg,ool.logistics_address,ool.logistics_time,oo.mdriver_id driver_id,oo.plate_number,ool.order_status
+            FROM
+                ord_order_logistics ool
+                LEFT JOIN ord_common_truck oo ON oo.order_id = ool.order_id
+            WHERE
+                ool.order_id IN (
+                SELECT order_id FROM ord_common_goods
+                WHERE
+                    del_flag = '0' AND tenant_id = #{mtenantId} AND STATUS IN ( '3', '4', '5', '6', '7', '8' )
+                )
+            ) a,
+            (
+            SELECT oo.order_id, max( ool.logistics_time ) logistics_time
+            FROM
+                ord_order_logistics ool
+                LEFT JOIN ord_common_truck oo ON oo.order_id = ool.order_id
+            WHERE
+                ool.order_id IN (
+                SELECT order_id FROM ord_common_goods
+                WHERE
+                    del_flag = '0' AND tenant_id = #{mtenantId} AND STATUS IN ( '3', '4', '5', '6', '7', '8' )
+                )
+            GROUP BY oo.order_id
+            ) b
+        WHERE
+            a.order_id = b.order_id
+            AND a.logistics_time = b.logistics_time
+    </select>
+
+    <!-- 统计某状态的普货订单总数 -->
+    <select id="countByGoodsOrderStatus" resultType="Integer">
+        SELECT COUNT(order_id)
+        FROM ord_common_goods
+        where del_flag = '0'
+        <if test="status != null and status != ''">
+            and status = #{status}
+        </if>
+        <if test="mtenantId != null ">
+            and tenant_id = #{mtenantId}
+        </if>
+    </select>
+
+    <!-- 微信公众号端搜索查询 -->
+    <select id="selectListForWX" resultMap="ResultMapForWXpublic" parameterType="com.zhkj.lc.order.dto.CommonOrdSearch">
+        SELECT
+        cg.order_id morderId,
+        cg.STATUS status,
+        cg.send_goods_place sendGoodsPlace,
+        cg.pick_goods_place pickGoodsPlace,
+        cg.receipt_code receiptCode
+        FROM
+        ord_common_goods cg
+        LEFT JOIN ord_order_logistics ol_receipt ON ol_receipt.order_id = cg.order_id
+        AND ol_receipt.order_status = '5'
+        LEFT JOIN ord_order_logistics ol_send ON ol_send.order_id = cg.order_id
+        AND ol_send.order_status = '7'
+        LEFT JOIN ord_order_logistics ol_received ON ol_received.order_id = cg.order_id
+        AND ol_received.order_status = '9'
+        where del_flag = '0'
+        <if test="statusArray != null and statusArray.length > 0">/*订单状态*/
+            and cg.status in
+            <foreach item="status" collection="statusArray" open="(" separator="," close=")">
+                #{status}
+            </foreach>
+        </if>
+        <if test="driverReceiptTime != null">/*司机接单时间*/
+            AND ol_receipt.logistics_time = #{driverReceiptTime}
+        </if>
+        <!--<if test="sendGoodsTime != null">/*提货时间*/-->
+            <!--AND ol_send.logistics_time = #{sendGoodsTime}-->
+        <!--</if>-->
+        <!--<if test="receivedTime != null">/*签收时间*/-->
+            <!--AND ol_received.logistics_time = #{receivedTime}-->
+        <!--</if>-->
+        <if test="orderId != null and orderId != ''">/*订单编号*/
+            AND cg.order_id= #{orderId}
+        </if>
+        <if test="pickerPhone != null and pickerPhone != ''">/*收货人手机号*/
+            AND cg.order_id in (
+            select order_id from ord_pickup_arrival_add where contacts_phone = #{pickerPhone} and add_type = '1'
+            <if test="receivedTime != null and receivedTime != ''">
+              AND order_id IN (
+                SELECT order_id FROM ord_pickup_arrival_add WHERE add_type = '1' AND DATE_FORMAT(success_time, '%Y-%m-%d') = #{receivedTime} GROUP BY order_id)
+            </if>
+            <if test="sendGoodsTime != null and sendGoodsTime != ''">
+                AND order_id IN (
+                SELECT order_id FROM ord_pickup_arrival_add WHERE add_type = '0' AND DATE_FORMAT(success_time, '%Y-%m-%d') = #{sendGoodsTime} GROUP BY order_id)
+            </if>
+            GROUP BY order_id
+            )
+        </if>
+        <if test="shipperPhone != null and shipperPhone != ''">/*fa货人手机号*/
+            AND cg.order_id in (
+            select order_id from ord_pickup_arrival_add where contacts_phone = #{shipperPhone} and add_type = '0'
+            <if test="receivedTime != null and receivedTime != ''">
+                AND order_id IN (
+                SELECT order_id FROM ord_pickup_arrival_add WHERE add_type = '1' AND DATE_FORMAT(success_time, '%Y-%m-%d') = #{receivedTime} GROUP BY order_id)
+            </if>
+            <if test="sendGoodsTime != null and sendGoodsTime != ''">
+                AND order_id IN (
+                SELECT order_id FROM ord_pickup_arrival_add WHERE add_type = '0' AND DATE_FORMAT(success_time, '%Y-%m-%d') = #{sendGoodsTime} GROUP BY order_id)
+            </if>
+            GROUP BY order_id
+            )
+        </if>
+        <if test="customerId != null and customerId != ''">/*微信公众端唯一标识*/
+            AND cg.customer_id = #{customerId}
+        </if>
+        and cg.tenant_id = #{tenantId}
+    </select>
+
+    <select id="selectByOrderIdForWX" resultMap="ResultMapForWXpublic" >
+        SELECT
+            id,
+            order_id morderId,
+            STATUS status,
+            send_goods_place sendGoodsPlace,
+            pick_goods_place pickGoodsPlace
+        FROM
+          ord_common_goods
+        where del_flag = '0' AND order_id= #{orderId}
+          and tenant_id = #{tenantId}
+    </select>
+
+    <!--七日内订单统计-->
+    <select id="countOrderNumber" resultType="java.lang.Integer">
+        select ifnull(b.count,0)
+        from
+        (
+        SELECT curdate() as click_date
+        union all
+        SELECT date_sub(curdate(), interval 1 day) as click_date
+        union all
+        SELECT date_sub(curdate(), interval 2 day) as click_date
+        union all
+        SELECT date_sub(curdate(), interval 3 day) as click_date
+        union all
+        SELECT date_sub(curdate(), interval 4 day) as click_date
+        union all
+        SELECT date_sub(curdate(), interval 5 day) as click_date
+        union all
+        SELECT date_sub(curdate(), interval 6 day) as click_date
+        ) a
+        left join (
+        select date(create_time) as datetime, count(*) as count
+        from ord_common_goods
+        where status &lt;&gt; '0' and del_flag = '0' and tenant_id = #{mtenantId}
+        group by date(create_time)
+        ) b on a.click_date = b.datetime
+        ORDER BY a.click_date
+    </select>
+
+    <!--七日内订单营业额-->
+    <select id="countMoney" resultType="java.math.BigDecimal">
+         select ifnull(b.total_fee,0)
+        from
+        (
+        SELECT curdate() as click_date
+        union all
+        SELECT date_sub(curdate(), interval 1 day) as click_date
+        union all
+        SELECT date_sub(curdate(), interval 2 day) as click_date
+        union all
+        SELECT date_sub(curdate(), interval 3 day) as click_date
+        union all
+        SELECT date_sub(curdate(), interval 4 day) as click_date
+        union all
+        SELECT date_sub(curdate(), interval 5 day) as click_date
+        union all
+        SELECT date_sub(curdate(), interval 6 day) as click_date
+        ) a
+        left join
+				(
+					SELECT sum(d.total_fee) as total_fee,d.datetime
+					from
+					(
+					select date(c.datetime) as datetime,c.receivables,
+					 c.pick_fee,
+					 c.pack_fee,
+					 c.balance_status,
+					 c.release_fee,c.insurance_fee,c.other_fee,
+					 (c.receivables+c.pick_fee+c.pack_fee+c.release_fee+c.insurance_fee+c.other_fee+c.exception_fee) as total_fee
+					from
+						(
+						select
+						date(ocg.update_time) as datetime,
+							IFNULL(ocg.transport_fee,0) as receivables,
+							IFNULL(ocg.pick_fee,0) as pick_fee,
+							IFNULL(ocg.pack_fee,0) as pack_fee,
+							IFNULL(ocg.release_fee,0) as release_fee,
+							IFNULL(ocg.insurance_fee,0) as insurance_fee,
+							IFNULL(ocg.other_fee,0) as other_fee,
+							ocg.balance_status,
+						IFNULL(( SELECT sum( exception_fee ) FROM ord_exception_fee oef WHERE oef.order_id = ocg.order_id AND oef.del_flag ='0' ),0) AS exception_fee
+						from ord_common_goods ocg
+						LEFT JOIN ord_exception_fee oef ON ocg.order_id = oef.order_id
+						 where ocg.del_flag = '0' and ocg.balance_status in ('2','3') and ocg.tenant_id = #{mtenantId}
+						 ) c
+
+					 )d
+					 GROUP BY d.datetime
+        ) b
+				on a.click_date = b.datetime
+        ORDER BY a.click_date
+    </select>
+
+    <!--查询司机当月订单数-->
+    <select id="selectCountByDriver" resultType="Integer">
+        select count(oo.id) from ord_common_goods oo
+        LEFT JOIN ord_order_logistics ool on ool.order_id = oo.order_id
+        LEFT JOIN ord_common_truck ot on ot.order_id = oo.order_id
+        where
+          oo.del_flag = '0'
+          and ot.mdriver_id = #{driverId}
+          and oo.tenant_id = #{tenantId}
+          and ool.order_status = '5'
+          and DATE_FORMAT(ool.logistics_time,'%Y%m')=DATE_FORMAT(CURDATE(),'%Y%m');
+
+    </select>
+
+    <select id="selectOrderPhoneByOrderId" resultType="com.zhkj.lc.order.model.entity.OrdCommonGoods">
+        select id, order_id as orderId, receipt_code receiptCode, shipper_phone shipperPhone, picker_phone pickerPhone
+        from ord_common_goods
+        where order_id = #{orderId} and tenant_id = #{tenantId}
+    </select>
+</mapper>

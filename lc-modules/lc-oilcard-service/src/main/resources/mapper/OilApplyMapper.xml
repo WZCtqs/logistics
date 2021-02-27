@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.oilcard.mapper.OilApplyMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zhkj.lc.oilcard.model.OilApply">
+        <id column="apply_id" property="applyId" />
+        <result column="truck_id" property="truckId" />
+        <result column="plate_number" property="plateNumber" />
+        <result column="truck_owner" property="truckOwner" />
+        <result column="attribute" property="attribute" />
+        <result column="truck_owner_phone" property="truckOwnerPhone" />
+        <result column="apply_date" property="applyDate" />
+        <result column="apply_card_type" property="applyCardType" />
+        <result column="owner_driver_id" property="ownerDriverId" />
+        <result column="driver_name" property="driverName" />
+        <result column="is_owner" property="isOwner" />
+        <result column="open_card_place" property="openCardPlace" />
+        <result column="truck_applied" property="truckApplied" />
+        <result column="apply_remark" property="applyRemark" />
+        <result column="is_passed" property="isPassed" />
+        <result column="is_passed_remark" property="isPassedRemark" />
+        <result column="major_id" property="majorId" />
+        <result column="major_number" property="majorNumber" />
+        <result column="oil_card_number" property="oilCardNumber" />
+        <result column="deposit" property="deposit" />
+        <result column="get_date" property="getDate" />
+        <result column="get_status" property="getStatus" />
+        <result column="del_flag" property="delFlag" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="tenant_id" property="tenantId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        apply_id AS applyId, truck_id AS truckId, apply_date AS applyDate, apply_card_type AS applyCardType, open_card_place AS openCardPlace, truck_applied AS truckApplied, apply_remark AS applyRemark, is_passed AS isPassed, is_passed_remark AS isPassedRemark, major_id AS majorId, oil_card_number AS oilCardNumber, deposit, get_date AS getDate, get_status AS getStatus, del_flag AS delFlag, create_by AS createBy, create_time AS createTime, update_by AS updateBy, update_time AS updateTime, tenant_id AS tenantId
+    </sql>
+
+    <sql id="selectApplyVo">
+        select apply_id, truck_id, apply_date, get_date, apply_card_type, owner_driver_id, open_card_place, truck_applied, apply_remark, is_passed,is_passed_remark, major_id, oil_card_number, deposit, get_status, del_flag, create_by, create_time, update_by, update_time, tenant_id from oil_apply
+    </sql>
+
+    <sql id="selectCardVoJoin">
+        select a.apply_id, a.truck_id, a.apply_date, a.get_date, a.apply_card_type, a.owner_driver_id, a.open_card_place, a.truck_applied, a.apply_remark, a.is_passed, a.is_passed_remark, a.major_id, a.oil_card_number, a.deposit, a.get_status, a.del_flag, a.create_by, a.create_time, a.update_by, a.update_time, a.tenant_id
+--         ,b.plate_number,b.truck_owner,b.attribute,b.truck_owner_phone
+--         , c.driver_name, c.is_owner
+        , d.major_number
+        from oil_apply AS a
+--         left join logistics_truckdb.tru_truck AS b on a.truck_id = b.truck_id and b.del_flag = '0'
+--         left join logistics_truckdb.tru_driver AS c on a.owner_driver_id = c.driver_id and c.del_flag = '0'
+        left join oil_major AS d on a.major_id = d.major_id
+    </sql>
+
+    <select id="selectApplyLisIds" resultMap="BaseResultMap">
+        <include refid="selectCardVoJoin"/>
+        where a.del_flag='0' and a.apply_id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        order by a.create_time desc
+    </select>
+
+    <select id="selectApplyList" resultMap="BaseResultMap">
+        <include refid="selectCardVoJoin"/>
+        <where>
+            <if test="applyId != null "> and apply_id = #{applyId}</if>
+            <if test="truckIds != null and truckIds.length > 0 "> and a.truck_id in
+                <foreach collection="truckIds" item="truckId" open="(" separator="," close=")">
+                    #{truckId}
+                </foreach>
+            </if>
+            <!--<if test="attribute != null and attribute != '' "> and b.attribute = #{attribute}</if>-->
+            <if test="applyDate != null "> and a.apply_date = #{applyDate}</if>
+            <!-- <if test="getDate != null "> and get_date = #{getDate}</if>-->
+            <if test="beginTime != null "><!-- 开始时间检索 -->
+                and date_format(a.get_date,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+            </if>
+            <if test="endTime != null "><!-- 结束时间检索 -->
+                and date_format(a.get_date,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+            </if>
+            <if test="applyCardType != null  and applyCardType != '' "> and a.apply_card_type = #{applyCardType}</if>
+            <if test="openCardPlace != null  and openCardPlace != '' "> and a.open_card_place = #{openCardPlace}</if>
+            <if test="truckApplied != null "> and a.truck_applied = #{truckApplied}</if>
+            <if test="applyRemark != null  and applyRemark != '' "> and a.apply_remark = #{applyRemark}</if>
+            <if test="ownerDriverId != null  "> and a.owner_driver_id = #{ownerDriverId}</if>
+            <if test="isPassed != null  and isPassed != '' "> and a.is_passed = #{isPassed}</if>
+            <if test="isPassedRemark != null  and isPassedRemark != '' "> and a.is_passed_remark = #{isPassedRemark}</if>
+            <if test="deposit != null "> and a.deposit = #{deposit}</if>
+            <if test="oilCardNumber != null  and oilCardNumber != '' "> and a.oil_card_number = #{oilCardNumber}</if>
+            <if test="majorId != null "> and a.major_id = #{majorId}</if>
+            <if test="getStatus != null  and getStatus != '' "> and a.get_status = #{getStatus}</if>
+            <if test="createBy != null  and createBy != '' "> and a.create_by = #{createBy}</if>
+            <if test="createTime != null "> and a.create_time = #{createTime}</if>
+            <if test="updateBy != null  and updateBy != '' "> and a.update_by = #{updateBy}</if>
+            <if test="updateTime != null "> and a.update_time = #{updateTime}</if>
+            <if test="tenantId != null "> and a.tenant_id = #{tenantId}</if>
+            and a.del_flag='0'
+        </where>
+        order by a.create_time desc
+    </select>
+
+    <select id="selectByApplyId" resultMap="BaseResultMap">
+        <include refid="selectCardVoJoin"/>
+        where a.apply_id = #{id} and a.del_flag='0'
+    </select>
+
+    <select id="selectByOilCardNumber" resultMap="BaseResultMap">
+        <include refid="selectApplyVo"/>
+        where del_flag='0' and oil_card_number = #{oilCardNumber} and tenant_id = #{tenantId}
+    </select>
+
+    <select id="selectOpenCardPlace" parameterType="Integer" resultType="String">
+        select DISTINCT open_card_place
+        from oil_apply
+        where del_flag='0'
+        <if test="tenantId != null "> and tenant_id = #{tenantId} </if>
+    </select>
+
+    <insert id="insertOilApply" parameterType="com.zhkj.lc.oilcard.model.OilApply">
+        insert into oil_apply
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="truckId != null  ">truck_id,</if>
+            apply_date,
+            <if test="getDate != null  ">get_date,</if>
+            <if test="applyCardType != null  and applyCardType != ''  ">apply_card_type,</if>
+            <if test="openCardPlace != null  and openCardPlace != ''  ">open_card_place,</if>
+            <if test="truckApplied != null  ">truck_applied,</if>
+            <if test="applyRemark != null  and applyRemark != ''  ">apply_remark,</if>
+            <if test="ownerDriverId != null  ">owner_driver_id,</if>
+            <if test="isPassed != null  and isPassed != ''  ">is_passed,</if>
+            <if test="isPassedRemark != null  and isPassedRemark != '' ">is_passed_remark,</if>
+            <if test="oilCardNumber != null  and oilCardNumber != '' ">oil_card_number,</if>
+            <if test="majorId != null ">major_id,</if>
+            <if test="deposit != null  ">deposit,</if>
+            <if test="getStatus != null  and getStatus != ''  ">get_status,</if>
+            <if test="delFlag != null  and delFlag != ''  ">del_flag,</if>
+            <if test="createBy != null  and createBy != ''  ">create_by,</if>
+            create_time,
+            <if test="tenantId != null "> tenant_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="applyId != null  ">#{applyId},</if>
+            <if test="truckId != null  ">#{truckId},</if>
+            sysdate(),
+            <if test="getDate != null  ">#{getDate},</if>
+            <if test="applyCardType != null  and applyCardType != ''  ">#{applyCardType},</if>
+            <if test="openCardPlace != null  and openCardPlace != ''  ">#{openCardPlace},</if>
+            <if test="truckApplied != null  ">#{truckApplied},</if>
+            <if test="applyRemark != null  and applyRemark != ''  ">#{applyRemark},</if>
+            <if test="ownerDriverId != null  ">#{ownerDriverId},</if>
+            <if test="isPassed != null  and isPassed != ''  ">#{isPassed},</if>
+            <if test="isPassedRemark != null  and isPassedRemark != '' ">#{isPassedRemark},</if>
+            <if test="oilCardNumber != null  and oilCardNumber != '' ">#{oilCardNumber},</if>
+            <if test="majorId != null ">#{majorId},</if>
+            <if test="deposit != null  ">#{deposit},</if>
+            <if test="getStatus != null  and getStatus != ''  ">#{getStatus},</if>
+            <if test="delFlag != null  and delFlag != ''  ">#{delFlag},</if>
+            <if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+            sysdate(),
+            <if test="tenantId != null "> #{tenantId},</if>
+        </trim>
+    </insert>
+
+    <update id="updateApply" parameterType="com.zhkj.lc.oilcard.model.OilApply">
+        update oil_apply
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="truckId != null  ">truck_id = #{truckId},</if>
+            <if test="applyDate != null  ">apply_date = #{applyDate},</if>
+            <if test="applyCardType != null  and applyCardType != ''  ">apply_card_type = #{applyCardType},</if>
+            <if test="openCardPlace != null  and openCardPlace != ''  ">open_card_place = #{openCardPlace},</if>
+            <if test="truckApplied != null  ">truck_applied = #{truckApplied},</if>
+            <if test="applyRemark != null  and applyRemark != ''  ">apply_remark = #{applyRemark},</if>
+            <if test="ownerDriverId != null  ">owner_driver_id = #{ownerDriverId},</if>
+            <if test="isPassed != null  and isPassed != ''  ">is_passed = #{isPassed},</if>
+            <if test="isPassedRemark != null  and isPassedRemark != '' ">is_passed_remark = #{isPassedRemark},</if>
+            <if test="oilCardNumber != null  and oilCardNumber != '' "> oil_card_number = #{oilCardNumber},</if>
+            <if test="majorId != null ">major_id = #{majorId},</if>
+            <if test="deposit != null ">deposit = #{deposit},</if>
+            <if test="getDate != null ">get_date = #{getDate},</if>
+            <if test="getStatus != null and getStatus != '' ">get_status = #{getStatus},</if>
+            <if test="delFlag != null  and delFlag != ''  ">del_flag = #{delFlag},</if>
+            <if test="createBy != null  and createBy != ''  ">create_by = #{createBy},</if>
+            <if test="createTime != null  ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            update_time = sysdate(),
+            <if test="tenantId != null "> tenant_id = #{tenantId},</if>
+        </trim>
+        where apply_id = #{applyId}
+    </update>
+
+    <update id="deleteApplyByIds" parameterType="String">
+        update oil_apply
+        set del_flag=#{delFlag}, update_time=sysdate()
+        <if test="updateBy != null  and updateBy != ''  ">,update_by = #{updateBy}</if>
+        where del_flag = '0'
+        <if test="applyIds != null and applyIds.length > 0 " > and apply_id in
+            <foreach item="applyId" collection="applyIds" open="(" separator="," close=")">
+                #{applyId}
+            </foreach>
+        </if>
+    </update>
+
+</mapper>

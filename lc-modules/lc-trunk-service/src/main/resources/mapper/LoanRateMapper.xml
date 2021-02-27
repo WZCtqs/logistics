@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.trunk.mapper.LoanRateMapper">
+    <resultMap id="BaseResult" type="com.zhkj.lc.trunk.model.LoanRate">
+        <id column="rate_id" property="rateId"/>
+        <result column="rate" property="rate"/>
+        <result column="label" property="label"/>
+        <result column="sort" property="sort"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="remarks" property="remarks"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="tenant_id" property="tenantId"/>
+    </resultMap>
+
+    <insert id="insertRate" parameterType="com.zhkj.lc.trunk.model.LoanRate" >
+        insert into loan_rate (rate,label,sort,create_time,update_time,remarks,del_flag,tenant_id)
+        values
+        <foreach collection="list" index="index" item="item" separator=",">
+            (#{item.rate},#{item.label},#{item.sort},sysdate(),sysdate(),#{item.remarks},'0',#{item.tenantId})
+        </foreach>
+    </insert>
+
+    <select id="selectAllBytenantId" parameterType="Integer" resultMap="BaseResult">
+        SELECT rate_id,rate,label,sort,create_time,update_time,remarks,del_flag,tenant_id
+        FROM loan_rate
+        WHERE tenant_id = #{tenantId} AND del_flag = '0'
+        ORDER BY sort
+    </select>
+
+    <select id="selectById" parameterType="Integer" resultMap="BaseResult">
+        SELECT rate_id,rate,label,sort,create_time,update_time,remarks,del_flag,tenant_id
+        FROM loan_rate
+        WHERE rate_id = #{rateId} AND del_flag = '0'
+    </select>
+
+    <!-- 修改利率值 -->
+    <update id="updateById" parameterType="com.zhkj.lc.trunk.model.LoanRate">
+        update loan_rate
+        set
+          <if test="rate != null ">rate = #{rate}</if>
+        where rate_id = #{rateId}
+    </update>
+
+    <select id="selectByWay" resultMap="BaseResult">
+        SELECT rate_id,rate,label,sort,create_time,update_time,remarks,del_flag,tenant_id
+        FROM loan_rate
+        WHERE label = #{label} AND tenant_id = #{tenantId} AND del_flag = '0'
+    </select>
+
+
+</mapper>

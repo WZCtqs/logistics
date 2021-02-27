@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.trunk.mapper.AnnouncementMapper">
+
+    <resultMap id="AnnouncementResultMap" type="com.zhkj.lc.trunk.model.Announcement">
+        <result column="announcement_id" property="announcementId" />
+        <result column="title" property="title" />
+        <result column="content" property="content" />
+        <result column="type" property="type" />
+        <result column="driver_ower_id" property="driverOwerId" />
+        <result column="truck_own_id" property="truckOwnId" />
+        <result column="driver_name" property="driverName" />
+        <result column="checkout" property="checkout" />
+
+        <result column="del_flag" property="delFlag" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="remarks" property="remarks" />
+        <result column="tenant_id" property="tenantId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        announcement_id AS announcementId, title, content, type, driver_ower_id AS driverOwerId,truck_own_id AS truckOwnId, checkout, del_flag AS delFlag, create_by AS createBy, create_time AS createTime, update_by AS updateBy, update_time AS updateTime, remarks, tenant_id AS tenantId
+    </sql>
+
+    <sql id="selectVo">
+        select announcement_id, title, content, type, driver_ower_id, truck_own_id,checkout, del_flag, create_by, create_time, update_by, update_time, remarks, tenant_id
+        from announcement
+    </sql>
+
+    <sql id="selectVoJoin">
+        select a.announcement_id,
+         a.title,
+         a.content,
+         a.type,
+         a.driver_ower_id,
+         a.checkout,
+         a.del_flag,
+         a.create_by,
+         a.create_time,
+         a.update_by,
+         a.update_time,
+         a.remarks,
+         a.tenant_id,
+         c.driver_name
+        from announcement AS a
+        left join tru_driver AS c on a.driver_ower_id = c.driver_id and c.del_flag = '0'
+    </sql>
+
+    <select id="selectTop3" resultMap="AnnouncementResultMap">
+        <include refid="selectVo"/>
+        where
+            del_flag = '0' and (type = '0' or type = '1')
+            <if test="driverOwerId != null"> and  ((driver_ower_id is null) or driver_ower_id = #{driverOwerId})</if>
+            <if test="driverOwerId == null"> and  driver_ower_id is null </if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId} </if>
+        ORDER BY update_time DESC LIMIT 3
+    </select>
+
+    <select id="selectAllDriverOwer" resultMap="AnnouncementResultMap">
+        <include refid="selectVoJoin"/>
+        where
+            a.del_flag = '0' and (a.type = '0' or a.type = '1')
+            <if test="driverOwerId != null"> and  ((a.driver_ower_id is null) or a.driver_ower_id = #{driverOwerId})</if>
+            <if test="driverOwerId == null"> and  a.driver_ower_id is null </if>
+            <if test="announcementId != null"> and a.announcement_id = #{announcementId}</if>
+            <if test="content != null and content != '' "> and a.content = #{content}</if>
+            <if test="type != null and type != '' "> and a.type = #{type}</if>
+            <if test="checkout != null and checkout != '' "> and a.checkout = #{checkout}</if>
+            <if test="tenantId != null "> and a.tenant_id = #{tenantId} </if>
+        ORDER BY a.update_time DESC
+    </select>
+
+    <select id="selectDriverOwerCount" resultType="Integer">
+        select count(announcement_id)
+        from announcement
+        where
+        del_flag = '0' and checkout = '1' and (type = '0' or type = '1')
+        <if test="driverOwerId != null"> and  ((driver_ower_id is null) or driver_ower_id = #{driverOwerId})</if>
+        <if test="driverOwerId == null"> and  driver_ower_id is null </if>
+        <if test="tenantId != null "> and tenant_id = #{tenantId} </if>
+
+    </select>
+    <select id="selectDriverOwerCheckout" resultType="String">
+        select announcement_id
+        from announcement
+        where
+        del_flag = '0' and checkout = '1' and (type = '0' or type = '1')
+        <if test="driverOwerId != null"> and  ((driver_ower_id is null) or driver_ower_id = #{driverOwerId})</if>
+        <if test="driverOwerId == null"> and  driver_ower_id is null </if>
+        <if test="tenantId != null "> and tenant_id = #{tenantId} </if>
+    </select>
+
+    <select id="selectAll" resultMap="AnnouncementResultMap">
+        <include refid="selectVoJoin"/>
+        where
+        a.del_flag = '0'
+        <if test="driverOwerId != null"> and  a.driver_ower_id = #{driverOwerId}</if>
+        <if test="announcementId != null"> and a.announcement_id = #{announcementId}</if>
+        <if test="title != null and title != '' "> and a.title like "%"#{title}"%" </if>
+        <if test="content != null and content != '' "> and a.content like "%"#{content}"%" </if>
+        <if test="type != null and type != '' "> and a.type = #{type}</if>
+        <if test="checkout != null and checkout != '' "> and a.checkout = #{checkout}</if>
+        <if test="tenantId != null "> and a.tenant_id = #{tenantId} </if>
+        ORDER BY a.update_time DESC
+    </select>
+
+    <select id="selectAllLimit20" resultMap="AnnouncementResultMap">
+        <include refid="selectVoJoin"/>
+        where
+        a.del_flag = '0'
+        <if test="driverOwerId != null"> and  a.driver_ower_id = #{driverOwerId}</if>
+        <if test="announcementId != null"> and a.announcement_id = #{announcementId}</if>
+        <if test="title != null and title != '' "> and a.title like "%"#{title}"%" </if>
+        <if test="content != null and content != '' "> and a.content like "%"#{content}"%" </if>
+        <if test="type != null and type != '' "> and a.type = #{type}</if>
+        <if test="checkout != null and checkout != '' "> and a.checkout = #{checkout}</if>
+        <if test="tenantId != null "> and a.tenant_id = #{tenantId} </if>
+        ORDER BY a.update_time DESC limit 20
+    </select>
+
+    <insert id="insertAnnouncement" parameterType="com.zhkj.lc.trunk.model.Announcement">
+        insert into announcement
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="title != null  and title != ''  ">title,</if>
+            <if test="content != null  and content != ''  ">content,</if>
+            <if test="type != null  and type != ''  ">type,</if>
+            <if test="driverOwerId != null "> driver_ower_id,</if>
+            <if test="checkout != null and checkout != '' ">checkout,</if>
+            <if test="delFlag != null  and delFlag != ''  ">del_flag,</if>
+            <if test="createBy != null  and createBy != ''  ">create_by,</if>
+            create_time,
+            update_time,
+            <if test="remarks != null  and remarks != '' ">remarks,</if>
+            <if test="tenantId != null "> tenant_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="title != null  and title != ''  ">#{title},</if>
+            <if test="content != null  and content != ''  ">#{content},</if>
+            <if test="type != null  and type != ''  ">#{type},</if>
+            <if test="driverOwerId != null ">#{driverOwerId},</if>
+            <if test="checkout != null and checkout != '' ">#{checkout},</if>
+            <if test="delFlag != null  and delFlag != ''  ">#{delFlag},</if>
+            <if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+            sysdate(),
+            sysdate(),
+            <if test="remarks != null  and remarks != '' ">#{remarks},</if>
+            <if test="tenantId != null "> #{tenantId},</if>
+        </trim>
+    </insert>
+
+    <update id="updateAnnouncementById" parameterType="com.zhkj.lc.trunk.model.Announcement">
+        update announcement
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="title != null  and title != ''  ">title = #{title},</if>
+            <if test="content != null  and content != ''  ">content = #{content},</if>
+            <if test="type != null  and type != ''  ">type = #{type},</if>
+            <if test="driverOwerId != null ">driver_ower_id = #{driverOwerId},</if>
+            <if test="checkout != null and checkout != '' ">checkout = #{checkout},</if>
+            <if test="delFlag != null  and delFlag != ''  ">del_flag = #{delFlag},</if>
+            <if test="createBy != null  and createBy != ''  ">create_by = #{createBy},</if>
+            <if test="createTime != null  ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            update_time = sysdate(),
+            <if test="remarks != null  and remarks != '' ">remarks = #{remarks},</if>
+            <if test="tenantId != null "> tenant_id = #{tenantId},</if>
+        </trim>
+        where announcement_id = #{announcementId}
+    </update>
+
+    <update id="deleteByIds" parameterType="String">
+        update announcement
+        set del_flag = #{delFlag}, update_time = sysdate()
+        <if test="updateBy != null  and updateBy != ''  ">,update_by = #{updateBy}</if>
+        where del_flag = '0' and announcement_id in
+        <foreach item="announcementId" collection="announcementIds" open="(" separator="," close=")">
+            #{announcementId}
+        </foreach>
+    </update>
+
+    <update id="updateCheckoutById" >
+        update announcement
+        set checkout = '0', update_time = sysdate()
+        <if test="updateBy != null  and updateBy != ''  ">, update_by = #{updateBy}</if>
+        where del_flag = '0' and checkout='1' and (type = '0' or type = '1')
+        <if test="driverOwerId != null"> and  ((driver_ower_id is null) or driver_ower_id = #{driverOwerId})</if>
+        <if test="driverOwerId == null"> and  driver_ower_id is null </if>
+         and announcement_id in
+        <foreach item="announcementId" collection="announcementIds" open="(" separator="," close=")">
+            #{announcementId}
+        </foreach>
+    </update>
+
+    <update id="update2CheckedById" >
+        update announcement
+        set checkout = '0', update_time = sysdate()
+        <if test="updateBy != null  and updateBy != ''  ">, update_by = #{updateBy}</if>
+        where del_flag = '0' and checkout='1' and type = '2' and  driver_ower_id is null
+        and announcement_id in
+        <foreach item="announcementId" collection="announcementIds" open="(" separator="," close=")">
+            #{announcementId}
+        </foreach>
+    </update>
+
+    <select id="selectTruckOwnAnnouncement" resultMap="AnnouncementResultMap">
+        select a.announcement_id,
+        a.title,
+        a.content,
+        a.truck_own_id,
+        a.checkout,
+        a.create_by,
+        a.create_time,
+        a.update_by,
+        a.update_time,
+        a.remarks,
+        a.tenant_id
+        from announcement AS a
+        where
+        a.del_flag = '0'
+        <if test="truckOwnId != null"> and  a.truck_own_id = #{truckOwnId}</if>
+        <if test="tenantId != null "> and a.tenant_id = #{tenantId} </if>
+        ORDER BY a.update_time DESC
+    </select>
+
+    <select id="selectTruckOwnCount" resultType="Integer">
+        select count(announcement_id)
+        from announcement
+        where
+        del_flag = '0' and checkout = '1' and (type = '0' or type = '1')
+        and truck_own_id = #{truckOwnId} and tenant_id = #{tenantId}
+    </select>
+
+</mapper>

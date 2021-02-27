@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.order.mapper.OrdOrderFileMapper">
+
+    <resultMap type="OrdOrderFile" id="OrderFileResult">
+        <result property="orderId"    column="order_id"    />
+        <result property="sendTruckFile"    column="send_truck_file"    />
+        <result property="pickupCnFile"    column="pickup_cn_file"    />
+        <result property="officialSeal"    column="official_seal"    />
+        <result property="pickupCnNewfile"    column="pickup_cn_newfile"    />
+        <result property="fileA"    column="file_a"    />
+        <result property="fileB"    column="file_b"    />
+        <result property="fileC"    column="file_c"    />
+        <result property="fileD"    column="file_d"    />
+        <result property="fileE"    column="file_e"    />
+        <result property="fileF"    column="file_f"    />
+        <result property="fileG"    column="file_g"    />
+        <result property="fileH"    column="file_h"    />
+        <result property="fileI"    column="file_i"    />
+        <result property="fileJ"    column="file_j"    />
+        <result property="tenantId"    column="tenant_id"    />
+    </resultMap>
+
+    <sql id="selectOrderFileVo">
+        select order_id, send_truck_file, pickup_cn_file, official_seal, pickup_cn_newfile, file_a, file_b, file_c, file_d, file_e, file_f, file_g, file_h, file_i, file_j, tenant_id from ord_order_file
+    </sql>
+
+    <select id="selectOrderFileList" parameterType="OrdOrderFile" resultMap="OrderFileResult">
+        <include refid="selectOrderFileVo"/>
+        <where>
+            <if test="orderId != null"> and order_id = #{orderId}</if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+        </where>
+    </select>
+
+    <select id="selectOrderFileById" resultMap="OrderFileResult">
+        <include refid="selectOrderFileVo"/>
+        where order_id = #{orderId}
+    </select>
+
+    <insert id="insertOrderFile" parameterType="OrdOrderFile">
+        insert into ord_order_file
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orderId != null">order_id,</if>
+            <if test="sendTruckFile != null  and sendTruckFile != ''  ">send_truck_file,</if>
+            <if test="pickupCnFile != null  and pickupCnFile != ''  ">pickup_cn_file,</if>
+            <if test="officialSeal != null  and officialSeal != ''  ">official_seal,</if>
+            <if test="pickupCnNewfile != null  and pickupCnNewfile != ''  ">pickup_cn_newfile,</if>
+            <if test="fileA != null  and fileA != ''  ">file_a,</if>
+            <if test="fileB != null  and fileB != ''  ">file_b,</if>
+            <if test="fileC != null  and fileC != ''  ">file_c,</if>
+            <if test="fileD != null  and fileD != ''  ">file_d,</if>
+            <if test="fileE != null  and fileE != ''  ">file_e,</if>
+            <if test="fileF != null  and fileF != ''  ">file_f,</if>
+            <if test="fileG != null  and fileG != ''  ">file_g,</if>
+            <if test="fileH != null  and fileH != ''  ">file_h,</if>
+            <if test="fileI != null  and fileI != ''  ">file_i,</if>
+            <if test="fileJ != null  and fileJ != ''  ">file_j,</if>
+            <if test="tenantId != null  ">tenant_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orderId != null">#{orderId},</if>
+            <if test="sendTruckFile != null  and sendTruckFile != ''  ">#{sendTruckFile},</if>
+            <if test="pickupCnFile != null  and pickupCnFile != ''  ">#{pickupCnFile},</if>
+            <if test="officialSeal != null  and officialSeal != ''  ">#{officialSeal},</if>
+            <if test="pickupCnNewfile != null  and pickupCnNewfile != ''  ">#{pickupCnNewfile},</if>
+            <if test="fileA != null  and fileA != ''  ">#{fileA},</if>
+            <if test="fileB != null  and fileB != ''  ">#{fileB},</if>
+            <if test="fileC != null  and fileC != ''  ">#{fileC},</if>
+            <if test="fileD != null  and fileD != ''  ">#{fileD},</if>
+            <if test="fileE != null  and fileE != ''  ">#{fileE},</if>
+            <if test="fileF != null  and fileF != ''  ">#{fileF},</if>
+            <if test="fileG != null  and fileG != ''  ">#{fileG},</if>
+            <if test="fileH != null  and fileH != ''  ">#{fileH},</if>
+            <if test="fileI != null  and fileI != ''  ">#{fileI},</if>
+            <if test="fileJ != null  and fileJ != ''  ">#{fileJ},</if>
+            <if test="tenantId != null  ">#{tenantId},</if>
+        </trim>
+    </insert>
+
+    <update id="updateOrderFile" parameterType="OrdOrderFile">
+        update ord_order_file
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="sendTruckFile != null  and sendTruckFile != ''  ">send_truck_file = #{sendTruckFile},</if>
+            <if test="pickupCnFile != null  and pickupCnFile != ''  ">pickup_cn_file = #{pickupCnFile},</if>
+            <if test="officialSeal != null  and officialSeal != ''  ">official_seal = #{officialSeal},</if>
+            <if test="pickupCnNewfile != null  and pickupCnNewfile != ''  ">pickup_cn_newfile = #{pickupCnNewfile},</if>
+            <if test="fileA != null  and fileA != ''  ">file_a = #{fileA},</if>
+            <if test="fileB != null  and fileB != ''  ">file_b = #{fileB},</if>
+            <if test="fileC != null  and fileC != ''  ">file_c = #{fileC},</if>
+            <if test="fileD != null  and fileD != ''  ">file_d = #{fileD},</if>
+            <if test="fileE != null  and fileE != ''  ">file_e = #{fileE},</if>
+            <if test="fileF != null  and fileF != ''  ">file_f = #{fileF},</if>
+            <if test="fileG != null  and fileG != ''  ">file_g = #{fileG},</if>
+            <if test="fileH != null  and fileH != ''  ">file_h = #{fileH},</if>
+            <if test="fileI != null  and fileI != ''  ">file_i = #{fileI},</if>
+            <if test="fileJ != null  and fileJ != ''  ">file_j = #{fileJ},</if>
+            <if test="tenantId != null  ">tenant_id = #{tenantId},</if>
+        </trim>
+        where order_id = #{orderId}
+    </update>
+
+    <delete id="deleteByOrderId">
+        delete from ord_order_file where order_id = #{orderId} and tenant_id = #{tenantId}
+    </delete>
+</mapper>

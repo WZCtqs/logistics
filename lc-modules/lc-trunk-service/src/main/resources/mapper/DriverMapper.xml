@@ -1,0 +1,696 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.trunk.mapper.TruDriverMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zhkj.lc.trunk.model.TruDriver">
+        <id column="driver_id" property="driverId"/>
+        <result column="truck_team_id" property="truckTeamId"/>
+        <result column="driver_name" property="driverName"/>
+        <result column="wx_photo" property="wxPhoto"/>
+        <result column="wx_name" property="wxName"/>
+        <result column="status" property="status"/>
+        <result column="is_owner" property="isOwner"/>
+        <result column="driver_age" property="driverAge"/>
+        <result column="idcard_number" property="idcardNumber"/>
+        <result column="idcard_photo_up" property="idcardPhotoUp"/>
+        <result column="idcard_photo_down" property="idcardPhotoDown"/>
+        <result column="phone" property="phone"/>
+        <result column="urgent_phone" property="urgentPhone"/>
+        <result column="license_level" property="licenseLevel"/>
+        <result column="drive_years" property="driveYears"/>
+        <result column="license_photo" property="licensePhoto"/>
+        <result column="qualification" property="qualification"/>
+        <result column="licenseLevel_time" property="licenseLevelTime"/>
+        <result column="licenseLevel_status" property="licenseLevelStatus"/>
+        <result column="qualification_time" property="qualificationTime"/>
+        <result column="qualification_status" property="qualificationStatus"/>
+        <result column="deposit_bank" property="depositBank"/>
+        <result column="bank_number" property="bankNumber"/>
+        <result column="plate_id" property="plateId"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="remark" property="remark"/>
+        <result column="tenant_id" property="tenantId"/>
+        <result column="xopen_id" property="xopenId"/>
+        <result column="gopen_id" property="gopenId"/>
+        <result column="freight_oilcard_amount" property="freightOilcardAmount"/>
+        <association property="payWay" column="plate_id" select="com.zhkj.lc.trunk.mapper.TruTruckMapper.selectPayTypeForFegin"/>
+        <association property="truTruck" column="plate_id" select="com.zhkj.lc.trunk.mapper.TruTruckMapper.selectTruckByDriverPlateId"/>
+        <!--<collection property="truTruck" ofType="com.zhkj.lc.trunk.model.TruTruck">
+            <id column="truck_id" property="truckId"/>
+            <result column="driver_id" property="driverId"/>
+            <result column="truck_owner_id" property="truckOwnerId"/>
+            <result column="truck_team_id" property="truckTeamId"/>
+            <result column="plate_number" property="plateNumber"/>
+            <result column="car_length" property="carLength"/>
+            <result column="car_weight" property="carWeight"/>
+            <result column="carry_capacity" property="carryCapacity"/>
+            <result column="type" property="type"/>
+            <result column="truck_owner" property="truckOwner"/>
+            <result column="truck_owner_phone" property="truckOwnerPhone"/>
+            <result column="deposit_bank" property="depositBank"/>
+            <result column="truck_card_number" property="truckCardNumber"/>
+            <result column="carframe_number" property="carframeNumber"/>
+            <result column="operation_number" property="operationNumber"/>
+            <result column="invoice_number" property="invoiceNumber"/>
+            <result column="policy_no" property="policyNo"/>
+            <result column="brand_no" property="brandNo"/>
+            <result column="attribute" property="attribute"/>
+            <result column="car_attribute" property="carAttribute"/>
+            <result column="engine_number" property="engineNumber"/>
+            <result column="driving_license" property="drivingLicense"/>
+            <result column="is_supervise" property="isSupervise"/>
+        </collection>-->
+    </resultMap>
+
+    <resultMap id="DriverfreightRouteListResultMap" type="com.zhkj.lc.trunk.model.TruDriver">
+        <id column="driver_id" property="driverId"/>
+        <result column="truck_team_id" property="truckTeamId"/>
+        <result column="driver_name" property="driverName"/>
+        <result column="wx_photo" property="wxPhoto"/>
+        <result column="wx_name" property="wxName"/>
+        <result column="status" property="status"/>
+        <result column="is_owner" property="isOwner"/>
+        <result column="driver_age" property="driverAge"/>
+        <result column="idcard_number" property="idcardNumber"/>
+        <result column="idcard_photo_up" property="idcardPhotoUp"/>
+        <result column="idcard_photo_down" property="idcardPhotoDown"/>
+        <result column="phone" property="phone"/>
+        <result column="urgent_phone" property="urgentPhone"/>
+        <result column="license_level" property="licenseLevel"/>
+        <result column="drive_years" property="driveYears"/>
+        <result column="license_photo" property="licensePhoto"/>
+        <result column="qualification" property="qualification"/>
+        <result column="licenseLevel_time" property="licenseLevelTime"/>
+        <result column="licenseLevel_status" property="licenseLevelStatus"/>
+        <result column="qualification_time" property="qualificationTime"/>
+        <result column="qualification_status" property="qualificationStatus"/>
+        <result column="deposit_bank" property="depositBank"/>
+        <result column="bank_number" property="bankNumber"/>
+        <result column="plate_id" property="plateId"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="remark" property="remark"/>
+        <result column="tenant_id" property="tenantId"/>
+        <result column="xopen_id" property="xopenId"/>
+        <result column="gopen_id" property="gopenId"/>
+        <result column="freight_oilcard_amount" property="freightOilcardAmount"/>
+        <association property="truTruck"  column="plate_id" select="com.zhkj.lc.trunk.mapper.TruTruckMapper.selectTruckByDriverPlateId"/>
+        <collection property="freightRouteList"  column="driver_id" select="com.zhkj.lc.trunk.mapper.FreightRouteMapper.selectByDriverId"/>
+    </resultMap>
+
+    <resultMap id="BaseResultDriver" type="com.zhkj.lc.trunk.model.TruDriver">
+        <id column="driver_id" property="driverId"/>
+        <result column="truck_team_id" property="truckTeamId"/>
+        <result column="driver_name" property="driverName"/>
+        <result column="wx_photo" property="wxPhoto"/>
+        <result column="wx_name" property="wxName"/>
+        <result column="status" property="status"/>
+        <result column="is_owner" property="isOwner"/>
+        <result column="driver_age" property="driverAge"/>
+        <result column="idcard_number" property="idcardNumber"/>
+        <result column="idcard_photo_up" property="idcardPhotoUp"/>
+        <result column="idcard_photo_down" property="idcardPhotoDown"/>
+        <result column="phone" property="phone"/>
+        <result column="urgent_phone" property="urgentPhone"/>
+        <result column="license_level" property="licenseLevel"/>
+        <result column="drive_years" property="driveYears"/>
+        <result column="license_photo" property="licensePhoto"/>
+        <result column="qualification" property="qualification"/>
+        <result column="licenseLevel_time" property="licenseLevelTime"/>
+        <result column="licenseLevel_status" property="licenseLevelStatus"/>
+        <result column="qualification_time" property="qualificationTime"/>
+        <result column="qualification_status" property="qualificationStatus"/>
+        <result column="deposit_bank" property="depositBank"/>
+        <result column="bank_number" property="bankNumber"/>
+        <result column="plate_id" property="plateId"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="remark" property="remark"/>
+        <result column="tenant_id" property="tenantId"/>
+        <result column="xopen_id" property="xopenId"/>
+        <result column="gopen_id" property="gopenId"/>
+        <result column="freight_oilcard_amount" property="freightOilcardAmount"/>
+    </resultMap>
+
+    <resultMap id="DriverTruckMap" type="com.zhkj.lc.trunk.model.DriverTruck">
+        <id column="driver_id" property="driverId"/>
+        <result column="driver_name" property="driverName"/>
+        <result column="status" property="status"/>
+        <result column="is_owner" property="isOwner"/>
+        <result column="driver_age" property="driverAge"/>
+        <result column="idcard_number" property="idcardNumber"/>
+        <result column="idcard_photo_up" property="idcardPhotoUp"/>
+        <result column="idcard_photo_down" property="idcardPhotoDown"/>
+        <result column="phone" property="phone"/>
+        <result column="urgent_phone" property="urgentPhone"/>
+        <result column="license_level" property="licenseLevel"/>
+        <result column="drive_years" property="driveYears"/>
+        <result column="license_photo" property="licensePhoto"/>
+        <result column="qualification" property="qualification"/>
+        <result column="licenseLevel_time" property="licenseLevelTime"/>
+        <result column="licenseLevel_status" property="licenseLevelStatus"/>
+        <result column="qualification_time" property="qualificationTime"/>
+        <result column="qualification_status" property="qualificationStatus"/>
+        <result column="deposit_bank" property="depositBank"/>
+        <result column="bank_number" property="bankNumber"/>
+        <result column="plate_id" property="plateId"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="remark" property="remark"/>
+        <result column="tenant_id" property="tenantId"/>
+        <result column="truck_id" property="truckId"/>
+        <result column="plate_number" property="plateNumber"/>
+        <result column="truck_owner" property="truckOwner"/>
+        <result column="truck_owner_phone" property="truckOwnerPhone"/>
+        <result column="freight_oilcard_amount" property="freightOilcardAmount"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        driver_id AS driverId,truck_team_id AS truckTeamId, driver_name AS driverName,wx_photo AS wxPhoto,wx_name AS wxName, status, is_owner AS isOwner, driver_age AS driverAge,
+         idcard_number AS idcardNumber, idcard_photo_up AS idcardPhotoUp, idcard_photo_down AS idcardPhotoDown, phone,urgent_phone AS urgentPhone,
+         license_level AS licenseLevel, drive_years AS driveYears, license_photo AS licensePhoto, qualification,licenseLevel_time AS licenseLevelTime,
+         licenseLevel_status AS licenseLevelStatus,qualification_time AS qualificationTime,qualification_status AS qualificationStatus,
+         deposit_bank AS depositBank, bank_number AS bankNumber, plate_id AS plateId, del_flag AS delFlag, create_by AS createBy,
+         create_time AS createTime, update_by AS updateBy, update_time AS updateTime, remark, tenant_id AS tenantId, xopen_id AS xopenId,gopen_id AS gopenId, freight_oilcard_amount AS freightOilcardAmount
+    </sql>
+
+    <sql id="Base_Column">
+    select
+        a.driver_id, t.truck_team_id, a.driver_name, a.wx_photo,a.wx_name, a.status, a.is_owner, a.driver_age, a.idcard_number, a.idcard_photo_up, a.idcard_photo_down,
+        a.phone, a.urgent_phone, a.license_level, a.drive_years, a.license_photo, a.qualification, a.licenseLevel_time, a.licenseLevel_status,
+        a.qualification_time, a.qualification_status, a.deposit_bank, a.bank_number, a.plate_id, a.del_flag, a.create_by, a.create_time ,
+        a.update_by, a.update_time, a.remark, a.tenant_id, a.xopen_id, a.gopen_id, a.freight_oilcard_amount
+    from tru_driver a
+    left join tru_truck tt on a.plate_id = tt.truck_id
+    left join tru_truck_team t on tt.truck_team_id = t.truck_team_id
+    </sql>
+
+    <sql id="ZF_Driver_Column">
+       select driver_id ,driver_name ,phone from tru_driver
+    </sql>
+
+    <select id="selectDriverById" parameterType="Integer" resultMap="BaseResultMap">
+        <include refid="Base_Column"/>
+        <where>
+            <if test="driverId != null ">and a.driver_id = #{driverId}</if>
+            and a.del_flag = '0'
+        </where>
+    </select>
+
+    <select id="selectAllDriverByTenantId" resultMap="BaseResultMap">
+        <include refid="Base_Column"/>
+        <where>
+            <if test="driverId != null "> and a.driver_id = #{driverId}</if>
+            <if test="phone != null "> and a.phone = #{phone}</if>
+            <if test="status != null and status!='' "> and a.status = #{status}</if>
+            <if test="driverName != null  and driverName != '' "> and a.driver_name = #{driverName}</if>
+            <if test="plateId != null "> and a.plate_id = #{plateId}</if>
+            <if test="tenantId != null "> and a.tenant_id = #{tenantId}</if>
+            <if test="isTrust != null and isTrust != '' "> and t.is_trust = #{isTrust}</if>
+        </where>
+    </select>
+
+    <select id="selectZFDriverVo" resultMap="BaseResultMap">
+        <include refid="ZF_Driver_Column"/>
+        <where>
+            <if test="zfid.length > 0">
+                 driver_id in
+                <foreach item="driverId" collection="zfid" open="(" separator="," close=")">
+                    #{driverId}
+                </foreach>
+            </if>
+            -- and del_flag = '0'
+        </where>
+    </select>
+
+    <select id="selectAllDriver" resultMap="BaseResultMap">
+        <include refid="Base_Column"/>
+        <where>
+            <if test="licenseLevelStatus != null and licenseLevelStatus != ''">and a.licenseLevel_status =
+                #{licenseLevelStatus}
+            </if>
+            <if test="qualificationStatus != null and qualificationStatus != ''">and a.qualification_status =
+                #{qualificationStatus}
+            </if>
+            <if test="tenantId != null ">and a.tenant_id = #{tenantId}</if>
+            <if test="isTrust != null and isTrust != '' "> and t.is_trust = #{isTrust}</if>
+            and a.del_flag = '0'
+        </where>
+    </select>
+
+    <select id="selectDriverPlateNumber" resultMap="DriverTruckMap">
+        select d.driver_id, d.driver_name, d.status, d.idcard_number, d.phone,
+        d.plate_id,t.truck_id,t.plate_number,t.truck_owner,t.truck_owner_phone from
+        (select * from tru_driver where del_flag = '0' ORDER BY create_time desc) as d
+        inner join tru_truck as t on d.plate_id = t.truck_id and t.del_flag = '0'
+        left join tru_truck_team tt on t.truck_team_id = tt.truck_team_id and tt.del_flag = '0'
+        <where>
+            <if test="tenantId != null ">and d.tenant_id = #{tenantId}</if>
+            <if test="isTrust != null and isTrust != '' "> and tt.is_trust = #{isTrust}</if>
+        </where>
+    </select>
+    <!--根据司机openid(gopenId)查找-->
+    <select id="selectDriverBygopenId" resultMap="BaseResultMap">
+        <include refid="Base_Column"/>
+        <where>
+            a.gopen_id = #{gopenId}
+            and a.del_flag = '0'
+        </where>
+    </select>
+    <!--根据司机手机号和密码(xopenId)查找-->
+    <select id="selectDriverByPhoneXopenId" resultMap="BaseResultMap">
+        <include refid="Base_Column"/>
+        <where>
+             a.phone = #{phone} and a.xopen_id = #{xopenId}
+            and a.del_flag = '0'
+        </where>
+    </select>
+    <select id="selectDriverDetailById" parameterType="Integer" resultMap="BaseResultMap">
+        select d.driver_id, d.driver_name, d.status,d.is_owner, d.driver_age,d.idcard_number, d.idcard_photo_up
+        , d.idcard_photo_down, d.phone,d.urgent_phone,d.license_level, d.drive_years, d.license_photo, d.qualification,d.licenseLevel_time
+        , d.qualification_time, d.deposit_bank, d.bank_number,d.plate_id,d.freight_oilcard_amount
+        , t.truck_id,t.truck_owner_id,t.truck_team_id, t.plate_number,t.car_length,t.car_weight,t.carry_capacity, t.type
+        , t.truck_owner,t.truck_owner_phone, t.deposit_bank, t.truck_card_number, t.carframe_number, t.operation_number
+        , t.invoice_number, t.policy_no, t.brand_no ,t.attribute,t.car_attribute, t.engine_number, t.driving_license, t.is_supervise
+        from
+        (select * from tru_driver where del_flag = '0' ORDER BY create_time desc) as d
+        left join tru_truck as t on d.plate_id = t.truck_id and t.del_flag = '0'
+        left join tru_truck_team tt on t.truck_team_id = tt.truck_team_id
+        <where>
+            <if test="tenantId != null ">and d.tenant_id = #{tenantId}</if>
+            <if test="driverId != null ">and d.driver_id = #{driverId}</if>
+            <if test="isTrust != null and isTrust != '' "> and tt.is_trust = #{isTrust}</if>
+        </where>
+    </select>
+    <!--根据司机手机号查找-->
+    <select id="selectDriverByPhone" resultMap="BaseResultMap">
+        <include refid="Base_Column"/>
+        <where>
+            <if test="phone != null  and phone != '' ">and a.phone = #{phone}</if>
+            <if test="tenantId != null ">and a.tenant_id = #{tenantId}</if>
+            <if test="isTrust != null and isTrust != '' "> and t.is_trust = #{isTrust}</if>
+            and a.del_flag = '0'
+        </where>
+    </select>
+    <!--根据司机手机号查找-->
+    <select id="selectDriverPhone" resultMap="BaseResultMap">
+        <include refid="Base_Column"/>
+        <where>
+            <if test="driverId != null "> and a.driver_id &lt;&gt; #{driverId}</if>
+            <if test="phone != null  and phone != '' "> and a.phone = #{phone}</if>
+            <if test="tenantId != null "> and a.tenant_id = #{tenantId}</if>
+            <if test="isTrust != null and isTrust != '' "> and t.is_trust = #{isTrust}</if>
+            and a.del_flag = '0'
+        </where>
+    </select>
+    <!--根据司机姓名查找-->
+    <select id="selectDriverByName" resultMap="BaseResultMap">
+        <include refid="Base_Column"/>
+        <where>
+            <if test="driverName != null  and driverName != '' "> and a.driver_name = #{driverName}</if>
+            <if test="tenantId != null "> and a.tenant_id = #{tenantId}</if>
+            <if test="isTrust != null and isTrust != '' "> and t.is_trust = #{isTrust}</if>
+            and a.del_flag = '0'
+        </where>
+    </select>
+    <!--根据车辆id查找-->
+    <select id="selectDriverByplateId" resultMap="BaseResultDriver">
+        <include refid="Base_Column"/>
+        <where>
+            <if test="driverId != null "> and a.driver_id = #{driverId}</if>
+            <if test="truckTeamId != null "> and t.truck_team_id = #{truckTeamId}</if>
+            <if test="status != null and status!='' "> and a.status = #{status}</if>
+            <if test="driverName != null  and driverName != '' "> and a.driver_name = #{driverName}</if>
+            <if test="plateId != null "> and a.plate_id = #{plateId}</if>
+            <if test="tenantId != null "> and a.tenant_id = #{tenantId}</if>
+            <if test="isTrust != null and isTrust != '' "> and t.is_trust = #{isTrust}</if>
+            and a.del_flag = '0'
+        </where>
+    </select>
+    <!--根据车辆id查找-->
+    <select id="selectDriverByTruck" resultMap="BaseResultMap">
+        <include refid="Base_Column"/>
+        <where>
+            <if test="driverId != null "> and a.driver_id = #{driverId}</if>
+            <if test="status != null and status!='' "> and a.status = #{status}</if>
+            <if test="driverName != null  and driverName != '' "> and a.driver_name = #{driverName}</if>
+            <if test="plateId != null "> and a.plate_id = #{plateId}</if>
+            <if test="tenantId != null "> and a.tenant_id = #{tenantId}</if>
+            <if test="isTrust != null and isTrust != '' "> and t.is_trust = #{isTrust}</if>
+            and a.del_flag = '0'
+        </where>
+    </select>
+
+    <select id="selectTruckDriverByPlateId" resultMap="BaseResultDriver">
+        <include refid="Base_Column"/>
+        where
+             a.plate_id = #{plateId}
+            and a.del_flag = '0'
+    </select>
+    <!--司机司机常跑路线及车辆表联合查询-->
+    <select id="selectDriverDetailList"  resultMap="DriverfreightRouteListResultMap">
+        SELECT
+            a.driver_id,
+            t.truck_team_id,
+            a.driver_name,
+            a.wx_photo,
+            a.wx_name,
+            a.STATUS,
+            a.is_owner,
+            a.driver_age,
+            a.idcard_number,
+            a.idcard_photo_up,
+            a.idcard_photo_down,
+            a.phone,
+            a.urgent_phone,
+            a.license_level,
+            a.drive_years,
+            a.license_photo,
+            a.qualification,
+            a.licenseLevel_time,
+            a.freight_oilcard_amount,
+            case
+                when TIMESTAMPDIFF(DAY, curdate(), a.licenseLevel_time) &lt;= 0 then 2
+                when TIMESTAMPDIFF(DAY, curdate(), a.licenseLevel_time) &lt;= 90 then 1
+              else  0
+            END as licenseLevel_status,
+            a.qualification_time,
+            case
+                when TIMESTAMPDIFF(DAY, curdate(), a.qualification_time) &lt;= 0 then 2
+                when TIMESTAMPDIFF(DAY, curdate(), a.qualification_time) &lt;= 90 then 1
+                else  0
+            END as qualification_status,
+            a.deposit_bank,
+            a.bank_number,
+            a.plate_id,
+            a.del_flag,
+            a.create_by,
+            a.create_time,
+            a.update_by,
+            a.update_time,
+            a.remark,
+            a.tenant_id,
+            a.xopen_id,
+            a.gopen_id
+        FROM
+        tru_driver a
+        LEFT JOIN tru_truck tt ON a.plate_id = tt.truck_id
+        LEFT JOIN tru_truck_team t ON tt.truck_team_id = t.truck_team_id
+        <where>
+            <if test="plateId != null "> and a.plate_id = #{plateId}</if>
+            <if test="status != null and status != ''"> and a.status = #{status}</if>
+            <if test="licenseLevelStatus != null and licenseLevelStatus != ''"> and a.licenseLevel_status = #{licenseLevelStatus}</if>
+            <if test="qualificationStatus != null and qualificationStatus != ''"> and a.qualification_status = #{qualificationStatus}</if>
+            <if test="driverName != null  and driverName != '' "> and a.driver_name = #{driverName}</if>
+            <if test="phone != null  and phone != '' "> and a.phone = #{phone}</if>
+            <if test="tenantId != null "> and a.tenant_id = #{tenantId}</if>
+            <if test="isTrust != null and isTrust != '' "> and t.is_trust = #{isTrust}</if>
+            and a.del_flag = '0'
+        </where>
+        order by a.create_time desc
+    </select>
+
+    <!--司机车辆表联合查询-->
+    <select id="selectDriverTruck" resultMap="DriverTruckMap">
+        select d.driver_id,d.driver_name,d.status, d.idcard_number, d.phone,d.urgent_phone,d.create_time,
+        d.license_level,d.freight_oilcard_amount,
+        d.license_photo, d.qualification,d.licenseLevel_time ,d.qualification_time,d.deposit_bank, d.bank_number,
+        d.plate_id,t.truck_id,t.plate_number,t.truck_owner,t.truck_owner_phone from
+        (select * from tru_driver where del_flag = '0' ORDER BY create_time desc) as d
+        left join tru_truck as t on d.plate_id = t.truck_id and t.del_flag = '0'
+        left join tru_truck_team tt on t.truck_team_id = tt.truck_team_id and tt.del_flag = '0'
+        <where>
+            <if test="plateId != null ">and d.plate_id = #{plateId}</if>
+            <if test="status != null and status != ''">and d.status = #{status}</if>
+            <if test="driverName != null  and driverName != '' ">and d.driver_name = #{driverName}</if>
+            <if test="phone != null  and phone != '' ">and d.phone = #{phone}</if>
+            <if test="tenantId != null ">and d.tenant_id = #{tenantId}</if>
+            <if test="isTrust != null and isTrust != '' "> and tt.is_trust = #{isTrust}</if>
+        </where>
+        order by d.create_time desc
+    </select>
+
+    <select id="selectByIds" resultType="com.zhkj.lc.trunk.model.TruDriver" resultMap="BaseResultMap">
+        <include refid="Base_Column"/>
+        where a.del_flag = '0'
+        <if test="isTrust != null and isTrust != '' "> and t.is_trust = #{isTrust}</if>
+        and a.driver_id in
+        <foreach item="id" collection="driverIds" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectDriverByWhiteList" resultMap="BaseResultMap">
+        <include refid="Base_Column"/>
+        <where>
+            <if test="truckTeamIds != null and truckTeamIds.length > 0">
+                and t.truck_team_id in
+                <foreach item="truckTeamId" collection="truckTeamIds" separator="," open="(" close=")">
+                    #{truckTeamId}
+                </foreach>
+            </if>
+            <if test="tenantId != null "> and a.tenant_id = #{tenantId}</if>
+            <if test="isTrust != null and isTrust != '' "> and t.is_trust = #{isTrust}</if>
+            and a.del_flag = '0'
+        </where>
+    </select>
+
+    <update id="deleteDriverByIds" parameterType="com.zhkj.lc.trunk.model.TruDriver">
+        update tru_driver
+        set del_flag='1',update_time=#{updateTime}
+        <if test="updateBy != null  and updateBy != ''  ">,update_by = #{updateBy}</if>
+        where driver_id in
+        <foreach item="id" collection="driverIds" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="updateStatus" parameterType="com.zhkj.lc.common.vo.DriverVO">
+       update tru_driver
+        set
+        <if test="status != null  and status != ''  ">status = #{status},</if>
+        update_time = sysdate()
+        <where>
+            <if test="driverIds != null and driverIds.length > 0">
+                and driver_id in
+                <foreach item="driverId" collection="driverIds" open="(" separator="," close=")">
+                    #{driverId}
+                </foreach>
+            </if>
+
+        </where>
+    </update>
+
+
+    <!--根据车牌号和司机姓名查询是不是匹配-->
+    <select id="checkDriverTruck" resultType="Integer">
+        select count(trd.driver_id)
+        from tru_driver trd
+        left join tru_truck trt on trd.plate_id = trt.truck_id
+        left join tru_truck_team t on trt.truck_team_id = t.truck_team_id
+        where trd.driver_name=#{driverName} and trt.plate_number=#{plateNumber}
+        and trd.tenant_id = #{tenantId} and trt.tenant_id = #{tenantId}
+--         <if test="isTrust != null and isTrust != '' "> and t.is_trust = #{isTrust}</if>
+    </select>
+
+    <!-- 添加司机,返回该条记录id-->
+    <insert id="addDriver" useGeneratedKeys="true" keyProperty="driverId"
+            parameterType="com.zhkj.lc.trunk.model.TruDriver">
+        insert into tru_driver
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="driverId != null ">driver_id,</if>
+            <if test="truckTeamId != null "> truck_team_id,</if>
+            <if test="driverName != null  and driverName != '' "> driver_name,</if>
+            <if test="wxPhoto != null  and wxPhoto != '' ">wx_photo ,</if>
+            <if test="wxName != null  and wxName != '' "> wx_name,</if>
+            <if test="status != null  and status != '' ">  status,</if>
+            <if test="isOwner != null  and isOwner != '' "> is_owner,</if>
+            <if test="driverAge != null "> driver_age,</if>
+            <if test="idcardNumber != null  and idcardNumber != '' "> idcard_number,</if>
+            <if test="idcardPhotoUp != null  and idcardPhotoUp != '' "> idcard_photo_up,</if>
+            <if test="idcardPhotoDown != null  and idcardPhotoDown != '' ">idcard_photo_down,</if>
+            <if test="phone != null  and phone != '' "> phone,</if>
+            <if test="urgentPhone != null  and urgentPhone != '' "> urgent_phone,</if>
+            <if test="licenseLevel != null  and licenseLevel != '' ">license_level,</if>
+            <if test="driveYears != null ">drive_years,</if>
+            <if test="licensePhoto != null  and licensePhoto != '' "> license_photo,</if>
+            <if test="qualification != null  and qualification != '' ">  qualification,</if>
+            <if test="licenseLevelTime != null  "> licenseLevel_time,</if>
+            <if test="qualificationTime != null  "> qualification_time,</if>
+            <if test="depositBank != null  and depositBank != '' "> deposit_bank,</if>
+            <if test="bankNumber != null  and bankNumber != '' ">bank_number,</if>
+            <if test="plateId != null "> plate_id,</if>
+            del_flag,
+            <if test="createBy != null  and createBy != '' ">create_by,</if>
+            <if test="createTime != null  ">create_time,</if>
+            <if test="updateBy != null  and updateBy != '' ">update_by,</if>
+            <if test="updateTime != null "> update_time,</if>
+            <if test="remark != null  and remark != '' ">remark,</if>
+            <if test="tenantId != null "> tenant_id,</if>
+            <if test="xopenId != null and xopenId != ''"> xopen_id,</if>
+            <if test="gopenId != null and gopenId != ''">gopen_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="driverId != null ">#{driverId},</if>
+            <if test="truckTeamId != null "> #{truckTeamId},</if>
+            <if test="driverName != null  and driverName != '' "> #{driverName},</if>
+            <if test="wxPhoto != null  and wxPhoto != '' "> #{wxPhoto},</if>
+            <if test="wxName != null  and wxName != '' "> #{wxName},</if>
+            <if test="status != null  and status != '' ">  #{status},</if>
+            <if test="isOwner != null  and isOwner != '' ">  #{isOwner},</if>
+            <if test="driverAge != null "> #{driverAge},</if>
+            <if test="idcardNumber != null  and idcardNumber != '' "> #{idcardNumber},</if>
+            <if test="idcardPhotoUp != null  and idcardPhotoUp != '' "> #{idcardPhotoUp},</if>
+            <if test="idcardPhotoDown != null  and idcardPhotoDown != '' ">#{idcardPhotoDown},</if>
+            <if test="phone != null  and phone != '' "> #{phone},</if>
+            <if test="urgentPhone != null  and urgentPhone != '' "> #{urgentPhone},</if>
+            <if test="licenseLevel != null  and licenseLevel != '' ">#{licenseLevel},</if>
+            <if test="driveYears != null "> #{driveYears},</if>
+            <if test="licensePhoto != null  and licensePhoto != '' "> #{licensePhoto},</if>
+            <if test="qualification != null  and qualification != '' ">  #{qualification},</if>
+            <if test="licenseLevelTime != null   "> #{licenseLevelTime},</if>
+            <if test="qualificationTime != null  "> #{qualificationTime},</if>
+            <if test="depositBank != null  and depositBank != '' "> #{depositBank},</if>
+            <if test="bankNumber != null  and bankNumber != '' ">#{bankNumber},</if>
+            <if test="plateId != null "> #{plateId},</if>
+            '0',
+            <if test="createBy != null  and createBy != '' ">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != '' "> #{updateBy},</if>
+            <if test="updateTime != null "> #{updateTime},</if>
+            <if test="remark != null  and remark != '' ">#{remark},</if>
+            <if test="tenantId != null "> #{tenantId},</if>
+            <if test="xopenId != null and xopenId != ''"> #{xopenId},</if>
+            <if test="gopenId != null and gopenId != ''"> #{gopenId},</if>
+        </trim>
+</insert>
+
+    <!--根据司机id查询所属车队的结算方式-->
+    <select id="getDriverPayType" resultType="String" parameterType="Integer">
+        SELECT
+            tt.pay_way
+        FROM
+            tru_driver td
+            left join tru_truck trt on td.plate_id = trt.truck_id
+            LEFT JOIN tru_truck_team tt ON trt.truck_team_id = tt.truck_team_id
+        WHERE
+            td.driver_id = #{driverId}
+            AND td.tenant_id = #{tenantId}
+    </select>
+
+    <!-- 根据司机id查询所属车队的运输方式 -->
+    <select id="getDriverTeamType" resultType="com.zhkj.lc.common.vo.DriverVO">
+        SELECT
+            td.driver_id driverId,tt.truck_team_id truckTeamId
+        FROM
+            tru_driver td,
+            tru_truck tt,
+            tru_truck_team ttt
+        WHERE
+            td.del_flag = '0'
+            AND tt.truck_team_id = ttt.truck_team_id
+            AND tt.truck_id = td.plate_id
+            AND ttt.team_type = #{teamType}
+--             AND ttt.is_trust = '0'
+            AND td.tenant_id = #{tenantId}
+    </select>
+
+    <!-- 根据车牌号查询司机以及司机所属车队的运输方式-->
+    <select id="selectDriverByPlateNumber" resultType="com.zhkj.lc.common.vo.DriverVO">
+        SELECT
+            td.driver_id driverId,
+            td.plate_id plateId,
+            ttt.team_type teamType
+        FROM
+            tru_driver td,
+            tru_truck tt,
+            tru_truck_team ttt
+        WHERE
+            tt.truck_team_id = ttt.truck_team_id
+            AND tt.truck_id = td.plate_id
+            AND td.del_flag = '0'
+--             AND ttt.is_trust = '0'
+            AND td.tenant_id = #{tenantId}
+            AND td.plate_id = #{plateId}
+    </select>
+
+    <!-- 根据司机查询司机以及司机所属车队的运输方式-->
+    <select id="selectDriverByDriverId" resultType="com.zhkj.lc.common.vo.DriverVO">
+        SELECT
+            td.driver_id driverId,
+            ttt.team_type teamType
+        FROM
+            tru_driver td,
+            tru_truck tt,
+            tru_truck_team ttt
+        WHERE
+            tt.truck_team_id = ttt.truck_team_id
+            AND tt.truck_id = td.plate_id
+            AND td.del_flag = '0'
+            AND td.tenant_id = #{tenantId}
+            AND td.driver_id = #{driverId}
+    </select>
+
+    <select id="selectDriverStatus" resultType="com.zhkj.lc.common.vo.DriverVO">
+        SELECT
+            td.driver_id AS driverId,
+            td.driver_name AS driverName,
+            td.STATUS,
+            tt.plate_number plateNumber,
+            td.del_flag AS delFlag,
+            ttt.team_name AS teamName,
+            td.phone as phone
+        FROM
+            tru_driver td
+            LEFT JOIN tru_truck tt ON tt.truck_id = td.plate_id
+            LEFT JOIN tru_truck_team ttt ON ttt.truck_team_id = tt.truck_team_id
+        WHERE
+             td.driver_id = #{driverId}
+            AND td.tenant_id = #{tenantId}
+    </select>
+    <!--根据车辆id查询司机状态“只用于车辆下只有一个司机的情况”-->
+    <select id="selectDriverStatusByTruckId" resultMap="BaseResultDriver">
+        <include refid="Base_Column"/>
+        where a.plate_id = #{truckId} and a.del_flag = '0'
+    </select>
+
+    <select id="selectDriverStatusByPlateNumber" resultMap="BaseResultDriver">
+        <include refid="Base_Column"/>
+        where tt.plate_number = #{plateNumber} and a.del_flag = '0'
+    </select>
+
+    <select id="selectDriverBaseColumn" resultMap="BaseResultDriver">
+        <include refid="Base_Column"/>
+        <where>
+            <if test="driverId != null">and driver_id = #{driverId}</if>
+            <if test="tenantId != null">and tenant_id = #{tenantId}</if>
+        </where>
+    </select>
+
+    <!--查找手机号是否重复-->
+    <select id="findPhone" resultType="com.zhkj.lc.common.vo.DriverVO">
+        SELECT
+        *
+        FROM
+        tru_driver
+        WHERE
+        del_flag = '0'
+        AND phone = #{phone}
+    </select>
+</mapper>

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.oilcard.mapper.OilTruckMonthRechargeMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zhkj.lc.oilcard.model.OilTruckMonthRecharge">
+        <id column="truck_month_id" property="truckMonthId" />
+        <result column="truck_id" property="truckId" />
+        <result column="year_month" property="yearMonth" />
+        <result column="last_amount" property="lastAmount" />
+        <result column="recharge_sum" property="rechargeSum" />
+        <result column="distribute_sum" property="distributeSum" />
+        <result column="del_flag" property="delFlag" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="tenant_id" property="tenantId" />
+        <result column="remark" property="remark" />
+        <result column="balance" property="balance" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        truck_month_id AS truckMonthId, truck_id AS truckId, `year_month` AS yearMonth, last_amount AS lastAmount, recharge_sum AS rechargeSum, distribute_sum AS distributeSum, del_flag AS delFlag, create_by AS createBy, create_time AS createTime, update_by AS updateBy, update_time AS updateTime, tenant_id AS tenantId, remark, balance AS balance
+    </sql>
+
+    <sql id="Base_Column_JOIN">
+        SELECT
+        o.truck_month_id AS truckMonthId, o.truck_id AS truckId, o.year_month AS yearMonth, o.last_amount AS lastAmount, o.recharge_sum AS rechargeSum, o.distribute_sum AS distributeSum, o.del_flag AS delFlag, o.create_by AS createBy,o.tenant_id AS tenantId,o.balance,b.attribute as attribute,b.plate_number AS plateNumber
+        FROM oil_truck_month_recharge o
+        left join logistics_truckdb.tru_truck AS b on o.truck_id = b.truck_id and b.del_flag = '0'
+    </sql>
+
+    <select id="selectByTruckIdWithYearMonth" resultType="com.zhkj.lc.oilcard.model.OilTruckMonthRecharge" >
+      SELECT
+        <include refid="Base_Column_List"/>
+       FROM oil_truck_month_recharge
+        where del_flag = '0'
+        <if test="truckId != null  "> and truck_id = #{truckId}</if>
+        <if test="tenantId != null  "> and tenant_id = #{tenantId}</if>
+        <if test="yearMonth != null and yearMonth != '' "> and `year_month` = #{yearMonth} </if>
+        order by create_time desc
+    </select>
+
+
+
+    <select id="selectOilTruckRecharge" resultType="com.zhkj.lc.common.vo.OilTruckRechargeVO" parameterType="com.zhkj.lc.common.vo.OilTruckRechargeVO" >
+        SELECT
+        o.truck_month_id AS truckMonthId, o.truck_id AS truckId, o.year_month AS yearMonth, o.last_amount AS lastAmount, o.recharge_sum AS rechargeSum, o.distribute_sum AS distributeSum, o.del_flag AS delFlag, o.create_by AS createBy,o.tenant_id AS tenantId,o.balance,b.attribute as attribute,b.plate_number AS plateNumber
+        FROM oil_truck_month_recharge o
+        left join logistics_truckdb.tru_truck AS b on o.truck_id = b.truck_id and b.del_flag = '0'
+        where o.del_flag = '0'
+        <if test="truckId != null  "> and o.truck_id = #{truckId}</if>
+        <if test="plateNumber != null and plateNumber != '' "> and b.plate_number = #{plateNumber}</if>
+        <if test="tenantId != null  "> and o.tenant_id = #{tenantId}</if>
+        <if test="attribute != null and attribute != ''"> and b.attribute = #{attribute}</if>
+        <if test="rechargeTime != null"> and o.`year_month` = #{rechargeTime}</if>
+        order by o.create_time desc
+    </select>
+
+    <select id="selectOilTruckRechargeByIds" resultType="com.zhkj.lc.common.vo.OilTruckRechargeVO">
+        SELECT
+        o.truck_month_id AS truckMonthId, o.truck_id AS truckId, o.year_month AS yearMonth, o.last_amount AS lastAmount, o.recharge_sum AS rechargeSum, o.distribute_sum AS distributeSum, o.del_flag AS delFlag, o.create_by AS createBy,o.tenant_id AS tenantId,o.balance,b.attribute as attribute,b.plate_number AS plateNumber
+        FROM oil_truck_month_recharge o
+        left join logistics_truckdb.tru_truck AS b on o.truck_id = b.truck_id and b.del_flag = '0'
+        where o.del_flag='0' and o.truck_month_id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        order by o.create_time desc
+    </select>
+
+
+    <select id="selectOilTruckRechargeNoPage" resultType="com.zhkj.lc.common.vo.OilTruckRechargeVO" parameterType="com.zhkj.lc.common.vo.OilTruckRechargeVO" >
+        SELECT
+        o.truck_month_id AS truckMonthId, o.truck_id AS truckId, o.year_month AS yearMonth, o.last_amount AS lastAmount, o.recharge_sum AS rechargeSum, o.distribute_sum AS distributeSum, o.del_flag AS delFlag, o.create_by AS createBy,o.tenant_id AS tenantId,o.balance,b.attribute as attribute,b.plate_number AS plateNumber
+        FROM oil_truck_month_recharge o
+        left join logistics_truckdb.tru_truck AS b on o.truck_id = b.truck_id and b.del_flag = '0'
+        where o.del_flag = '0'
+        <if test="truckId != null  "> and o.truck_id = #{truckId}</if>
+        <if test="plateNumber != null and plateNumber != '' "> and b.plate_number = #{plateNumber}</if>
+        <if test="tenantId != null  "> and o.tenant_id = #{tenantId}</if>
+        <if test="attribute != null and attribute != ''"> and b.attribute = #{attribute}</if>
+        <if test="rechargeTime != null"> and o.`year_month` = #{rechargeTime}</if>
+        order by o.create_time desc
+    </select>
+
+    <update id="updateTruckMonthRecharge" parameterType="com.zhkj.lc.oilcard.model.OilTruckMonthRecharge">
+        update oil_truck_month_recharge
+        <trim prefix="SET" suffixOverrides=",">
+
+            <if test="lastAmount != null  "> last_amount = #{lastAmount},</if>
+            <if test="rechargeSum != null  "> recharge_sum = #{rechargeSum},</if>
+            <if test="distributeSum != null   "> distribute_sum = #{distributeSum},</if>
+            <if test="yearMonth != null and yearMonth != '' "> `year_month` = #{yearMonth},</if>
+            <if test="delFlag != null  and delFlag != ''  "> del_flag = #{delFlag},</if>
+            <if test="createBy != null  and createBy != ''  "> create_by = #{createBy},</if>
+            <if test="createTime != null  ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            update_time = sysdate(),
+            <if test="tenantId != null "> tenant_id = #{tenantId},</if>
+            <if test="balance != null "> balance = #{balance}, </if>
+        </trim>
+        where truck_month_id = #{truckMonthId}
+    </update>
+
+    <insert id="insertOilTruckMonthRecharge" parameterType="com.zhkj.lc.oilcard.model.OilTruckMonthRecharge">
+        insert into oil_truck_month_recharge
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="truckId != null  "> truck_id,</if>
+            <if test="lastAmount != null  "> last_amount,</if>
+            <if test="rechargeSum != null  "> recharge_sum,</if>
+            <if test="distributeSum != null   "> distribute_sum,</if>
+            <if test="yearMonth != null and yearMonth != '' "> `year_month`,</if>
+            <if test="delFlag != null  and delFlag != ''  ">del_flag,</if>
+            <if test="createBy != null  and createBy != ''  ">create_by,</if>
+            create_time,
+            <if test="tenantId != null "> tenant_id, </if>
+            <if test="balance != null "> balance, </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="truckId != null  "> #{truckId},</if>
+            <if test="lastAmount != null  "> #{lastAmount},</if>
+            <if test="rechargeSum != null  "> #{rechargeSum},</if>
+            <if test="distributeSum != null   "> #{distributeSum},</if>
+            <if test="yearMonth != null and yearMonth != '' "> #{yearMonth},</if>
+            <if test="delFlag != null  and delFlag != ''  ">#{delFlag},</if>
+            <if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+            sysdate(),
+            <if test="tenantId != null "> #{tenantId}, </if>
+            <if test="balance != null "> #{balance}, </if>
+        </trim>
+    </insert>
+</mapper>

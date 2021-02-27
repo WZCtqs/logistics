@@ -1,0 +1,935 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.order.mapper.NeedPayBillMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zhkj.lc.order.model.entity.NeedPayBill">
+        <id column="id" property="id" />
+        <result column="account_pay_id" property="accountPayId" />
+        <result column="date_start" property="dateStart" />
+        <result column="date_end" property="dateEnd" />
+        <result column="driver_id" property="driverId" />
+        <result column="order_type" property="orderType" />
+        <result column="order_amount" property="orderAmount" />
+        <result column="rate" property="rate" />
+        <result column="total_fee" property="totalFee" />
+        <result column="normal_oilcard_fee" property="normalOilcardFee" />
+        <result column="freight_oilcard_fee" property="freightOilcardFee" />
+        <result column="pay_cash" property="payCash" />
+        <result column="need_pay_cash" property="needPayCash" />
+        <result column="oil_pledge" property="oilPledge" />
+        <result column="etc_fee" property="etcFee" />
+        <result column="use_rate" property="useRate" />
+        <result column="settlement_status" property="settlementStatus" />
+        <result column="feedback" property="feedback" />
+        <result column="feedback_money" property="feedbackMoney" />
+        <result column="remark" property="remark" />
+        <result column="del_flag" property="delFlag" />
+        <result column="repaynumber" property="repaynumber" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="tenant_id" property="tenantId" />
+        <result column="plate_number" property="plateNumber" />
+        <association property="orderSettlementStatus" javaType="com.zhkj.lc.order.model.entity.OrderSettlement" column="account_pay_id" select="com.zhkj.lc.order.mapper.OrderSettlementMapper.selectSettlementByOrderId"/>
+    </resultMap>
+
+
+    <!-- 分页查询集装箱应付费用详细信息 -->
+    <resultMap id="CnNeedPayDetailMap" type="com.zhkj.lc.order.dto.CnNeedPayDetail">
+        <result column="order_id" property="orderId"/>
+        <result column="order_date" property="orderDate"/>
+        <result column="order_type" property="orderType"/>
+        <result column="plate_number" property="plateNumber"/>
+        <result column="driver_id" property="driverId"/>
+        <result column="pick_goods_place" property="pickGoodsPlace"/>
+        <result column="send_goods_place" property="sendGoodsPlace"/>
+        <result column="pick_cn_place" property="pickCNPlace"/>
+        <result column="return_cn_place" property="returnCNPlace"/>
+        <result column="distance" property="distance"/>
+        <result column="settlement" property="settlement"/>
+        <result column="transport_fee" property="transportFee"/>
+        <result column="per_price" property="perPrice"/>
+        <result column="oil_pledge" property="oilPledge" />
+        <result column="etc_fee" property="etcFee" />
+        <result column="repaynumber" property="repaynumber" />
+        <result column="ex_fee" property="ExFee"/>
+        <result column="yc_fee" property="ycFee"/>
+        <result column="need_pay" property="needPay"/>
+        <result column="remarks" property="remarks"/>
+        <result column="feed_back" property="feedBack"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="need_pay_status" property="needPayStatus"/>
+        <result column="is_yf_invoice" property="isYFInvoice"/>
+        <result column="cash" property="cash"/>
+        <result column="pay_cash" property="payCash"/>
+        <result column="trans_oil_fee" property="transOilFee"/>
+        <result column="start_timeq" property="startTimeq"/>
+        <result column="start_timeh" property="startTimeh"/>
+        <result column="end_timeq" property="endTimeq"/>
+        <result column="end_timeh" property="endTimeh"/>
+        <result column="container_no" property="containerNo"/>
+        <result column="class_order" property="classOrder"/>
+        <result column="class_date" property="classDate"/>
+        <result column="pay_rate" property="moneyRate"/>
+        <result column="if_add_to_yfbill" property="ifAddToYfbill"/>
+        <association property="orderSettlementStatus" javaType="com.zhkj.lc.order.model.entity.OrderSettlement" column="order_id" select="com.zhkj.lc.order.mapper.OrderSettlementMapper.selectSettlementByOrderId"/>
+        <collection property="exceptionFeeList" column="order_id" select="com.zhkj.lc.order.mapper.OrdExceptionFeeMapper.selectByOrderIdForMoney"/>
+        <collection property="arrivalAdds" column="order_id" select="com.zhkj.lc.order.mapper.OrdPickupArrivalAddMapper.selectArrivalByOrderId"/>
+        <collection property="pickupAdds" column="order_id" select="com.zhkj.lc.order.mapper.OrdPickupArrivalAddMapper.selectPickupByOrderId"/>
+    </resultMap>
+    <!-- 查询集装箱应付费用详细信息 -->
+    <resultMap id="CnBillDetailMap" type="com.zhkj.lc.order.dto.BillDetailForPC">
+        <result column="order_id" property="orderId"/>
+        <result column="type" property="type"/>
+        <result column="order_type" property="orderType"/>
+        <result column="driver_id" property="driverId"/>
+        <result column="plate_number" property="plateNumber"/>
+        <result column="pick_goods_place" property="pickGoodsPlace"/>
+        <result column="send_goods_place" property="sendGoodsPlace"/>
+        <result column="distance" property="distance"/>
+        <result column="settlement" property="settlement"/>
+        <result column="transport_fee" property="transportFee"/>
+        <result column="per_price" property="perPrice"/>
+        <result column="oil_pledge" property="oilPledge" />
+        <result column="etc_fee" property="etcFee" />
+        <result column="yc_fee" property="ycFee"/>
+        <result column="repaynumber" property="repaynumber" />
+        <result column="pay_rate" property="moneyRate"/>
+        <result column="remarks" property="remarks"/>
+        <result column="trans_oil_fee" property="transOilFee"/>
+        <result column="ex_fee" property="ExFee"/>
+        <result column="order_date" property="orderDate"/>
+        <result column="need_pay_status" property="needPayStatus"/>
+        <result column="is_yf_invoice" property="isYFInvoice"/>
+        <association property="orderSettlementStatus" javaType="com.zhkj.lc.order.model.entity.OrderSettlement" column="order_id" select="com.zhkj.lc.order.mapper.OrderSettlementMapper.selectSettlementByOrderId"/>
+        <collection property="exceptionFeeList" column="order_id" select="com.zhkj.lc.order.mapper.OrdExceptionFeeMapper.selectByOrderIdForMoney"/>
+    </resultMap>
+
+    <!-- 分页查询普货应付费用信息 -->
+    <resultMap id="PhNeedPayDetailMap" type="com.zhkj.lc.order.dto.PhNeedPayDetail">
+        <result column="order_id" property="orderId"/>
+        <result column="order_date" property="orderDate"/>
+        <result column="order_type" property="orderType"/>
+        <result column="plate_number" property="plateNumber"/>
+        <result column="driver_id" property="driverId"/>
+        <result column="pick_goods_place" property="pickGoodsPlace"/>
+        <result column="send_goods_place" property="sendGoodsPlace"/>
+        <result column="distance" property="distance"/>
+        <result column="settlement" property="settlement"/>
+        <result column="transport_fee" property="transportFee"/>
+        <result column="per_price" property="perPrice"/>
+        <result column="oil_pledge" property="oilPledge" />
+        <result column="etc_fee" property="etcFee" />
+        <result column="repaynumber" property="repaynumber" />
+        <result column="ex_fee" property="ExFee"/>
+        <result column="yc_fee" property="ycFee"/>
+        <result column="trans_oil_fee" property="transOilFee"/>
+        <result column="release_fee" property="releaseFee"/>
+        <result column="oil_fee" property="oilFee"/>
+        <result column="need_pay" property="needPay"/>
+        <result column="remarks" property="remarks"/>
+        <result column="feed_back" property="feedBack"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="need_pay_status" property="needPayStatus"/>
+        <result column="is_yf_invoice" property="isYFInvoice"/>
+        <result column="cash" property="cash"/>
+        <result column="pay_cash" property="payCash"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="pay_rate" property="moneyRate"/>
+        <result column="if_add_to_yfbill" property="ifAddToYfbill"/>
+        <association property="orderSettlementStatus" javaType="com.zhkj.lc.order.model.entity.OrderSettlement" column="order_id" select="com.zhkj.lc.order.mapper.OrderSettlementMapper.selectSettlementByOrderId"/>
+        <collection property="exceptionFeeList" column="order_id" select="com.zhkj.lc.order.mapper.OrdExceptionFeeMapper.selectByOrderIdForMoney"/>
+        <collection property="arrivalAdds" column="order_id" select="com.zhkj.lc.order.mapper.OrdPickupArrivalAddMapper.selectArrivalByOrderId"/>
+        <collection property="pickupAdds" column="order_id" select="com.zhkj.lc.order.mapper.OrdPickupArrivalAddMapper.selectPickupByOrderId"/>
+    </resultMap>
+
+    <!-- 根据订单编号查询普货应付费用详细信息 -->
+    <resultMap id="PhBillDetailMap" type="com.zhkj.lc.order.dto.BillDetailForPC">
+        <result column="order_id" property="orderId"/>
+        <result column="order_type" property="orderType"/>
+        <result column="driver_id" property="driverId"/>
+        <result column="plate_number" property="plateNumber"/>
+        <result column="pick_goods_place" property="pickGoodsPlace"/>
+        <result column="send_goods_place" property="sendGoodsPlace"/>
+        <result column="distance" property="distance"/>
+        <result column="transport_fee" property="transportFee"/>
+        <result column="per_price" property="perPrice"/>
+        <result column="ex_fee" property="ExFee"/>
+        <result column="trans_oil_fee" property="transOilFee"/>
+        <result column="oil_pledge" property="oilPledge" />
+        <result column="etc_fee" property="etcFee" />
+        <result column="yc_fee" property="ycFee"/>
+        <result column="repaynumber" property="repaynumber" />
+        <result column="remarks" property="remarks" />
+        <result column="release_fee" property="releaseFee"/>
+        <result column="oil_fee" property="oilFee"/>
+        <result column="order_date" property="orderDate"/>
+        <result column="need_pay_status" property="needPayStatus"/>
+        <result column="is_yf_invoice" property="isYFInvoice"/>
+        <result column="pay_rate" property="moneyRate"/>
+        <association property="orderSettlementStatus" javaType="com.zhkj.lc.order.model.entity.OrderSettlement" column="order_id" select="com.zhkj.lc.order.mapper.OrderSettlementMapper.selectSettlementByOrderId"/>
+        <collection property="exceptionFeeList" column="order_id" select="com.zhkj.lc.order.mapper.OrdExceptionFeeMapper.selectByOrderIdForMoney"/>
+    </resultMap>
+
+    <!--司机端账单基本信息（待办数量和处理中的数量）-->
+    <resultMap id="BillNumMap" type="com.zhkj.lc.order.dto.BillBaseInfo">
+        <result column="new_bill" property="newBillNum"/>
+        <result column="check_bill" property="checkBillNum"/>
+    </resultMap>
+
+    <!--小程序查询应付账单基本信息-->
+    <resultMap id="BillBaseInfoMap" type="com.zhkj.lc.order.dto.OrderBill">
+        <result column="pickCnPlace" property="pickCnPlace"/>
+        <result column="returnCnPlace" property="returnCnPlace"/>
+        <result column="type" property="type"/>
+        <result column="startPlace" property="startPlace"/>
+        <result column="endPlace" property="endPlace"/>
+        <result column="orderDate" property="orderDate"/>
+        <result column="trans_fee" property="transFee"/>
+        <result column="distance" property="distance"/>
+        <result column="order_id" property="orderId"/>
+        <result column="cash" property="cash"/>
+        <result column="oil_pledge" property="oilPledge" />
+        <result column="etc_fee" property="etcFee" />
+        <result column="repaynumber" property="repaynumber" />
+        <result column="pay_cash" property="payCash"/>
+        <result column="per_price" property="perPrice"/>
+        <result column="feed_back" property="feedBack"/>
+        <result column="ex_fee" property="exFee"/>
+        <result column="is_yf_invoice" property="isYfInvoice"/>
+        <result column="trans_oil_fee" property="transOilFee"/>
+        <result column="pay_rate" property="payRate"/>
+        <result column="plate_number" property="plateNumber"/>
+        <result column="driverId" property="driverId"/>
+        <association property="orderSettlementStatus" javaType="com.zhkj.lc.order.model.entity.OrderSettlement" column="order_id" select="com.zhkj.lc.order.mapper.OrderSettlementMapper.selectSettlementByOrderId"/>
+        <collection property="exceptionFeeList" column="order_id" select="com.zhkj.lc.order.mapper.OrdExceptionFeeMapper.selectByOrderIdForMoney"/>
+        <collection property="arrivalAdds" column="order_id" select="com.zhkj.lc.order.mapper.OrdPickupArrivalAddMapper.selectArrivalByOrderId"/>
+        <collection property="pickupAdds" column="order_id" select="com.zhkj.lc.order.mapper.OrdPickupArrivalAddMapper.selectPickupByOrderId"/>
+    </resultMap>
+
+    <!--小程序查询应付账单详细信息-->
+    <resultMap id="BillDetailMap" type="com.zhkj.lc.order.dto.OrderBill">
+        <result column="startPlace" property="startPlace"/>
+        <result column="endPlace" property="endPlace"/>
+        <result column="orderDate" property="orderDate"/>
+        <result column="trans_fee" property="transFee"/>
+        <result column="distance" property="distance"/>
+        <result column="order_id" property="orderId"/>
+        <result column="per_price" property="perPrice"/>
+        <result column="feed_back" property="feedBack"/>
+        <result column="oil_pledge" property="oilPledge" />
+        <result column="etc_fee" property="etcFee" />
+        <result column="repaynumber" property="repaynumber" />
+        <result column="trans_oil_fee" property="transOilFee"/>
+        <association property="orderSettlementStatus" javaType="com.zhkj.lc.order.model.entity.OrderSettlement" column="order_id" select="com.zhkj.lc.order.mapper.OrderSettlementMapper.selectSettlementByOrderId"/>
+        <collection property="exceptionFees" column="order_id" select="com.zhkj.lc.order.mapper.OrdExceptionFeeMapper.selectByOrderIdForMoney"/>
+    </resultMap>
+
+    <sql id="BaseColumn">
+        select npb.id, npb.account_pay_id, npb.date_start, npb.date_end, npb.driver_id, npb.order_type, npb.order_amount, IFNULL(npb.rate, 0)rate, IFNULL(npb.total_fee, 0)total_fee, npb.normal_oilcard_fee, npb.freight_oilcard_fee, npb.need_pay_cash, npb.pay_cash, npb.use_rate, npb.settlement_status, npb.feedback,
+        npb.oil_pledge, npb.etc_fee, npb.repaynumber, npb.feedback_money, npb.remark, npb.del_flag, npb.create_by, npb.create_time, npb.update_by, npb.update_time, npb.tenant_id, npb.plate_number
+        from need_pay_bill npb
+        left join order_settlement ost on ost.order_id = npb.account_pay_id
+    </sql>
+
+    <!--分页查询集装箱应付账单信息-->
+    <select id="selectCnNeedPayList" resultMap="CnNeedPayDetailMap">
+        select
+        oo.order_id,
+        oo.create_time as order_date,
+        oo.type,
+        oo.plate_number,
+        oo.driver_id,
+        oo.km_yf as distance,
+        '集装箱' AS order_type,
+        oo.pickup_goods_place as pick_goods_place,
+        oo.send_goods_place as send_goods_place,
+        oo.pickup_con_place as pick_cn_place,
+        oo.return_con_place as return_cn_place,
+        IFNULL(oo.need_pay, 0) as transport_fee,
+        oo.pay_price as per_price,
+        IFNULL(oo.pay_rate, 0) pay_rate,
+        IFNULL(oo.oil_pledge, 0) oil_pledge,
+        IFNULL(oo.etc_fee, 0) etc_fee,
+        oo.repaynumber,
+        oo.need_pay_status,
+        oo.feed_back,
+        oo.update_time,
+        oo.pay_cash,
+        oo.trans_oil_fee,
+        oo.cash,
+        IFNULL(oef.ex_fee, 0) ex_fee,
+        0 AS yc_fee,
+        ool_start1.logistics_time as start_timeq,
+        ool_start2.logistics_time as start_timeh,
+        ool_end2.logistics_time as end_timeq,
+        ool_end1.logistics_time as end_timeh,
+        oo.class_order,
+        oo.container_no,
+        oo.is_yf_invoice,
+        oo.class_date,
+        oo.settlement,
+        oo.remark remarks,
+        oo.if_add_to_yfbill
+        from ord_order oo
+        LEFT JOIN (
+          select order_id, sum(exception_fee) ex_fee
+          from ord_exception_fee
+          where del_flag = '0' and auditing= '1' and tenant_id = #{tenantId}
+          GROUP BY order_id
+        ) oef ON oo.order_id = oef.order_id
+        LEFT JOIN ord_order_logistics ool_start1 on ool_start1.order_id = oo.order_id and ool_start1.order_status = '3'
+        LEFT JOIN ord_order_logistics ool_start2 on ool_start2.order_id = oo.order_id and ool_start2.order_status = '5'
+        LEFT JOIN ord_order_logistics ool_end1 on ool_end1.order_id = oo.order_id and ool_end1.order_status = '11'
+        LEFT JOIN ord_order_logistics ool_end2 on ool_end2.order_id = oo.order_id and ool_end2.order_status = '9'
+        LEFT JOIN order_settlement ost on ost.order_id = oo.order_id
+        <where>
+            oo.del_flag ='0'
+            and oo.status = '12'
+            <if test="customerId != null  and customerId != '' "> and oo.customer_id = #{customerId}</if>
+            <if test="ifAddToYfbill != null  and ifAddToYfbill != '' ">and oo.if_add_to_yfbill = #{ifAddToYfbill}</if>
+            <if test="orderId != null  and orderId != '' ">and oo.order_id = #{orderId}</if>
+            <if test="plateNumber != null  and plateNumber != '' ">and oo.plate_number = #{plateNumber}</if>
+            <if test="ordStartTime != null ">and date_format(oo.update_time,'%Y-%m-%d') &gt;= #{ordStartTime}</if>
+            <if test="ordEndTime != null ">and date_format(oo.update_time,'%Y-%m-%d') &lt;= #{ordEndTime}</if>
+            <if test="blStartTime != null and blStartTime != '' ">and date_format(oo.class_date,'%Y-%m-%d') &gt;= #{blStartTime}</if>
+            <if test="blEndTime != null and blEndTime != '' ">and date_format(oo.class_date,'%Y-%m-%d') &lt;= #{blEndTime}</if>
+            <if test="tenantId != null ">and oo.tenant_id = #{tenantId}</if>
+            <if test="settlement != null and settlement != ''">and oo.settlement = #{settlement}</if>
+
+            <if test="driverId != null ">and oo.driver_id =  #{driverId}</if>
+            <if test="pickCNPlace != null and pickCNPlace !='' ">and pick_cn_place = #{pickCNPlace}</if>
+            <if test="returnCNPlace != null and returnCNPlace !='' ">and return_cn_place = #{returnCNPlace}</if>
+            <if test="type != null and type !='' ">and type = #{type}</if>
+            <if test="classOrder != null and classOrder !='' ">and oo.class_order = #{classOrder}</if>
+            <if test="containerNo != null and containerNo !='' ">and oo.container_no = #{containerNo}</if>
+            <if test="orderIds != null and orderIds.length > 0">
+                and oo.order_id in
+                <foreach item="orderId" collection="orderIds" open="(" separator="," close=")">
+                    #{orderId}
+                </foreach>
+            </if>
+            <if test="plates != null and plates.length > 0">
+                and oo.plate_number in
+                <foreach item="plate" collection="plates" open="(" separator="," close=")">
+                    #{plate}
+                </foreach>
+            </if>
+            <if test="cashStatus != null " >
+                and ost.cash_status = #{cashStatus}
+            </if>
+            <if test="oilStatus != null " >
+                and ost.oil_status = #{oilStatus}
+            </if>
+        </where>
+        order by oo.create_time desc
+    </select>
+
+    <!--根据订单编号查询集装箱应付账单信息-->
+    <select id="selectCnBillToDZD" resultMap="CnNeedPayDetailMap">
+
+        select
+        oo.order_id,
+        oo.type,
+        oo.plate_number,
+        oo.driver_id,
+        oo.km_yf as distance,
+        '集装箱' AS order_type,
+        oo.pickup_goods_place as pick_goods_place,
+        oo.send_goods_place as send_goods_place,
+        oo.pickup_con_place as pick_cn_place,
+        oo.return_con_place as return_cn_place,
+        IFNULL(oo.need_pay, 0) as transport_fee,
+        oo.pay_price as per_price,
+        IFNULL(oo.pay_rate, 0) pay_rate,
+        IFNULL(oo.oil_pledge, 0) oil_pledge,
+        IFNULL(oo.etc_fee, 0) etc_fee,
+        oo.repaynumber,
+        oo.need_pay_status,
+        oo.feed_back,
+        oo.remark remarks,
+        oo.update_time,
+        oo.settlement,
+        oo.pay_cash,
+        oo.trans_oil_fee,
+        oo.cash,
+        oo.is_yf_invoice,
+        oo.if_add_to_yfbill,
+        IFNULL(oef.ex_fee, 0) ex_fee,
+        0 AS yc_fee,
+        ool_start1.logistics_time as start_timeq,
+        ool_start2.logistics_time as start_timeh,
+        ool_end2.logistics_time as end_timeq,
+        ool_end1.logistics_time as end_timeh
+        from ord_order oo
+        LEFT JOIN (
+            select order_id, sum(exception_fee) ex_fee
+            from ord_exception_fee
+            where del_flag = '0' and auditing= '1' and tenant_id = #{tenantId}
+            GROUP BY order_id
+        ) oef ON oo.order_id = oef.order_id
+        LEFT JOIN ord_order_logistics ool_start1 on ool_start1.order_id = oo.order_id and ool_start1.order_status = '3'
+        LEFT JOIN ord_order_logistics ool_start2 on ool_start2.order_id = oo.order_id and ool_start2.order_status = '5'
+        LEFT JOIN ord_order_logistics ool_end1 on ool_end1.order_id = oo.order_id and ool_end1.order_status = '11'
+        LEFT JOIN ord_order_logistics ool_end2 on ool_end2.order_id = oo.order_id and ool_end2.order_status = '9'
+
+        <if test="orderIds != null and orderIds.length > 0">
+            where oo.order_id in
+          <foreach item="orderId" collection="orderIds" open="(" separator="," close=")">
+            #{orderId}
+          </foreach>
+        </if>
+        order by oo.create_time desc
+    </select>
+
+    <!--PC端查询集装箱账单详情-->
+    <select id="selectCNBillDetailPC" resultMap="CnBillDetailMap">
+
+        select
+        oo.order_id,
+        oo.type,
+        oo.plate_number,
+        oo.driver_id,
+        oo.km_yf as distance,
+        '集装箱' AS order_type,
+        oo.pickup_goods_place as pick_goods_place,
+        oo.send_goods_place as send_goods_place,
+        IFNULL(oo.need_pay, 0)as transport_fee,
+        oo.pay_price as per_price,
+        IFNULL(oo.pay_rate, 0) pay_rate,
+        IFNULL(oo.oil_pledge, 0) oil_pledge,
+        IFNULL(oo.etc_fee, 0) etc_fee,
+        oo.repaynumber,
+        oo.settlement,
+        oo.need_pay_status,
+        oo.trans_oil_fee,
+        oo.create_time as order_date,
+        oo.is_yf_invoice,
+        oo.remark remarks,
+        0 AS yc_fee,
+        IFNULL(oef.ex_fee,0) ex_fee
+        from ord_order oo
+        LEFT JOIN (
+            select order_id, sum(exception_fee) ex_fee
+            from ord_exception_fee
+            where del_flag = '0' and auditing= '1' and tenant_id = #{tenantId}
+            GROUP BY order_id
+        ) oef ON oo.order_id = oef.order_id
+        <where>
+
+            <if test="orderId != null  and orderId != '' ">and oo.order_id = #{orderId}</if>
+
+        </where>
+
+    </select>
+    <!--分页查询普货应付账单信息-->
+    <select id="selectPhNeedPayList" resultMap="PhNeedPayDetailMap">
+
+        SELECT
+        oct.order_id,
+        oct.plate_number,
+        oog.create_time as order_date,
+        oct.mdriver_id AS driver_id,
+        '普货' AS order_type,
+        oog.shipper_city AS pick_goods_place,
+        oog.picker_city AS send_goods_place,
+        IFNULL(oct.transport_fee, 0) transport_fee,
+        oct.charged_mileage AS distance,
+        oct.oil_fee,
+        oct.need_pay_status,
+        oct.cash,
+        oct.pay_cash,
+        oct.trans_oil_fee,
+        oct.pay_price as per_price,
+        oct.feed_back,
+        IFNULL(oct.pay_rate, 0) pay_rate,
+        IFNULL(oct.oil_pledge, 0) oil_pledge,
+        IFNULL(oct.etc_fee, 0) etc_fee,
+        oog.update_time,
+        oct.remarks,
+        oct.pay_type settlement,
+        oct.repaynumber,
+        IFNULL(oef.ex_fee, 0) ex_fee,
+        0 AS yc_fee,
+        ool_start.logistics_time as start_time,
+        ool_end.logistics_time as end_time,
+        oct.is_yf_invoice,
+        oct.if_add_to_yfbill
+        FROM
+        ord_common_truck oct
+        LEFT JOIN (
+            select order_id, sum(exception_fee) ex_fee
+            from ord_exception_fee
+            where del_flag = '0' and auditing= '1' and tenant_id = #{tenantId}
+            GROUP BY order_id
+        ) oef ON oct.order_id = oef.order_id
+        LEFT JOIN ord_common_goods oog ON oog.order_id = oct.order_id
+        LEFT JOIN ord_order_logistics ool_start on ool_start.order_id = oct.order_id and ool_start.order_status = '5'
+        LEFT JOIN ord_order_logistics ool_end on ool_end.order_id = oct.order_id and ool_end.order_status = '9'
+        LEFT JOIN order_settlement ost on ost.order_id = oct.order_id
+        <where>
+            oog.del_flag ='0'
+            and oog.status = '12'
+            -- and oct.if_add_to_yfbill='0'
+            <if test="customerId != null  and customerId != '' "> and oog.customer_id = #{customerId}</if>
+            <if test="ifAddToYfbill != null  and ifAddToYfbill != '' ">and oct.if_add_to_yfbill = #{ifAddToYfbill}</if>
+            <if test="orderId != null  and orderId != '' ">and oct.order_id = #{orderId}</if>
+            <if test="plateNumber != null  and plateNumber != '' ">and oct.plate_number = #{plateNumber}</if>
+            <if test="ordStartTime != null ">and date_format(oog.update_time,'%y%m%d')  &gt;= #{ordStartTime}</if>
+            <if test="ordEndTime != null ">and date_format(oog.update_time,'%y%m%d')  &lt;= #{ordEndTime}</if>
+            <if test="driverId != null ">and oct.mdriver_id =  #{driverId}</if>
+            <if test="tenantId != null ">and oct.tenant_id = #{tenantId}</if>
+            <if test="settlement != null and settlement != ''">and oct.pay_type = #{settlement}</if>
+            <if test="orderIds != null and orderIds.length > 0">
+                and oct.order_id in
+                <foreach item="orderId" collection="orderIds" open="(" separator="," close=")">
+                    #{orderId}
+                </foreach>
+            </if>
+            <if test="plates != null and plates.length > 0">
+                and oct.plate_number in
+                <foreach item="plate" collection="plates" open="(" separator="," close=")">
+                    #{plate}
+                </foreach>
+            </if>
+            <if test="cashStatus != null " >
+                and ost.cash_status = #{cashStatus}
+            </if>
+            <if test="oilStatus != null " >
+                and ost.oil_status = #{oilStatus}
+            </if>
+        </where>
+        order by oog.create_time desc
+    </select>
+  <!--根据订单编号数组查询相应的账单信息-->
+    <select id="selectPhBillToDZD" resultMap="PhNeedPayDetailMap">
+
+        SELECT
+        oct.order_id,
+        oct.plate_number,
+        oct.mdriver_id AS driver_id,
+        '普货' AS order_type,
+        oog.shipper_city AS pick_goods_place,
+        oog.picker_city AS send_goods_place,
+        IFNULL(oct.transport_fee, 0) transport_fee,
+        oct.charged_mileage AS distance,
+        oct.oil_fee,
+        oct.trans_oil_fee,
+        IFNULL(oct.oil_pledge, 0) oil_pledge,
+        IFNULL(oct.etc_fee, 0) etc_fee,
+        oct.repaynumber,
+        oct.need_pay_status,
+        oct.is_yf_invoice,
+        oct.if_add_to_yfbill,
+        oct.cash,
+        oct.pay_type settlement,
+        oct.pay_cash,
+        oct.pay_price as per_price,
+        IFNULL(oct.pay_rate, 0) pay_rate,
+        oct.feed_back,
+        oog.update_time,
+        IFNULL(oef.ex_fee, 0) ex_fee,
+        0 AS yc_fee,
+        oct.remarks,
+        ool_start.logistics_time as start_time,
+        ool_end.logistics_time as end_time
+        FROM
+        ord_common_truck oct
+        LEFT JOIN (
+            select order_id, sum(exception_fee) ex_fee
+            from ord_exception_fee
+            where del_flag = '0' and auditing= '1' and tenant_id = #{tenantId}
+            GROUP BY order_id
+        ) oef ON oct.order_id = oef.order_id
+        LEFT JOIN ord_common_goods oog ON oog.order_id = oct.order_id
+        LEFT JOIN ord_order_logistics ool_start on ool_start.order_id = oct.order_id and ool_start.order_status = '5'
+        LEFT JOIN ord_order_logistics ool_end on ool_end.order_id = oct.order_id and ool_end.order_status = '9'
+        <if test="orderIds != null and orderIds.length > 0">
+        where oct.order_id in
+            <foreach item="orderId" collection="orderIds" open="(" separator="," close=")">
+                #{orderId}
+            </foreach>
+        </if>
+        /*添加是否入账字段*/
+
+        order by oog.create_time desc
+    </select>
+
+
+    <!--PC端普货账单详情-->
+    <select id="selectPHBillDetailPC" resultMap="PhBillDetailMap">
+
+        SELECT
+        oct.order_id,
+        oct.mdriver_id AS driver_id,
+        '普货' AS order_type,
+        oog.shipper_city AS pick_goods_place,
+        oog.picker_city AS send_goods_place,
+        IFNULL(oct.transport_fee, 0) transport_fee,
+        oct.charged_mileage AS distance,
+        oct.oil_fee,
+        oct.trans_oil_fee,
+        oct.need_pay_status,
+        oct.is_yf_invoice,
+        oct.plate_number,
+        IFNULL(oct.pay_rate, 0) pay_rate,
+        oct.pay_price as per_price,
+        oog.create_time as order_date,
+        IFNULL(oef.ex_fee, 0) ex_fee,
+        0 AS yc_fee,
+        oct.remarks,
+        oct.pay_type settlement,
+        oct.repaynumber,
+        IFNULL(oct.oil_pledge, 0) oil_pledge,
+        IFNULL(oct.etc_fee, 0) etc_fee,
+        ool_start.logistics_time as start_time,
+        ool_end.logistics_time as end_time
+        FROM
+        ord_common_truck oct
+        LEFT JOIN (
+            select order_id, sum(exception_fee) ex_fee
+            from ord_exception_fee
+            where del_flag = '0' and auditing= '1' and tenant_id = #{tenantId}
+            GROUP BY order_id
+        ) oef ON oct.order_id = oef.order_id
+        LEFT JOIN ord_common_goods oog ON oog.order_id = oct.order_id
+        LEFT JOIN ord_order_logistics ool_start on ool_start.order_id = oct.order_id and ool_start.order_status = '5'
+        LEFT JOIN ord_order_logistics ool_end on ool_end.order_id = oct.order_id and ool_end.order_status = '9'
+        <where>
+
+            <if test="orderId != null  and orderId != '' ">and oct.order_id = #{orderId}</if>
+        </where>
+
+    </select>
+
+
+    <!--查询司机当前账单的待办和处理中的数量-->
+    <select id="getBillNum" resultMap="BillNumMap">
+       select
+      ((SELECT count(order_id) from ord_common_truck where need_pay_status='2' and mdriver_id=#{driverId})+
+      (SELECT count(id)from ord_order where need_pay_status='2' and del_flag='0' and driver_id=#{driverId}))as new_bill,
+
+      ((SELECT count(order_id) from ord_common_truck where need_pay_status in ('3','4') and mdriver_id=#{driverId})+
+      (SELECT count(id) from ord_order where need_pay_status in ('3','4') and del_flag='0' and driver_id=#{driverId})) as check_bill
+    </select>
+    <select id="getAccountBillNum" resultMap="BillNumMap">
+        SELECT
+        ( SELECT count( id ) FROM need_pay_bill WHERE settlement_status = '2' AND driver_id = #{driverId} ) AS new_bill,
+        ( SELECT count( id ) FROM need_pay_bill WHERE settlement_status in ('3','4') AND driver_id = #{driverId} ) AS check_bill
+    </select>
+
+    <!--小程序端查看账单基本信息-->
+    <select id="getBillBaseInfo" resultMap="BillBaseInfoMap">
+        (select
+        null as pickCnPlace,
+        null as returnCnPlace,
+        null as type,
+        ocg.pick_goods_place as startPlace,
+        ocg.send_goods_place as endPlace,
+        ocg.send_truck_date as orderDate,
+        oct.order_id,
+        oct.plate_number,
+        IFNULL(oct.transport_fee, 0)as trans_fee,
+        oct.charged_mileage as distance,
+        oct.cash,
+        IFNULL(oct.oil_pledge, 0) oil_pledge,
+        IFNULL(oct.etc_fee, 0) etc_fee,
+        oct.pay_cash,
+        oct.feed_back,
+        oct.pay_price as per_price,
+        IFNULL(oef.ex_fee, 0) ex_fee,
+        oct.trans_oil_fee,
+        oct.is_yf_invoice,
+        IFNULL(oct.pay_rate, 0) pay_rate
+        from ord_common_truck oct
+        left join ord_common_goods ocg on ocg.order_id = oct.order_id
+        LEFT JOIN (
+            select order_id, sum(exception_fee) ex_fee
+            from ord_exception_fee
+            where del_flag = '0' and auditing= '1' and tenant_id = #{tenantId}
+            GROUP BY order_id
+        ) oef ON oct.order_id = oef.order_id
+        <where>
+             oct.if_add_to_yfbill='0'
+            <if test="driverId !=null ">and oct.mdriver_id = #{driverId}</if>
+            <if test="orderId !=null and orderId !='' ">and oct.order_id = #{orderId}</if>
+            <if test="status != null and status.length > 0">
+                and oct.need_pay_status in
+                <foreach item="sta" collection="status" open="(" separator="," close=")">
+                    #{sta}
+                </foreach>
+            </if>
+        </where>
+        )
+        union
+        (select
+        oo.pickup_con_place as pickCnPlace,
+        oo.return_con_place as returnCnPlace,
+        oo.type as type,
+        oo.pickup_goods_place as startPlace,
+        oo.send_goods_place as endPlace,
+        oo.send_truck_date as orderDate,
+        oo.order_id,
+        oo.plate_number,
+        oo.need_pay as trans_fee,
+        oo.km_yf as distance,
+        oo.cash,
+        IFNULL(oo.oil_pledge, 0) oil_pledge,
+        IFNULL(oo.etc_fee, 0) etc_fee,
+        oo.pay_cash,
+        oo.feed_back,
+        oo.pay_price as per_price,
+        IFNULL(oef.ex_fee, 0) ex_fee,
+        oo.trans_oil_fee,
+        oo.is_yf_invoice,
+        IFNULL(oo.pay_rate, 0) pay_rate
+        from ord_order oo
+        LEFT JOIN (
+            select order_id, sum(exception_fee) ex_fee
+            from ord_exception_fee
+            where del_flag = '0' and auditing= '1' and tenant_id = #{tenantId}
+            GROUP BY order_id
+        ) oef ON oo.order_id = oef.order_id
+        <where>
+            oo.del_flag='0'
+            and  oo.if_add_to_yfbill='0'
+            <if test="driverId !=null ">and oo.driver_id = #{driverId}</if>
+            <if test="orderId !=null and orderId != ''">and oo.order_id = #{orderId}</if>
+            <if test="status != null and status.length > 0">
+                and oo.need_pay_status in
+                <foreach item="sta" collection="status" open="(" separator="," close=")">
+                    #{sta}
+                </foreach>
+            </if>
+        </where>
+         )
+    </select>
+
+    <!--应付对账单页面查询-->
+    <select id="needPayBillList" resultMap="BaseResultMap">
+        <include refid="BaseColumn"/>
+        <where> del_flag = '0'
+          <if test="createTime != null and createTime != ''">
+              and DATE_FORMAT( create_time,'%Y-%m-%d') = #{createTime}
+          </if>
+          <if test="startTime != null and startTime != ''">
+              AND npb.date_start BETWEEN #{startTime}  AND date_add(#{startTime}  ,INTERVAL 1 DAY )
+          </if>
+          <if test="driverId != null">
+              and driver_id = #{driverId}
+          </if>
+          <if test="orderType != null and orderType != ''">
+              and order_type = #{orderType}
+          </if>
+          <if test="tenantId != null">
+              and tenant_id = #{tenantId}
+          </if>
+          <if test="accountPayId != null and accountPayId != ''">
+              and account_pay_id = #{accountPayId}
+          </if>
+          <if test="plateNumber != null and plateNumber != ''">
+              and plate_number = #{plateNumber}
+          </if>
+          <if test="settlementStatus != null and settlementStatus != ''">
+              and settlement_status = #{settlementStatus}
+          </if>
+          <if test="idsArray != null and idsArray.length > 0">
+              and id in
+              <foreach item="id" collection="idsArray" open="(" separator="," close=")">
+                  #{id}
+              </foreach>
+          </if>
+          <if test="plates != null and plates.length > 0">
+                and plate_number in
+                <foreach item="plateNumber" collection="plates" open="(" separator="," close=")">
+                    #{plateNumber}
+                </foreach>
+          </if>
+          <if test="statusArray != null and statusArray.length > 0">
+            and settlement_status in
+            <foreach item="settlementStatus" collection="statusArray" open="(" separator="," close=")">
+                #{settlementStatus}
+            </foreach>
+          </if>
+          <if test="cashStatus != null " >
+            and ost.cash_status = #{cashStatus}
+         </if>
+          <if test="oilStatus != null " >
+            and ost.oil_status = #{oilStatus}
+          </if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="needPayBillListByAid" resultMap="BaseResultMap">
+        <include refid="BaseColumn"/>
+        <where> del_flag = '0'
+            <if test="tenantId != null">
+                and tenant_id = #{tenantId}
+            </if>
+            <if test="accountPayId != null and accountPayId != ''">
+                and account_pay_id = #{accountPayId}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectFreightOilcardFeeByOrderId" resultType="com.zhkj.lc.order.model.entity.NeedPayBill">
+        select DISTINCT a.driver_id driverId, a.settlement_status settlementStatus, IFNULL(a.freight_oilcard_fee, 0) freightOilcardFee
+        from need_pay_bill a
+        left join billmiddle b on a.account_pay_id = b.account_pay_number
+        where a.del_flag = '0'
+        <if test="orderId != null and orderId != '' "> and b.order_number = #{orderId}</if>
+        <if test="id != null "> and a.id = #{id}</if>
+        <if test="tenantId != null  "> and a.tenant_id = #{tenantId}</if>
+    </select>
+
+    <select id="selectBillByOrderId" resultMap="BaseResultMap">
+        select np.id, np.account_pay_id, np.date_start, np.date_end, np.driver_id, np.order_type, np.order_amount, np.rate, np.total_fee, np.normal_oilcard_fee, np.freight_oilcard_fee, np.need_pay_cash, np.pay_cash, np.use_rate, np.settlement_status, np.feedback,
+        oil_pledge, np.etc_fee, np.repaynumber, np.feedback_money, np.remark, np.del_flag, np.create_by, np.create_time, np.update_by, np.update_time, np.tenant_id,plate_number
+        from billmiddle b
+        left join need_pay_bill np on np.account_pay_id = b.account_pay_number
+        where b.order_number = #{orderId} and b.tenant_id = #{tenantId}
+    </select>
+
+    <select id="getTruckownAccountBillBase" resultMap="BillNumMap">
+        SELECT
+        ( SELECT count( id ) FROM need_pay_bill WHERE settlement_status = '2'
+        and del_flag = '0'
+        AND plate_number in
+        <foreach item="plateNumber" collection="plateNumbers" open="(" separator="," close=")">
+            #{plateNumber}
+        </foreach> ) AS new_bill,
+        ( SELECT count( id ) FROM need_pay_bill WHERE settlement_status in ('3','4')
+        and del_flag = '0'
+        AND plate_number in
+        <foreach item="plateNumber" collection="plateNumbers" open="(" separator="," close=")">
+            #{plateNumber}
+        </foreach> ) AS check_bill
+    </select>
+
+    <select id="getTruckownBillNum" resultMap="BillNumMap">
+       select
+      ((SELECT count(order_id) from ord_common_truck where need_pay_status='2'
+        AND plate_number in
+        <foreach item="plateNumber" collection="plateNumbers" open="(" separator="," close=")">
+            #{plateNumber}
+        </foreach>)+
+      (SELECT count(id)from ord_order where need_pay_status='2' and del_flag='0'
+        AND plate_number in
+        <foreach item="plateNumber" collection="plateNumbers" open="(" separator="," close=")">
+            #{plateNumber}
+        </foreach>))as new_bill,
+
+      ((SELECT count(order_id) from ord_common_truck where need_pay_status in ('3','4')
+        AND plate_number in
+        <foreach item="plateNumber" collection="plateNumbers" open="(" separator="," close=")">
+            #{plateNumber}
+        </foreach>)+
+      (SELECT count(id) from ord_order where need_pay_status in ('3','4') and del_flag='0'
+        AND plate_number in
+        <foreach item="plateNumber" collection="plateNumbers" open="(" separator="," close=")">
+            #{plateNumber}
+        </foreach>)) as check_bill
+    </select>
+
+    <select id="getTruckownBillBaseInfo" resultMap="BillBaseInfoMap">
+        (select
+        null as pickCnPlace,
+        null as returnCnPlace,
+        null as type,
+        ocg.pick_goods_place as startPlace,
+        ocg.send_goods_place as endPlace,
+        ocg.send_truck_date as orderDate,
+        oct.order_id,
+        oct.plate_number,
+        oct.mdriver_id as driverId,
+        IFNULL(oct.transport_fee, 0)as trans_fee,
+        oct.charged_mileage as distance,
+        oct.cash,
+        IFNULL(oct.oil_pledge, 0) oil_pledge,
+        IFNULL(oct.etc_fee, 0) etc_fee,
+        oct.pay_cash,
+        oct.feed_back,
+        oct.pay_price as per_price,
+        IFNULL(oef.ex_fee, 0) ex_fee,
+        oct.trans_oil_fee,
+        oct.is_yf_invoice,
+        IFNULL(oct.pay_rate, 0) pay_rate
+        from ord_common_truck oct
+        left join ord_common_goods ocg on ocg.order_id = oct.order_id
+        LEFT JOIN (
+        select order_id, sum(exception_fee) ex_fee
+        from ord_exception_fee
+        where del_flag = '0' and auditing= '1' and tenant_id = #{tenantId}
+        GROUP BY order_id
+        ) oef ON oct.order_id = oef.order_id
+        <where>
+            oct.if_add_to_yfbill='0'
+            AND oct.plate_number in
+            <foreach item="plateNumber" collection="plateNumbers" open="(" separator="," close=")">
+                #{plateNumber}
+            </foreach>
+            <if test="orderId !=null and orderId !='' ">and oct.order_id = #{orderId}</if>
+            <if test="status != null and status.length > 0">
+                and oct.need_pay_status in
+                <foreach item="sta" collection="status" open="(" separator="," close=")">
+                    #{sta}
+                </foreach>
+            </if>
+            <if test="driverId != null and driverId != '' and driverId !=0">AND ( oct.mdriver_id = #{driverId}  OR oct.sdriver_id = #{driverId}  )</if>
+            <if test="time != null and time != ''">AND( ocg.send_truck_date BETWEEN #{time} AND date_add(#{time} ,INTERVAL 1 DAY ))</if>
+        </where>
+        )
+        union
+        (select
+        oo.pickup_con_place as pickCnPlace,
+        oo.return_con_place as returnCnPlace,
+        oo.type as type,
+        oo.pickup_goods_place as startPlace,
+        oo.send_goods_place as endPlace,
+        oo.send_truck_date as orderDate,
+        oo.order_id,
+        oo.plate_number,
+        oo.driver_id as driverId,
+        oo.need_pay as trans_fee,
+        oo.km_yf as distance,
+        oo.cash,
+        IFNULL(oo.oil_pledge, 0) oil_pledge,
+        IFNULL(oo.etc_fee, 0) etc_fee,
+        oo.pay_cash,
+        oo.feed_back,
+        oo.pay_price as per_price,
+        IFNULL(oef.ex_fee, 0) ex_fee,
+        oo.trans_oil_fee,
+        oo.is_yf_invoice,
+        IFNULL(oo.pay_rate, 0) pay_rate
+        from ord_order oo
+        LEFT JOIN (
+        select order_id, sum(exception_fee) ex_fee
+        from ord_exception_fee
+        where del_flag = '0' and auditing= '1' and tenant_id = #{tenantId}
+        GROUP BY order_id
+        ) oef ON oo.order_id = oef.order_id
+        <where>
+            oo.del_flag='0'
+            and  oo.if_add_to_yfbill='0'
+            AND oo.plate_number in
+            <foreach item="plateNumber" collection="plateNumbers" open="(" separator="," close=")">
+                #{plateNumber}
+            </foreach>
+            <if test="orderId !=null and orderId != ''">and oo.order_id = #{orderId}</if>
+            <if test="status != null and status.length > 0">
+                and oo.need_pay_status in
+                <foreach item="sta" collection="status" open="(" separator="," close=")">
+                    #{sta}
+                </foreach>
+            </if>
+            <if test="driverId != null and driverId != '' and driverId !=0">AND oo.driver_id = #{driverId} </if>
+            <if test="time != null and time != ''">AND( oo.send_truck_date BETWEEN #{time} AND date_add(#{time} ,INTERVAL 1 DAY ))</if>
+        </where>
+        )
+    </select>
+</mapper>

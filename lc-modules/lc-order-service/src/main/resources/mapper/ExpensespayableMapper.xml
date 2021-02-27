@@ -1,0 +1,797 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.order.mapper.ExpensespayableMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zhkj.lc.order.model.entity.Expensespayable">
+        <id column="id" property="id" />
+        <result column="account_pay_id" property="accountPayId" />
+        <result column="pay_date_start" property="payDateStart" />
+        <result column="pay_date_end" property="payDateEnd" />
+        <result column="customer_name" property="customerName" />
+        <result column="order_type" property="orderType" />
+        <result column="order_amount" property="orderAmount" />
+        <result column="rate" property="rate" />
+        <result column="total_fee" property="totalFee" />
+        <result column="settlement_status" property="settlementStatus" />
+        <result column="remark" property="remark" />
+        <result column="del_flag" property="delFlag" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="tenant_id" property="tenantId" />
+    </resultMap>
+
+    <!-- 分页查询集装箱应付费用详细信息 -->
+    <resultMap id="CnOrderMap" type="com.zhkj.lc.order.dto.ReceiveBillOrder">
+        <result property="orderId"    column="order_id"    />
+        <result property="orderType"    column="order_type"    />
+        <result property="classDate"    column="class_date"    />
+        <result property="orderDate"    column="order_date"    />
+        <result property="customerId"    column="customer_id"    />
+        <result property="pickupConPlace"    column="pickup_con_place"    />
+        <result property="returnConPlace"    column="return_con_place"    />
+        <result property="consignor"    column="consignor"    />
+        <result property="consignorPhone"    column="consignor_phone"    />
+        <result property="pickupGoodsDetailplace"    column="pickup_goods_detailplace"    />
+        <result property="pickupGoodsDate"    column="pickup_goods_date"    />
+        <result property="consignee"    column="consignee"    />
+        <result property="consigneePhone"    column="consignee_phone"    />
+        <result property="sendGoodsDetailplace"    column="send_goods_detailplace"    />
+        <result property="sendGoodsDate"    column="send_goods_date"    />
+        <result property="isInvoice"    column="is_invoice"    />
+        <result property="kilometre"    column="kilometre"    />
+        <result property="recPrice" column="rec_price" />
+        <result property="receivables" column="receivables" />
+        <result property="rate" column="rate" />
+        <result property="pickcnFee" column="pickcn_fee" />
+        <result property="parkingFee" column="parking_fee" />
+        <result property="exceptionFee" column="exception_fee" />
+        <result property="orderFee" column="order_fee" />
+        <result property="totalFee" column="total_fee" />
+        <result property="settlement" column="settlement" />
+        <result property="balanceStatus" column="balance_status" />
+        <result property="remark"    column="remark"    />
+        <result property="plateNumber"    column="plate_number"    />
+        <result property="sealNumber"    column="seal_number"    />
+
+        <result property="productName"    column="product_name"    />
+        <result property="classOrder"    column="class_order"    />
+        <result property="containerNo"    column="container_no"    />
+        <result property="containerType"    column="container_type"    />
+        <result property="containerNum"    column="container_num"    />
+        <result property="type"    column="type"    />
+        <result property="isAddToBill"    column="is_add_to_bill" />
+    </resultMap>
+
+    <!-- 分页查询普货应付费用详细信息 -->
+    <resultMap id="PhOrderMap" type="com.zhkj.lc.order.dto.ReceiveBillCommonGoods">
+        <result column="order_id" property="orderId" />
+        <result column="order_type"  property="orderType"  />
+        <result column="class_date"  property="classDate"  />
+        <result column="customer_id" property="customerId" />
+        <result column="shipper" property="shipper" />
+        <result column="shipper_place" property="shipperPlace" />
+        <result column="shipper_phone" property="shipperPhone" />
+        <result column="picker" property="picker" />
+        <result column="picker_place" property="pickerPlace" />
+        <result column="picker_phone" property="pickerPhone" />
+        <result column="charged_mileage" property="chargedMileage" />
+        <result column="rec_price" property="recPrice" />
+        <result column="receivables" property="receivables" />
+        <result property="rate" column="rate" />
+        <result column="pick_fee" property="pickFee" />
+        <result column="pack_fee" property="packFee" />
+        <result column="release_fee" property="releaseFee" />
+        <result column="insurance_fee" property="insuranceFee" />
+        <result column="other_fee" property="otherFee" />
+        <result column="exception_fee" property="exceptionFee" />
+        <result property="orderFee" column="order_fee" />
+        <result property="totalFee" column="total_fee" />
+        <result column="is_invoice" property="isInvoice" />
+        <result column="order_fee" property="orderFee" />
+        <result column="remark" property="remark" />
+        <result property="balanceStatus" column="balance_status" />
+        <result property="settlement" column="settlement" /><!--结算方式-->
+        <result property="plateNumber" column="plate_number" /><!--结算方式-->
+        <result property="isAddToBill"  column="is_add_to_bill" />
+    </resultMap>
+    <!-- 分页查询盘短应付费用详细信息 -->
+    <resultMap id="PdOrderMap" type="com.zhkj.lc.order.dto.ReceiveBillShortOrder">
+        <result column="order_id" property="orderId" />
+        <result column="order_type" property="orderType"   />
+        <result column="order_date" property="orderDate" />
+        <result column="customer" property="customer" />
+        <result column="customer_name" property="customerName" />
+        <result column="goods_name" property="goodsName" />
+        <result column="is_heavy" property="isHeavy" />
+        <result column="short_type" property="shortType" />
+        <result column="trans_line" property="transLine" />
+        <result column="plate_number" property="plateNumber" />
+        <result column="short_trans_sum" property="shortTransSum" />
+        <result column="rec_price" property="recPrice" />
+        <result column="rec_out_time_fee" property="recOutTimeFee" />
+        <result column="rec_parking_fee" property="recParkingFee" />
+        <result column="rec_other_fee" property="recOtherFee" />
+        <result property="orderFee" column="order_fee" />
+        <result property="totalFee" column="total_fee" />
+        <result column="receivables" property="receivables" />
+        <result column="receivables_remark" property="receivablesRemark" />
+        <result property="balanceStatus" column="balance_status" />
+    </resultMap>
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, account_pay_id AS accountPayId, pay_date_start AS payDateStart, pay_date_end AS payDateEnd, customer_name AS customerName, order_type AS orderType,
+         order_amount AS orderAmount, rate, total_fee AS totalFee,
+         settlement_status AS settlementStatus, remark, del_flag AS delFlag, create_by AS createBy, create_time AS createTime, update_by AS updateBy,
+         update_time AS updateTime, tenant_id AS tenantId
+    </sql>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column">
+        id, account_pay_id, pay_date_start, pay_date_end, customer_name, order_type, order_amount, rate,
+         total_fee, settlement_status, remark, del_flag, create_by, create_time, update_by, update_time, tenant_id
+    </sql>
+
+    <select id="selectByAccountPayId" resultMap="BaseResultMap">
+        select <include refid="Base_Column"/>
+        from expensespayable
+        <where>
+            <if test="accountPayId != null  and accountPayId != '' "> and account_pay_id = #{accountPayId}</if>
+        </where>
+    </select>
+
+    <select id="selectExpensespayableByIds" resultMap="BaseResultMap">
+        select <include refid="Base_Column"/>
+        from expensespayable
+        <where>
+            del_flag = '0'
+            <if test="ids != null "> and id in
+                <foreach item="id" collection="ids"   open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+        </where>
+    </select>
+
+    <select id="selectExpensespayableList" resultMap="BaseResultMap">
+        select <include refid="Base_Column"/>
+        from expensespayable
+        <where>
+            del_flag = '0'
+            and  order_amount &gt; 0
+            <if test="id != null "> and id = #{id}</if>
+            <if test="accountPayId != null  and accountPayId != '' "> and account_pay_id = #{accountPayId}</if>
+            <if test="customerName != null  and customerName != '' "> and customer_name = #{customerName}</if>
+            <if test="orderType != null  and orderType != '' "> and order_type = #{orderType}</if>
+            <if test="settlementStatus != null  and settlementStatus != '' "> and settlement_status = #{settlementStatus}</if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+            <if test="paramDate != null and paramDate != ''">
+                and DATE_FORMAT( create_time,'%Y-%m-%d') = #{paramDate}
+            </if>
+        </where>
+    </select>
+
+    <!--统计今日应收费用-->
+    <select id="countTodayMoney" resultType="java.math.BigDecimal">
+        select IFNULL(sum(total_fee),0)
+        from expensespayable
+        where settlement_status in ('0','1') and  to_days(create_time) = to_days(now()) and del_flag='0' and tenant_id = #{tenantId}
+    </select>
+
+    <update id="SettlementProcess">
+        update expensespayable
+        set settlement_status = #{settlementStatus}
+        <if test="updateBy != null  and updateBy != ''  ">,update_by = #{updateBy}</if>
+        where account_pay_id = #{accountPayId}
+        and del_flag='0'
+    </update>
+
+    <select id="selectByIds" resultMap="BaseResultMap">
+        select id,account_pay_id
+        from expensespayable
+        where id in
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <update id="deleteByIds" parameterType="com.zhkj.lc.order.model.entity.Expensespayable">
+        update expensespayable
+        set del_flag='1',update_time=#{updateTime}
+        <if test="updateBy != null  and updateBy != ''  ">,update_by = #{updateBy}</if>
+        where id in
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+
+    <!--分页查询集装箱应收账单信息-->
+    <select id="selectCnOrderList" resultMap="CnOrderMap">
+        select DISTINCT
+        cnb.order_id,cnb.order_type, cnb.class_date,cnb.create_time as order_date,cnb.customer_id,cnb.pickup_con_place,cnb.return_con_place,cnb.consignor,
+        cnb.consignor_phone,cnb.pickup_goods_detailplace,cnb.pickup_goods_date,cnb.consignee,cnb.consignee_phone,
+        cnb.send_goods_detailplace,cnb.send_goods_date,cnb.is_invoice,cnb.kilometre,cnb.rec_price,
+        cnb.receivables,cnb.settlement,cnb.balance_status,cnb.exception_fee,
+        (cnb.receivables+cnb.exception_fee) as order_fee,
+        (cnb.receivables+cnb.exception_fee) as total_fee,
+        cnb.type,cnb.product_name,cnb.class_order,
+        cnb.container_no,cnb.container_type,cnb.container_num, cnb.plate_number,cnb.seal_number, cnb.rate,cnb.is_add_to_bill,cnb.remark
+        from
+        (select DISTINCT
+        oo.order_id,
+        '集装箱' AS order_type,
+        oo.class_date,
+        oo.customer_id,
+        oo.pickup_con_place,
+        oo.return_con_place,
+        oo.consignor,
+        oo.consignor_phone,
+        oo.pickup_goods_detailplace,
+        oo.pickup_goods_date,
+        oo.consignee,
+        oo.consignee_phone,
+        oo.send_goods_detailplace,
+        oo.send_goods_date,
+        oo.create_time,
+        oo.is_invoice,
+        oo.pay_rate rate,
+        oo.kilometre,
+        oo.is_add_to_bill,
+        IFNULL(convert(oo.receivables/oo.kilometre,decimal(10,2)),0) as rec_price,
+        IFNULL(oo.receivables,0) as receivables,
+        oo.balance_way settlement,
+        oo.balance_status,
+        oo.update_time,
+        oo.type AS "type",
+        oo.class_order,
+        oo.container_no,
+        oo.plate_number,
+        oo.seal_number,
+        oo.remark,
+        oo.product_name,
+        oo.container_type,
+        oo.container_num,
+        case when upstream_return_fee is not null then upstream_return_fee
+        else IFNULL(upstream_report_fee,0) + IFNULL(upstream_yc_price,0) * IFNULL(upstream_yc_day,0) END as exception_fee
+        from ord_order oo
+        <where>
+            oo.del_flag ='0'
+            and oo.status ='12'
+            <if test="orderId != null  and orderId != '' "> and oo.order_id = #{orderId}</if>
+            <if test="orderIds != null">
+                and oo.order_id in
+                <foreach item="orderId" collection="orderIds"  open="(" separator="," close=")">
+                    #{orderId}
+                </foreach>
+            </if>
+            <if test="plates != null and plates.length > 0">
+                and oo.plate_number in
+                <foreach item="plate" collection="plates"  open="(" separator="," close=")">
+                    #{plate}
+                </foreach>
+            </if>
+            <if test="customerId != null  and customerId != '' "> and oo.customer_id = #{customerId}</if>
+            <if test="blStartTime != null "> and date_format(oo.class_date,'%Y-%m-%d') &gt;= #{blStartTime}</if>
+            <if test="blEndTime != null "> and date_format(oo.class_date,'%Y-%m-%d') &lt;= #{blEndTime}</if>
+            <if test="ordStartTime != null "> and date_format(oo.create_time,'%Y-%m-%d') &gt;= #{ordStartTime}</if>
+            <if test="ordEndTime != null "> and date_format(oo.create_time,'%Y-%m-%d') &lt;= #{ordEndTime}</if>
+            <if test="tenantId != null "> and oo.tenant_id = #{tenantId}</if>
+            <if test="settlement != null and settlement != '' "> and oo.balance_way = #{settlement}</if>
+            <if test="balanceStatus != null and balanceStatus != '' "> and oo.balance_status = #{balanceStatus}</if>
+            <if test="type != null and type != '' "> and oo.type = #{type}</if>
+            <if test="classOrder != null and classOrder != '' "> and oo.class_order = #{classOrder}</if>
+            <if test="containerNo != null and containerNo != '' "> and oo.container_no = #{containerNo}</if>
+            <if test="plateNumber != null and plateNumber != '' "> and oo.plate_number = #{plateNumber}</if>
+            <if test="sealNumber != null and sealNumber != '' "> and oo.seal_number = #{sealNumber}</if>
+        </where>
+        order by oo.create_time desc
+        ) cnb
+    </select>
+    <!--分页查询普货应付账单信息-->
+    <select id="selectPhOrderList" resultMap="PhOrderMap">
+        select DISTINCT
+        phb.order_id,phb.order_type, phb.customer_id,phb.shipper,phb.shipper_place,phb.shipper_phone,phb.picker,phb.picker_place,
+        phb.picker_phone,phb.settlement,phb.charged_mileage,phb.rec_price,phb.receivables,phb.pick_fee,phb.pack_fee,phb.release_fee,
+        phb.insurance_fee,phb.other_fee,phb.is_invoice,phb.balance_status,phb.class_date,phb.rate,phb.plate_number,
+        (phb.receivables+phb.pick_fee+phb.pack_fee+phb.release_fee+phb.insurance_fee+phb.other_fee) as order_fee,
+        (phb.receivables+phb.pick_fee+phb.pack_fee+phb.release_fee+phb.insurance_fee+phb.other_fee) as total_fee,
+        (phb.pick_fee+phb.pack_fee+phb.release_fee+phb.insurance_fee+phb.other_fee) as exception_fee,
+        phb.is_add_to_bill,phb.remark
+        from
+        (SELECT DISTINCT
+        ocg.order_id,
+        '普货' AS order_type,
+        ocg.customer_id,
+        ocg.shipper,
+        ocg.shipper_place,
+        ocg.shipper_phone,
+        ocg.picker,
+        ocg.picker_place,
+        ocg.picker_phone,
+        ocg.balance_way as settlement,
+        IFNULL(ocg.charged_mileage,0) as charged_mileage,
+        IFNULL(CONVERT ( ocg.transport_fee / ocg.charged_mileage, DECIMAL ( 10, 2 ) ),0) AS rec_price,
+        IFNULL(ocg.transport_fee,0) as receivables,
+        IFNULL(ocg.pick_fee,0) as pick_fee,
+        IFNULL(ocg.pack_fee,0) as pack_fee,
+        IFNULL(ocg.release_fee,0) as release_fee,
+        IFNULL(ocg.insurance_fee,0) as insurance_fee,
+        IFNULL(ocg.other_fee,0) as other_fee,
+        ocg.is_invoice,
+        oct.pay_rate rate,
+        ocg.balance_status,
+        ocg.create_time as class_date,
+        ocg.update_time,
+        oct.plate_number,
+        ocg.is_add_to_bill,
+        oct.remarks remark
+        FROM
+        ord_common_goods ocg
+        left join ord_common_truck oct on oct.order_id = ocg.order_id
+        <where>
+            ocg.del_flag ='0'
+            and ocg.status = '12'
+            <if test="orderId != null  and orderId != '' "> and ocg.order_id = #{orderId}</if>
+            <if test="orderIds != null">
+                and ocg.order_id in
+                <foreach item="orderId" collection="orderIds"  open="(" separator="," close=")">
+                    #{orderId}
+                </foreach>
+            </if>
+            <if test="plates != null and plates.length > 0">
+                and oct.plate_number in
+                <foreach item="plate" collection="plates"  open="(" separator="," close=")">
+                    #{plate}
+                </foreach>
+            </if>
+            <if test="customerId != null  and customerId != '' "> and ocg.customer_id = #{customerId}</if>
+            <if test="ordStartTime != null "> and date_format(ocg.create_time,'%Y-%m-%d') &gt;= #{ordStartTime}</if>
+            <if test="ordEndTime != null "> and date_format(ocg.create_time,'%Y-%m-%d')  &lt;=  #{ordEndTime}</if>
+            <if test="tenantId != null "> and ocg.tenant_id = #{tenantId}</if>
+            <if test="settlement != null and settlement != '' "> and ocg.balance_way = #{settlement}</if>
+            <if test="balanceStatus != null and balanceStatus != '' "> and ocg.balance_status = #{balanceStatus}</if>
+        </where>
+        order by ocg.create_time desc
+        ) phb
+    </select>
+
+    <!--分页查询盘短应付账单信息-->
+    <select id="selectPdOrderList" resultMap="PdOrderMap">
+        SELECT DISTINCT
+        oso.order_id,
+        oso.plate_number,
+        '盘短' AS order_type,
+        oso.order_date,
+        '陆港' AS customer,
+        oso.carrier as customer_name,
+        oso.goods_name,
+        oso.is_heavy,
+        oso.short_type,
+        oso.trans_line,
+        oso.short_trans_sum,
+        oso.rec_price,
+        oso.rec_out_time_fee,
+        oso.rec_parking_fee,
+        oso.rec_other_fee,
+        oso.update_time,
+        oso.balance_status,
+        oso.receivables_remark as remark,
+        oso.update_time,
+        (CONVERT ( oso.short_trans_sum * oso.rec_price, DECIMAL ( 10, 2 ) )+ oso.rec_out_time_fee + oso.rec_parking_fee + oso.rec_other_fee) as order_fee,
+        (CONVERT ( oso.short_trans_sum * oso.rec_price, DECIMAL ( 10, 2 ) )+ oso.rec_out_time_fee + oso.rec_parking_fee + oso.rec_other_fee) as total_fee
+        from ord_short_order oso
+        <where>
+            oso.del_flag ='0'
+            <if test="orderId != null  and orderId != '' "> and oso.order_id = #{orderId}</if>
+            <if test="orderIds != null">
+                and oso.order_id in
+                <foreach item="orderId" collection="orderIds"  open="(" separator="," close=")">
+                    #{orderId}
+                </foreach></if>
+            <if test="startTime != null "> and oso.create_time &gt; #{startTime}</if>
+            <if test="endTime != null "> and oso.create_time  &lt;   #{endTime}</if>
+            <if test="tenantId != null "> and oso.tenant_id = #{tenantId}</if>
+            <if test="balanceStatus != null and balanceStatus != '' "> and oso.balance_status = #{balanceStatus}</if>
+        </where>
+        order by oso.create_time desc
+    </select>
+    <!--根据集装箱订单号统计订单总费用-->
+    <select id="countOrderTotalFee" resultType="decimal">
+        SELECT
+			sum((oofee.receivables+oofee.exception_fee))
+        from
+        ( select
+        IFNULL(oo.receivables,0) as receivables,
+        case when oo.upstream_return_fee is not null then oo.upstream_return_fee
+        else IFNULL(oo.upstream_report_fee,0) + IFNULL(oo.upstream_yc_price,0) * IFNULL(oo.upstream_yc_day,0) END as exception_fee
+        from ord_order oo
+		where oo.order_id  in
+        <foreach item="orderId" collection="orderIds" open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
+        ) oofee
+    </select>
+
+    <!--根据普货订单号统计订单总费用-->
+    <select id="countCommonGoodsTotalFee" resultType="decimal">
+        SELECT
+        sum((ocgfee.receivables+ocgfee.pick_fee+ocgfee.pack_fee+ocgfee.release_fee+ocgfee.insurance_fee+ocgfee.other_fee))
+        FROM
+        (SELECT
+        IFNULL(ocg.transport_fee,0) as receivables,
+        IFNULL(ocg.pick_fee,0) as pick_fee,
+        IFNULL(ocg.pack_fee,0) as pack_fee,
+        IFNULL(ocg.release_fee,0) as release_fee,
+        IFNULL(ocg.insurance_fee,0) as insurance_fee,
+        IFNULL(ocg.other_fee,0) as other_fee
+        FROM
+        ord_common_goods ocg
+        where ocg.order_id in
+        <foreach item="orderId" collection="orderIds" open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
+        ) ocgfee
+    </select>
+    <!--根据盘短订单号统计订单总费用-->
+    <select id="countShortOrderTotalFee" resultType="decimal">
+        SELECT
+				sum((CONVERT ( oso.short_trans_sum * oso.rec_price, DECIMAL ( 10, 2 ) )+ oso.rec_out_time_fee + oso.rec_parking_fee + oso.rec_other_fee))
+        from ord_short_order oso
+				where oso.order_id  in
+        <foreach item="orderId" collection="orderIds" open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
+        and tenant_id = #{tenantId}
+    </select>
+
+
+
+    <!--查询对账单下集装箱应收账单信息-->
+    <select id="selectCnByOrderIds" resultMap="CnOrderMap">
+        select DISTINCT
+        cnb.order_id,cnb.order_type, cnb.class_date,cnb.create_time as order_date,cnb.customer_id,cnb.pickup_con_place,cnb.return_con_place,cnb.consignor,
+        cnb.consignor_phone,cnb.pickup_goods_detailplace,cnb.pickup_goods_date,cnb.consignee,cnb.consignee_phone,
+        cnb.product_name, cnb.class_order, cnb.container_no, cnb.container_type, cnb.container_num,
+        cnb.send_goods_detailplace,cnb.send_goods_date,cnb.is_invoice,cnb.kilometre,cnb.rec_price,cnb.remark,
+        cnb.receivables,cnb.settlement,cnb.balance_status,cnb.exception_fee,cnb.rate,cnb.plate_number,cnb.is_add_to_bill,
+        (cnb.receivables+cnb.exception_fee) as order_fee,
+        (cnb.receivables+cnb.exception_fee) as total_fee
+
+        from
+        (select DISTINCT
+        oo.order_id,
+        '集装箱' AS order_type,
+        oo.class_date,
+        oo.customer_id,
+        oo.pickup_con_place,
+        oo.return_con_place,
+        oo.consignor,
+        oo.consignor_phone,
+        oo.pickup_goods_detailplace,
+        oo.pickup_goods_date,
+        oo.consignee,
+        oo.consignee_phone,
+        oo.send_goods_detailplace,
+        oo.send_goods_date,
+        oo.create_time,
+        oo.is_invoice,
+        oo.pay_rate rate,
+        oo.product_name,
+        oo.class_order,
+        oo.container_no,
+        oo.container_type,
+        oo.container_num,
+        oo.remark,
+        oo.plate_number,
+        oo.is_add_to_bill,
+        oo.kilometre,
+        IFNULL(convert(oo.receivables/oo.kilometre,decimal(10,2)),0) as rec_price,
+        IFNULL(oo.receivables,0) as receivables,
+        oo.balance_way settlement,
+        oo.balance_status,
+        oo.update_time,
+        case when oo.upstream_return_fee is not null then oo.upstream_return_fee
+        else IFNULL(oo.upstream_report_fee,0) + IFNULL(oo.upstream_yc_price,0) * IFNULL(oo.upstream_yc_day,0) END as exception_fee
+        from ord_order oo
+        <where>
+         oo.order_id in
+        <foreach item="orderId" collection="orderIds"  open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
+        </where>
+        order by oo.create_time desc
+        ) cnb
+    </select>
+    <!--查询对账单下普货应付账单信息-->
+    <select id="selectPhByOrderIds" resultMap="PhOrderMap">
+        select DISTINCT
+        phb.order_id,phb.order_type, phb.customer_id,phb.shipper,phb.shipper_place,phb.shipper_phone,phb.picker,phb.picker_place,
+        phb.picker_phone,phb.settlement,phb.charged_mileage,phb.rec_price,phb.receivables,phb.pick_fee,phb.pack_fee,phb.release_fee,
+        phb.insurance_fee,phb.other_fee,phb.is_invoice,phb.balance_status,phb.class_date,phb.rate,phb.remark,
+        (phb.receivables+phb.pick_fee+phb.pack_fee+phb.release_fee+phb.insurance_fee+phb.other_fee) as order_fee,
+        (phb.receivables+phb.pick_fee+phb.pack_fee+phb.release_fee+phb.insurance_fee+phb.other_fee) as total_fee,
+        (phb.pick_fee+phb.pack_fee+phb.release_fee+phb.insurance_fee+phb.other_fee) as exception_fee,phb.plate_number,phb.is_add_to_bill
+        from
+        (SELECT DISTINCT
+        ocg.order_id,
+        '普货' AS order_type,
+        ocg.customer_id,
+        ocg.shipper,
+        ocg.shipper_place,
+        ocg.shipper_phone,
+        ocg.picker,
+        ocg.picker_place,
+        ocg.picker_phone,
+        ocg.balance_way as settlement,
+        IFNULL(ocg.charged_mileage,0) as charged_mileage,
+        IFNULL(CONVERT ( ocg.transport_fee / ocg.charged_mileage, DECIMAL ( 10, 2 ) ),0) AS rec_price,
+        IFNULL(ocg.transport_fee,0) as receivables,
+        IFNULL(ocg.pick_fee,0) as pick_fee,
+        IFNULL(ocg.pack_fee,0) as pack_fee,
+        IFNULL(ocg.release_fee,0) as release_fee,
+        IFNULL(ocg.insurance_fee,0) as insurance_fee,
+        IFNULL(ocg.other_fee,0) as other_fee,
+        ocg.is_invoice,
+        oct.pay_rate rate,
+        ocg.balance_status,
+        ocg.create_time as class_date,
+        ocg.update_time,
+        ocg.is_add_to_bill,
+        oct.remarks remark,
+        oct.plate_number
+        FROM
+        ord_common_goods ocg
+        LEFT JOIN ord_common_truck oct ON ocg.order_id = oct.order_id
+        <where>
+            ocg.order_id in
+                <foreach item="orderId" collection="orderIds"  open="(" separator="," close=")">
+                    #{orderId}
+                </foreach>
+        </where>
+        order by ocg.create_time desc
+        ) phb
+    </select>
+
+    <!--查询对账单下盘短应付账单信息-->
+    <select id="selectPdByOrderIds" resultMap="PdOrderMap">
+        SELECT DISTINCT
+        oso.order_id,
+        oso.plate_number,
+        '盘短' AS order_type,
+        oso.order_date,
+        '陆港' AS customer,
+        oso.carrier as customer_name,
+        oso.goods_name,
+        oso.is_heavy,
+        oso.short_type,
+        oso.trans_line,
+        oso.short_trans_sum,
+        oso.rec_price,
+        oso.rec_out_time_fee,
+        oso.rec_parking_fee,
+        oso.rec_other_fee,
+        oso.balance_status,
+        oso.receivables_remark as remark,
+        oso.update_time,
+        (CONVERT ( oso.short_trans_sum * oso.rec_price, DECIMAL ( 10, 2 ) )+ oso.rec_out_time_fee + oso.rec_parking_fee + oso.rec_other_fee) as order_fee,
+        (CONVERT ( oso.short_trans_sum * oso.rec_price, DECIMAL ( 10, 2 ) )+ oso.rec_out_time_fee + oso.rec_parking_fee + oso.rec_other_fee) as total_fee
+        from ord_short_order oso
+        <where>
+             oso.order_id in
+            <foreach item="orderId" collection="orderIds"  open="(" separator="," close=")">
+                #{orderId}
+            </foreach>
+        </where>
+        order by oso.create_time desc
+    </select>
+
+    <!--查询导出集装箱应收账单信息-->
+    <select id="selectCnOrderListByorderIds" resultMap="CnOrderMap">
+        select DISTINCT
+        cnb.order_id,cnb.order_type, cnb.class_date,cnb.create_time as order_date,cnb.customer_id,cnb.pickup_con_place,cnb.return_con_place,cnb.consignor,
+        cnb.consignor_phone,cnb.pickup_goods_detailplace,cnb.pickup_goods_date,cnb.consignee,cnb.consignee_phone,
+        cnb.send_goods_detailplace,cnb.send_goods_date,cnb.is_invoice,cnb.kilometre,cnb.rec_price,cnb.remark,
+        cnb.receivables,cnb.settlement,cnb.balance_status,cnb.exception_fee,cnb.rate,
+        cnb.container_no,cnb.container_type,cnb.container_num,cnb.seal_number,cnb.product_name,cnb.class_order,cnb.plate_number,
+        (cnb.receivables+cnb.exception_fee) as order_fee,
+        (cnb.receivables+cnb.exception_fee) as total_fee,
+        cnb.is_add_to_bill
+        from
+        (select DISTINCT
+        oo.order_id,
+        '集装箱' AS order_type,
+        oo.class_date,
+        oo.customer_id,
+        oo.product_name,
+        oo.pickup_con_place,
+        oo.return_con_place,
+        oo.consignor,
+        oo.consignor_phone,
+        oo.pickup_goods_detailplace,
+        oo.pickup_goods_date,
+        oo.consignee,
+        oo.consignee_phone,
+        oo.send_goods_detailplace,
+        oo.send_goods_date,
+        oo.create_time,
+        oo.is_invoice,
+        oo.pay_rate rate,
+        oo.kilometre,
+        oo.container_no,
+        oo.container_type,
+        oo.container_num,
+        oo.seal_number,
+        oo.class_order,
+        oo.remark,
+        oo.plate_number,
+        IFNULL(convert(oo.receivables/oo.kilometre,decimal(10,2)),0) as rec_price,
+        IFNULL(oo.receivables,0) as receivables,
+        oo.balance_way settlement,
+        oo.balance_status,
+        oo.update_time,
+        oo.is_add_to_bill,
+        case when oo.upstream_return_fee is not null then oo.upstream_return_fee
+        else IFNULL(oo.upstream_report_fee,0) + IFNULL(oo.upstream_yc_price,0) * IFNULL(oo.upstream_yc_day,0) END as exception_fee        from ord_order oo
+        <where>
+                and oo.order_id in
+                <foreach item="orderId" collection="orderIds"  open="(" separator="," close=")">
+                    #{orderId}
+                </foreach>
+        </where>
+        order by oo.create_time desc
+        ) cnb
+    </select>
+    <!--查询导出普货应付账单信息-->
+    <select id="selectPhOrderListByorderIds" resultMap="PhOrderMap">
+        select DISTINCT
+        phb.order_id,phb.order_type, phb.customer_id,phb.shipper,phb.shipper_place,phb.shipper_phone,phb.picker,phb.picker_place,
+        phb.picker_phone,phb.settlement,phb.charged_mileage,phb.rec_price,phb.receivables,phb.pick_fee,phb.pack_fee,phb.release_fee,
+        phb.insurance_fee,phb.other_fee,phb.is_invoice,phb.balance_status,phb.class_date,phb.rate,phb.remark,
+        (phb.receivables+phb.pick_fee+phb.pack_fee+phb.release_fee+phb.insurance_fee+phb.other_fee) as order_fee,
+        (phb.receivables+phb.pick_fee+phb.pack_fee+phb.release_fee+phb.insurance_fee+phb.other_fee) as total_fee,
+        (phb.pick_fee+phb.pack_fee+phb.release_fee+phb.insurance_fee+phb.other_fee) as exception_fee
+        phb.is_add_to_bill
+        from
+        (SELECT DISTINCT
+        ocg.order_id,
+        '普货' AS order_type,
+        ocg.customer_id,
+        ocg.shipper,
+        ocg.shipper_place,
+        ocg.shipper_phone,
+        ocg.picker,
+        ocg.picker_place,
+        ocg.picker_phone,
+        ocg.balance_way as settlement,
+        IFNULL(ocg.charged_mileage,0) as charged_mileage,
+        IFNULL(CONVERT ( ocg.transport_fee / ocg.charged_mileage, DECIMAL ( 10, 2 ) ),0) AS rec_price,
+        IFNULL(ocg.transport_fee,0) as receivables,
+        IFNULL(ocg.pick_fee,0) as pick_fee,
+        IFNULL(ocg.pack_fee,0) as pack_fee,
+        IFNULL(ocg.release_fee,0) as release_fee,
+        IFNULL(ocg.insurance_fee,0) as insurance_fee,
+        IFNULL(ocg.other_fee,0) as other_fee,
+        ocg.is_invoice,
+        oct.pay_rate rate,
+        ocg.balance_status,
+        ocg.create_time as class_date,
+        ocg.update_time,
+        oct.remarks remark,
+        ocg.is_add_to_bill
+        FROM
+        ord_common_goods ocg
+        LEFT JOIN ord_common_truck oct ON ocg.order_id = oct.order_id
+        <where>
+                and ocg.order_id in
+                <foreach item="orderId" collection="orderIds"  open="(" separator="," close=")">
+                    #{orderId}
+                </foreach>
+        </where>
+        order by ocg.create_time desc
+        ) phb
+    </select>
+
+
+    <!--查询对账单下单个集装箱应收账单信息-->
+    <select id="selectCnByOrderId" resultMap="CnOrderMap">
+        select DISTINCT
+        cnb.order_id,cnb.order_type, cnb.class_date,cnb.create_time as order_date,cnb.customer_id,cnb.pickup_con_place,cnb.return_con_place,cnb.consignor,
+        cnb.consignor_phone,cnb.pickup_goods_detailplace,cnb.pickup_goods_date,cnb.consignee,cnb.consignee_phone,
+        cnb.product_name, cnb.class_order, cnb.container_no, cnb.container_type, cnb.container_num,cnb.remark,
+        cnb.send_goods_detailplace,cnb.send_goods_date,cnb.is_invoice,cnb.kilometre,cnb.rec_price,
+        cnb.receivables,cnb.settlement,cnb.balance_status,cnb.exception_fee,cnb.rate,cnb.plate_number,cnb.seal_number,
+        (cnb.receivables+cnb.exception_fee) as order_fee,
+        (cnb.receivables+cnb.exception_fee) as total_fee
+        from
+        (select DISTINCT
+        oo.order_id,
+        '集装箱' AS order_type,
+        oo.class_date,
+        oo.customer_id,
+        oo.pickup_con_place,
+        oo.return_con_place,
+        oo.consignor,
+        oo.consignor_phone,
+        oo.pickup_goods_detailplace,
+        oo.pickup_goods_date,
+        oo.consignee,
+        oo.consignee_phone,
+        oo.send_goods_detailplace,
+        oo.send_goods_date,
+        oo.create_time,
+        oo.is_invoice,
+        oo.pay_rate rate ,
+        oo.remark ,
+
+        oo.product_name,
+        oo.class_order,
+        oo.container_no,
+        oo.container_type,
+        oo.container_num,
+
+        oo.kilometre,
+        IFNULL(convert(oo.receivables/oo.kilometre,decimal(10,2)),0) as rec_price,
+        IFNULL(oo.receivables,0) as receivables,
+        oo.balance_way settlement,
+        oo.balance_status,
+        oo.update_time,
+        oo.plate_number,
+        oo.seal_number,
+        case when oo.upstream_return_fee is not null then oo.upstream_return_fee
+        else IFNULL(oo.upstream_report_fee,0) + IFNULL(oo.upstream_yc_price,0) * IFNULL(oo.upstream_yc_day,0) END as exception_fee        from ord_order oo
+        <where>
+            oo.order_id = #{orderId}
+        </where>
+        order by oo.create_time desc
+        ) cnb
+    </select>
+    <!--查询对账单下单个普货应付账单信息-->
+    <select id="selectPhByOrderId" resultMap="PhOrderMap">
+        select DISTINCT
+        phb.order_id,phb.order_type, phb.customer_id,phb.shipper,phb.shipper_place,phb.shipper_phone,phb.picker,phb.picker_place,
+        phb.picker_phone,phb.settlement,phb.charged_mileage,phb.rec_price,phb.receivables,phb.pick_fee,phb.pack_fee,phb.release_fee,
+        phb.insurance_fee,phb.other_fee,phb.is_invoice,phb.balance_status,phb.class_date,phb.rate,phb.remark,
+        (phb.receivables+phb.pick_fee+phb.pack_fee+phb.release_fee+phb.insurance_fee+phb.other_fee) as order_fee,
+        (phb.receivables+phb.pick_fee+phb.pack_fee+phb.release_fee+phb.insurance_fee+phb.other_fee) as total_fee,
+        (phb.pick_fee+phb.pack_fee+phb.release_fee+phb.insurance_fee+phb.other_fee) as exception_fee
+        from
+        (SELECT DISTINCT
+        ocg.order_id,
+        '普货' AS order_type,
+        ocg.customer_id,
+        ocg.shipper,
+        ocg.shipper_place,
+        ocg.shipper_phone,
+        ocg.picker,
+        ocg.picker_place,
+        ocg.picker_phone,
+        ocg.balance_way as settlement,
+        IFNULL(ocg.charged_mileage,0) as charged_mileage,
+        IFNULL(CONVERT ( ocg.transport_fee / ocg.charged_mileage, DECIMAL ( 10, 2 ) ),0) AS rec_price,
+        IFNULL(ocg.transport_fee,0) as receivables,
+        IFNULL(ocg.pick_fee,0) as pick_fee,
+        IFNULL(ocg.pack_fee,0) as pack_fee,
+        IFNULL(ocg.release_fee,0) as release_fee,
+        IFNULL(ocg.insurance_fee,0) as insurance_fee,
+        IFNULL(ocg.other_fee,0) as other_fee,
+        ocg.is_invoice,
+        oct.pay_rate rate,
+        ocg.balance_status,
+        ocg.create_time as class_date,
+        ocg.update_time, 
+        oct.remarks remark
+        FROM
+        ord_common_goods ocg
+        LEFT JOIN ord_common_truck oct ON ocg.order_id = oct.order_id
+        <where>
+            ocg.order_id = #{orderId}
+        </where>
+        order by ocg.create_time desc
+        ) phb
+    </select>
+
+</mapper>

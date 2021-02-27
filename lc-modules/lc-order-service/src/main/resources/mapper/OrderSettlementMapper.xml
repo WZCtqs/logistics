@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.order.mapper.OrderSettlementMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zhkj.lc.order.model.entity.OrderSettlement">
+        <id column="id" property="id" />
+        <result column="order_id" property="orderId" />
+        <result column="settlement_type" property="settlementType" />
+        <result column="settlement_time" property="settlementTime" />
+        <result column="create_by" property="createBy" />
+        <result column="cash_status" property="cashStatus" />
+        <result column="cash_by" property="cashBy" />
+        <result column="cash_time" property="cashTime" />
+        <result column="oil_status" property="oilStatus" />
+        <result column="oil_by" property="oilBy" />
+        <result column="oil_time" property="oilTime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column">
+       select id, order_id, settlement_type, settlement_time , create_by, cash_status, cash_by, cash_time, oil_status, oil_by, oil_time from order_settlement
+    </sql>
+
+    <select id="selectSettlementByOrderId" resultMap="BaseResultMap">
+        <include refid="Base_Column"/>
+        where order_id = #{orderId} limit 1
+    </select>
+
+</mapper>

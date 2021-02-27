@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.trunk.mapper.TruTruckTeamMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zhkj.lc.trunk.model.TruTruckTeam">
+        <id column="truck_team_id" property="truckTeamId" />
+        <result column="team_name" property="teamName" />
+        <result column="saleman" property="saleman" />
+        <result column="contact" property="contact" />
+        <result column="contact_job" property="contactJob" />
+        <result column="phone" property="phone" />
+        <result column="email" property="email" />
+        <result column="pay_way" property="payWay" />
+        <result column="is_passed" property="isPassed" />
+        <result column="is_partner" property="isPartner" />
+        <result column="status" property="status" />
+        <result column="is_trust" property="isTrust" />
+        <result column="remark" property="remark" />
+        <result column="del_flag" property="delFlag" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="tenant_id" property="tenantId" />
+        <result column="team_type" property="teamType" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        truck_team_id AS truckTeamId, team_name AS teamName, saleman, contact, contact_job AS contactJob, phone, email,pay_way AS payWay, is_passed AS isPassed, is_partner AS isPartner, status, is_trust AS isTrust, remark, del_flag AS delFlag, create_by AS createBy, create_time AS createTime, update_by AS updateBy, update_time AS updateTime, tenant_id AS tenantId, team_type AS teamType
+    </sql>
+    <sql id="Base_Column">
+        truck_team_id, team_name, saleman, contact, contact_job, phone, email, pay_way, is_passed, is_partner, status, is_trust, remark, del_flag , create_by, create_time, update_by, update_time, tenant_id, team_type
+    </sql>
+
+    <select id="selectTruckTeamById" parameterType="Integer" resultMap="BaseResultMap">
+        select <include refid="Base_Column"/>
+        from tru_truck_team
+        where
+            truck_team_id = #{truckTeamId}
+    </select>
+
+    <select id="selectAllTruckTeam" resultMap="BaseResultMap">
+        select <include refid="Base_Column"/>
+        from tru_truck_team
+        <where>
+            <if test="truckTeamId != null "> and truck_team_id = #{truckTeamId}</if>
+            <if test="teamName != null  and teamName != '' ">
+                and team_name LIKE CONCAT(CONCAT('%',#{teamName},'%'))
+            </if>
+            <if test="saleman != null  and saleman != '' "> and saleman = #{saleman}</if>
+            <if test="contact != null  and contact != '' "> and contact = #{contact}</if>
+            <if test="contactJob != null  and contactJob != '' "> and contact_job = #{contactJob}</if>
+            <if test="phone != null  and phone != '' "> and phone = #{phone}</if>
+            <if test="email != null  and email != '' "> and email = #{email}</if>
+            <if test="payWay != null  and payWay != ''"> and pay_way = #{payWay}</if>
+            <if test="isPassed != null  and isPassed != '' "> and is_passed = #{isPassed}</if>
+            <if test="isPartner != null  and isPartner != '' "> and is_partner = #{isPartner}</if>
+            <if test="status != null  and status != '' "> and status = #{status}</if>
+            <if test="isTrust != null  and isTrust != '' "> and is_trust = #{isTrust}</if>
+            <if test="remark != null  and remark != '' "> and remark = #{remark}</if>
+            <if test="teamType != null  and teamType != '' "> and team_type = #{teamType}</if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+            <!--<if test="createBy != null  and createBy != '' "> and create_by = #{createBy}</if>
+            <if test="createTime != null "> and create_time = #{createTime}</if>
+            <if test="updateBy != null  and updateBy != '' "> and update_by = #{updateBy}</if>
+            <if test="updateTime != null "> and update_time = #{updateTime}</if>-->
+            and del_flag = '0'
+        </where>
+    </select>
+
+    <update id="deleteByIds" parameterType="com.zhkj.lc.trunk.model.TruTruckTeam">
+        update tru_truck_team
+        set del_flag='1',update_time=#{updateTime},is_trust = '1'
+        <if test="updateBy != null  and updateBy != ''  ">,update_by = #{updateBy}</if>
+        where truck_team_id in
+        <foreach item="id" collection="truckTeamIds" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <select id="selectByIds" parameterType="com.zhkj.lc.trunk.model.TruTruckTeam" resultMap="BaseResultMap">
+        select <include refid="Base_Column"/>
+        from tru_truck_team
+        where del_flag = '0' and truck_team_id in
+        <foreach item="id" collection="truckTeamIds" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectAll" parameterType="com.zhkj.lc.trunk.model.TruTruckTeam" resultMap="BaseResultMap">
+        select <include refid="Base_Column"/>
+        from tru_truck_team
+        <where>
+            <if test="truckTeamId != null "> and truck_team_id = #{truckTeamId}</if>
+            <if test="teamName != null  and teamName != '' ">
+                and team_name LIKE CONCAT(CONCAT('%',#{teamName},'%'))
+            </if>
+            <if test="saleman != null  and saleman != '' "> and saleman = #{saleman}</if>
+            <if test="contact != null  and contact != '' "> and contact = #{contact}</if>
+            <if test="contactJob != null  and contactJob != '' "> and contact_job = #{contactJob}</if>
+            <if test="phone != null  and phone != '' "> and phone = #{phone}</if>
+            <if test="email != null  and email != '' "> and email = #{email}</if>
+            <if test="payWay != null  and payWay != ''"> and pay_way = #{payWay}</if>
+            <if test="isPassed != null  and isPassed != '' "> and is_passed = #{isPassed}</if>
+            <if test="isPartner != null  and isPartner != '' "> and is_partner = #{isPartner}</if>
+            <if test="status != null  and status != '' "> and status = #{status}</if>
+            <if test="isTrust != null  and isTrust != '' "> and is_trust = #{isTrust}</if>
+            <if test="remark != null  and remark != '' "> and remark = #{remark}</if>
+            <if test="teamType != null  and teamType != '' "> and team_type = #{teamType}</if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+            and del_flag = '0'
+        </where>
+    </select>
+
+    <!-- 统计某车队车辆总数 -->
+    <select id="countTruck" parameterType="Integer" resultType="Integer">
+        SELECT COUNT(truck_team_id) truckSum
+        FROM tru_truck
+        where truck_team_id = #{truckTeamId} and del_flag = '0'
+    </select>
+
+    <!-- 统计某车队司机总数 -->
+    <select id="countDriver" parameterType="Integer" resultType="Integer">
+        SELECT COUNT(d.driver_id) driverSum
+        FROM tru_driver d,tru_truck t
+        WHERE t.truck_team_id=#{truckTeamId} AND t.truck_id = d.plate_id AND t.del_flag='0' AND d.del_flag='0'
+    </select>
+
+    <!-- 批量设置黑名单/白名单 -->
+    <update id="setTrustByIds" parameterType="com.zhkj.lc.trunk.model.TruTruckTeam">
+        update tru_truck_team
+        set update_time=#{updateTime}
+        <if test="isTrust != null  and isTrust != ''  ">,is_trust = #{isTrust}</if>
+        where truck_team_id in
+        <foreach item="id" collection="truckTeamIds" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!--新增前车队名不可重复验证查询-->
+    <select id="checkTruckTeamName" resultType="Integer">
+        select count(truck_team_id) from tru_truck_team where team_name = #{teamName} and tenant_id = #{tenantId} and del_flag = '0'
+    </select>
+
+    <!--修改前车队名不可重复验证查询-->
+    <select id="checkTruckTeamNameById" resultType="Integer">
+        select truck_team_id from tru_truck_team where team_name = #{teamName} and tenant_id = #{tenantId} and del_flag = '0'
+    </select>
+
+</mapper>

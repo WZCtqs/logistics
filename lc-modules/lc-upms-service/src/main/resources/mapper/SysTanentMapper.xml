@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.admin.mapper.SysTanentMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zhkj.lc.admin.model.entity.SysTanent">
+        <id column="tenant_id" property="tenantId" />
+        <result column="tanent_name" property="tanentName" />
+        <result column="short_name" property="shortName" />
+        <result column="old_psw" property="oldPsw" />
+        <result column="address" property="address" />
+        <result column="phone" property="phone" />
+        <result column="expire_time" property="expireTime" />
+        <result column="menuIds" property="menuIds" />
+        <result column="status" property="status" />
+        <result column="is_partner" property="isPartner" />
+        <result column="appid" property="appid"/>
+        <result column="appsecret" property="appsecret"/>
+        <result column="weixin_id" property="weixinId"/>
+
+        <result column="del_flag" property="delFlag" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="role_id" property="roleId" />
+    </resultMap>
+    <!-- 通用查询映射结果 -->
+    <resultMap id="TanentVoMap" type="com.zhkj.lc.common.vo.TanentVo">
+        <id column="tenant_id" property="tenantId" />
+        <result column="tanent_name" property="tanentName" />
+        <result column="short_name" property="shortName" />
+        <result column="old_psw" property="oldPsw" />
+        <result column="address" property="address" />
+        <result column="phone" property="phone" />
+        <result column="expire_time" property="expireTime" />
+        <result column="menuIds" property="menuIds" />
+        <result column="status" property="status" />
+        <result column="is_partner" property="isPartner" />
+        <result column="appid" property="appid"/>
+        <result column="appsecret" property="appsecret"/>
+        <result column="weixin_id" property="weixinId"/>
+
+        <result column="del_flag" property="delFlag" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+
+    <select id="selectTanentVoPage" resultMap="TanentVoMap">
+      select
+      tenant_id,
+      tanent_name,
+      short_name,
+      old_psw,
+      address,
+      phone,
+      expire_time,
+      menuIds,
+      is_partner,
+      appid,
+      appsecret,
+      weixin_id,
+      status,
+      del_flag,
+      create_time,
+      update_time
+      from
+      sys_tanent
+      where
+        del_flag = 0
+
+        <if test="tanentName != null and tanentName != ''">
+            and tanent_name LIKE CONCAT('%',#{tanentName},'%')
+        </if>
+    </select>
+
+    <select id="selectBytenantId" resultMap="BaseResultMap">
+      select
+      st.tenant_id,
+      st.tanent_name,
+      st.short_name,
+      st.address,
+      st.phone,
+      st.expire_time,
+      st.menuIds,
+      st.is_partner,
+      st.appid,
+      st.appsecret,
+      st.weixin_id,
+      st.status,
+      st.del_flag,
+      st.create_time,
+      st.update_time,
+      sr.role_id
+      from
+      sys_tanent st
+      left join sys_role sr on sr.tenant_id = st.tenant_id
+      where
+      st.tenant_id = #{tenantId}
+
+      limit 1
+    </select>
+
+    <!--租户插入返回租户id-->
+    <insert id="insertTanentInfo" useGeneratedKeys="true" keyProperty="tenantId" parameterType="com.zhkj.lc.admin.model.entity.SysTanent"  >
+
+    insert into sys_tanent
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="tanentName != null  and tanentName != ''  ">tanent_name,</if>
+            <if test="shortName != null  and shortName != ''  ">short_name,</if>
+            <if test="oldPsw != null  and oldPsw != ''  ">old_psw,</if>
+            <if test="address != null  and address != ''  ">address,</if>
+            <if test="phone != null  and phone != ''  ">phone,</if>
+            <if test="expireTime != null  ">expire_time,</if>
+            <if test="menuIds != null  and menuIds != ''  ">menuIds,</if>
+            <if test="isPartner != null  and isPartner != ''  ">is_partner,</if>
+            <if test="appid != null  and appid != ''  ">appid,</if>
+            <if test="appsecret != null  and appsecret != ''  ">appsecret,</if>
+            <if test="weixinId != null  and weixinId != ''  ">weixin_id,</if>
+            <if test="status != null  and status != ''  ">status,</if>
+            <if test="createBy != null  and createBy != ''  ">create_by,</if>
+            <if test="createTime != null  ">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="tanentName != null  and tanentName != ''  ">#{tanentName},</if>
+            <if test="shortName != null  and shortName != ''  ">#{shortName},</if>
+            <if test="oldPsw != null  and oldPsw != ''  ">#{oldPsw},</if>
+            <if test="address != null  and address != ''  ">#{address},</if>
+            <if test="phone != null  and phone != ''  ">#{phone},</if>
+            <if test="expireTime != null  ">#{expireTime},</if>
+            <if test="menuIds != null  and menuIds != ''  ">#{menuIds},</if>
+            <if test="isPartner != null  and isPartner != ''  ">#{isPartner},</if>
+            <if test="appid != null  and appid != ''  ">#{appid},</if>
+            <if test="appsecret != null  and appsecret != ''  ">#{appsecret},</if>
+            <if test="weixinId != null  and weixinId != ''  ">#{weixinId},</if>
+            <if test="status != null  and status != ''  ">#{status},</if>
+            <if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+            <if test="createTime != null  ">#{createTime},</if>
+        </trim>
+</insert>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        tenant_id AS tenantId, tanent_name AS tanentName, short_name AS shortName, address,phone, expire_time AS expireTime, menuIds,is_partner, status,del_flag AS delFlag, create_by AS createBy, create_time AS createTime, update_by AS updateBy, update_time AS updateTime,appid AS appid, appsecret AS appsecret, weixin_id AS weixinId
+    </sql>
+
+    <!-- 根据weixinId查询某个租户 -->
+    <select id="selectByWA" parameterType="String" resultMap="TanentVoMap">
+        select
+          tenant_id,
+          tanent_name,
+          short_name,
+          old_psw,
+          address,
+          phone,
+          expire_time,
+          menuIds,
+          is_partner,
+          appid,
+          appsecret,
+          weixin_id,
+          status,
+          del_flag,
+          create_time,
+          update_time
+        from
+          sys_tanent
+        where
+          del_flag = 0 and weixin_id = #{weixinId}
+    </select>
+    <!--查找手机号是否重复存在-->
+    <select id="findPhone" parameterType="String" resultMap="TanentVoMap">
+        select
+        *
+        from
+        sys_tanent
+        where
+        del_flag = 0 and phone= #{phone}
+    </select>
+    <select id="selectTenantShortName" resultType="String">
+        select short_name shortName from sys_tanent where tenant_id = #{tenantId}
+    </select>
+</mapper>

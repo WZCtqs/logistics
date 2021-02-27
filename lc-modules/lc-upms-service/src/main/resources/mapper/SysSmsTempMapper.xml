@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.admin.mapper.SysSmsTempMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zhkj.lc.admin.model.entity.SysSmsTemp">
+        <id column="id" property="id"/>
+        <result column="sys" property="sys"/>
+        <result column="tpl_id" property="tpl_id"/>
+        <result column="tpl_name" property="tplName"/>
+        <result column="check_status" property="check_status"/>
+        <result column="tpl_content" property="tpl_content"/>
+        <result column="reason" property="reason"/>
+        <result column="send_obj" property="sendObj"/>
+        <result column="is_send" property="isSend"/>
+        <result column="is_send_receice" property="isSendReceice"/>
+        <result column="is_send_picker" property="isSendPicker"/>
+        <result column="is_send_driver" property="isSendDriver"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="tenant_id" property="tenantId"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        SELECT id, tpl_id, tpl_name, check_status, send_obj, tpl_content, reason, is_send, is_send_receice, is_send_picker, is_send_driver, update_by, update_time, tenant_id FROM sys_sms_temp
+    </sql>
+
+    <select id="selectSmsList" resultMap="BaseResultMap">
+		<include refid="Base_Column_List"/>
+		WHERE tenant_id = #{tenantId}
+	</select>
+
+    <update id="update" parameterType="com.zhkj.lc.admin.model.entity.SysSmsTemp">
+        update sys_sms_temp
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="isSend != null  and isSend != ''  ">is_send = #{isSend},</if>
+            <if test="isSendReceice != null and isSendReceice != '' ">is_send_receice = #{isSendReceice},</if>
+            <if test="isSendPicker != null and isSendPicker != '' ">is_send_picker = #{isSendPicker},</if>
+            <if test="isSendDriver != null  and isSendDriver != '' ">is_send_driver = #{isSendDriver},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </trim>
+        where tenant_id = #{tenantId} and tpl_id = #{tpl_id}
+    </update>
+
+    <select id="selectForTenant" resultMap="BaseResultMap">
+        select tpl_id, tpl_name, send_obj, check_status, tpl_content, reason from sys_sms_temp
+        where sys = '0'
+    </select>
+
+    <select id="selectIsSend" resultType="Integer">
+        SELECT sum(is_send) FROM sys_sms_temp
+        WHERE tenant_id = #{tenantId}
+    </select>
+
+    <select id="selectSmsSetByTplId" resultMap="BaseResultMap">
+        <include refid="Base_Column_List"/>
+        where tenant_id = #{tenantId} and tpl_id = #{tpl_id}
+    </select>
+
+</mapper>

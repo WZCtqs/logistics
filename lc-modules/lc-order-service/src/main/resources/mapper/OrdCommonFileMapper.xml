@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.order.mapper.OrdCommonFileMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="commonFileMap" type="com.zhkj.lc.order.model.entity.OrdCommonFile">
+        <id column="order_id" property="orderId" />
+        <result column="pick_file" property="pickFile" />
+        <result column="send_truck_file" property="sendTruckFile" />
+        <result column="receipt_note" property="receiptNote" />
+        <result column="entrucking_img" property="entruckingImg" />
+        <result column="temp_img" property="tempImg" />
+        <result column="car_door_img" property="carDoorImg" />
+        <result column="tenant_id" property="tenantId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+       select order_id, pick_file, send_truck_file, receipt_note, entrucking_img, temp_img, car_door_img, tenant_id
+       from ord_common_file
+    </sql>
+
+
+    <select id="selectCommonOrdFileById" resultMap="commonFileMap">
+        <include refid="Base_Column_List"/>
+        where order_id = #{orderId}
+    </select>
+</mapper>

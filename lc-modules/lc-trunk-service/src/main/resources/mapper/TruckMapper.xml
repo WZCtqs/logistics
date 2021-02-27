@@ -1,0 +1,639 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.trunk.mapper.TruTruckMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zhkj.lc.trunk.model.TruTruck">
+        <id column="truck_id" property="truckId" />
+        <result column="status" property="status" />
+        <result column="driver_id" property="driverId" />
+        <result column="driver_name" property="driverName" />
+        <result column="phone" property="phone" />
+        <result column="truck_owner_id" property="truckOwnerId" />
+        <result column="truck_team_id" property="truckTeamId" />
+        <result column="plate_number" property="plateNumber" />
+        <result column="trailer_brand" property="trailerBrand" />
+        <result column="car_length" property="carLength" />
+        <result column="car_weight" property="carWeight" />
+        <result column="carry_capacity" property="carryCapacity" />
+        <result column="type" property="type" />
+        <result column="truck_owner" property="truckOwner" />
+        <result column="truck_owner_phone" property="truckOwnerPhone" />
+        <result column="truck_time" property="truckTime" />
+        <result column="truck_status" property="truckStatus" />
+        <result column="operation_time" property="operationTime" />
+        <result column="operation_status" property="operationStatus" />
+        <result column="policy_no_time" property="policyNoTime" />
+        <result column="policy_no_status" property="policyNoStatus" />
+        <result column="deposit_bank" property="depositBank" />
+        <result column="truck_card_number" property="truckCardNumber" />
+        <result column="carframe_number" property="carframeNumber" />
+        <result column="operation_number" property="operationNumber" />
+        <result column="invoice_number" property="invoiceNumber" />
+        <result column="policy_no" property="policyNo" />
+        <result column="brand_no" property="brandNo" />
+        <result column="attribute" property="attribute" />
+        <result column="car_attribute" property="carAttribute" />
+        <result column="engine_number" property="engineNumber" />
+        <result column="driving_license" property="drivingLicense" />
+        <result column="is_supervise" property="isSupervise" />
+        <result column="del_flag" property="delFlag" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="remark" property="remark" />
+        <result column="tenant_id" property="tenantId" />
+        <collection property="truTruckfile" column="truck_id" select="com.zhkj.lc.trunk.mapper.TruTruckfileMapper.selectTruckfileById"/>
+       <!-- <collection property="truDriverList" column="truck_id" select="com.zhkj.lc.trunk.mapper.TruDriverMapper.selectDriverByPlateId"/>-->
+        <collection property="truTruckTeam" ofType="com.zhkj.lc.trunk.model.TruTruckTeam">
+            <result column="truck_team_id"  property="truckTeamId"    />
+            <result column="team_name" property="teamName" />
+        </collection>
+    </resultMap>
+
+    <resultMap id="TruckDetailResultMap" type="com.zhkj.lc.trunk.model.TruTruck">
+        <id column="truck_id" property="truckId" />
+        <result column="status" property="status" />
+        <result column="driver_id" property="driverId" />
+        <result column="truck_owner_id" property="truckOwnerId" />
+        <result column="truck_team_id" property="truckTeamId" />
+        <result column="plate_number" property="plateNumber" />
+        <result column="trailer_brand" property="trailerBrand" />
+        <result column="car_length" property="carLength" />
+        <result column="car_weight" property="carWeight" />
+        <result column="carry_capacity" property="carryCapacity" />
+        <result column="type" property="type" />
+        <result column="truck_owner" property="truckOwner" />
+        <result column="truck_owner_phone" property="truckOwnerPhone" />
+        <result column="truck_time" property="truckTime" />
+        <result column="truck_status" property="truckStatus" />
+        <result column="operation_time" property="operationTime" />
+        <result column="operation_status" property="operationStatus" />
+        <result column="policy_no_time" property="policyNoTime" />
+        <result column="policy_no_status" property="policyNoStatus" />
+        <result column="deposit_bank" property="depositBank" />
+        <result column="truck_card_number" property="truckCardNumber" />
+        <result column="carframe_number" property="carframeNumber" />
+        <result column="operation_number" property="operationNumber" />
+        <result column="invoice_number" property="invoiceNumber" />
+        <result column="policy_no" property="policyNo" />
+        <result column="brand_no" property="brandNo" />
+        <result column="attribute" property="attribute" />
+        <result column="car_attribute" property="carAttribute" />
+        <result column="engine_number" property="engineNumber" />
+        <result column="driving_license" property="drivingLicense" />
+        <result column="is_supervise" property="isSupervise" />
+        <result column="del_flag" property="delFlag" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="remark" property="remark" />
+        <result column="tenant_id" property="tenantId" />
+        <association property="truTruckfile"   column="truck_id" select="com.zhkj.lc.trunk.mapper.TruTruckfileMapper.selectTruckfileById"/>
+        <association property="truTruckTeam"   column="truck_team_id" select="com.zhkj.lc.trunk.mapper.TruTruckTeamMapper.selectTruckTeamById"/>
+        <collection property="truDriverList" column="truck_id" select="com.zhkj.lc.trunk.mapper.TruDriverMapper.selectTruckDriverByPlateId"/>
+    </resultMap>
+   <!-- javaType="com.zhkj.lc.trunk.model.TruTruckfile"
+    javaType="com.zhkj.lc.trunk.model.TruTruckTeam"-->
+    <resultMap id="BaseResult" type="com.zhkj.lc.trunk.model.TruTruck">
+        <id column="truck_id" property="truckId" />
+        <result column="status" property="status" />
+        <result column="driver_id" property="driverId" />
+        <result column="truck_owner_id" property="truckOwnerId" />
+        <result column="truck_team_id" property="truckTeamId" />
+        <result column="plate_number" property="plateNumber" />
+        <result column="trailer_brand" property="trailerBrand" />
+        <result column="car_length" property="carLength" />
+        <result column="car_weight" property="carWeight" />
+        <result column="carry_capacity" property="carryCapacity" />
+        <result column="type" property="type" />
+        <result column="truck_owner" property="truckOwner" />
+        <result column="truck_owner_phone" property="truckOwnerPhone" />
+        <result column="truck_time" property="truckTime" />
+        <result column="truck_status" property="truckStatus" />
+        <result column="operation_time" property="operationTime" />
+        <result column="operation_status" property="operationStatus" />
+        <result column="policy_no_time" property="policyNoTime" />
+        <result column="policy_no_status" property="policyNoStatus" />
+        <result column="deposit_bank" property="depositBank" />
+        <result column="truck_card_number" property="truckCardNumber" />
+        <result column="carframe_number" property="carframeNumber" />
+        <result column="operation_number" property="operationNumber" />
+        <result column="invoice_number" property="invoiceNumber" />
+        <result column="policy_no" property="policyNo" />
+        <result column="brand_no" property="brandNo" />
+        <result column="attribute" property="attribute" />
+        <result column="car_attribute" property="carAttribute" />
+        <result column="engine_number" property="engineNumber" />
+        <result column="driving_license" property="drivingLicense" />
+        <result column="is_supervise" property="isSupervise" />
+        <result column="del_flag" property="delFlag" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="remark" property="remark" />
+        <result column="tenant_id" property="tenantId" />
+    </resultMap>
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        truck_id AS truckId ,status, driver_id AS driverId,truck_owner_id AS truckOwnerId,truck_team_id AS truckTeamId, plate_number AS plateNumber,
+        trailer_brand AS trailerBrand,car_length AS carLength,car_weight AS carWeight,carry_capacity AS carryCapacity, type, truck_owner AS truckOwner,
+        truck_time  AS truckTime,truck_status  AS truckStatus,operation_time  AS operationTime,operation_status  AS operationStatus,policy_no_time  AS policyNoTime,
+        policy_no_status  AS policyNoStatus,truck_owner_phone AS truckOwnerPhone, deposit_bank AS depositBank, truck_card_number AS truckCardNumber,
+         carframe_number AS carframeNumber, operation_number AS operationNumber, invoice_number AS invoiceNumber, policy_no AS policyNo,
+         brand_no AS brandNo, attribute,car_attribute AS carAttribute, engine_number AS engineNumber, driving_license AS drivingLicense, is_supervise AS isSupervise,
+          del_flag AS delFlag, create_by AS createBy, create_time AS createTime, update_by AS updateBy, update_time AS updateTime,remark, tenant_id AS tenantId
+    </sql>
+    <sql id="Base_Column">
+        SELECT
+        a.truck_id,a.status, a.driver_id,a.truck_owner_id,a.truck_team_id, a.plate_number,a.trailer_brand,a.car_length,a.car_weight,a.carry_capacity, a.type, a.truck_owner,
+        a.truck_owner_phone, a.deposit_bank, a.truck_card_number, a.truck_time,a.truck_status,a.operation_time,a.operation_status,a.policy_no_time,a.policy_no_status,
+        a.carframe_number, a.operation_number, a.invoice_number, a.policy_no, a.brand_no ,a.attribute,a.car_attribute, a.engine_number, a.driving_license, a.is_supervise,
+        a.del_flag, a.create_by, a.create_time, a.update_by, a.update_time, a.remark,a.tenant_id
+        from tru_truck a
+        left join tru_truck_team t on a.truck_team_id = t.truck_team_id
+    </sql>
+
+    <!--车辆司机车队表联合查询-->
+    <select id="selectTruckDriverTeamList" parameterType="com.zhkj.lc.trunk.model.TruTruck" resultMap="TruckDetailResultMap">
+        SELECT
+        a.truck_id,
+        a.status,
+        a.driver_id,
+        a.truck_owner_id,
+        a.truck_team_id,
+        a.plate_number,
+        a.trailer_brand,
+        a.car_length,
+        a.car_weight,
+        a.carry_capacity,
+        a.type,
+        tto.truckown_name as truck_owner,
+        tto.truckown_phone as truck_owner_phone,
+        a.deposit_bank,
+        a.truck_card_number,
+        a.truck_time,
+        case
+        when TIMESTAMPDIFF(DAY, curdate(),a.truck_time) &lt;= 0 then 2
+        when TIMESTAMPDIFF(DAY, curdate(),a.truck_time) &lt;= 90 then 1
+        else 0
+        end as truck_status,
+        a.operation_time,
+        case
+        when TIMESTAMPDIFF(DAY, curdate(),a.operation_time) &lt;= 0 then 2
+        when TIMESTAMPDIFF(DAY, curdate(),a.operation_time) &lt;= 30 then 1
+        else 0
+        end as operation_status,
+        a.policy_no_time,
+        case
+        when TIMESTAMPDIFF(DAY, curdate(),a.policy_no_time) &lt;= 0 then 2
+        when TIMESTAMPDIFF(DAY, curdate(),a.policy_no_time) &lt;= 60 then 1
+        else 0
+        end as policy_no_status,
+        a.carframe_number,
+        a.operation_number,
+        a.invoice_number,
+        a.policy_no,
+        a.brand_no,
+        a.attribute,
+        a.car_attribute,
+        a.engine_number,
+        a.driving_license,
+        a.is_supervise,
+        a.del_flag,
+        a.create_by,
+        a.create_time,
+        a.update_by,
+        a.update_time,
+        a.remark,
+        a.tenant_id
+        FROM
+        tru_truck a
+        LEFT JOIN tru_truck_team t ON a.truck_team_id = t.truck_team_id
+        LEFT JOIN tru_truck_own tto  ON a.truck_owner_id = tto.id
+        <where>
+            <if test="truckId != null "> and a.truck_id = #{truckId}</if>
+            <if test="driverId != null "> and a.driver_id = #{driverId}</if>
+            <if test="truckOwnerId != null "> and a.truck_owner_id = #{truckOwnerId}</if>
+            <if test="truckTeamId != null "> and  a.truck_team_id = #{truckTeamId}</if>
+            <if test="plateNumber != null  and plateNumber != '' "> and a.plate_number = #{plateNumber}</if>
+            <if test="truckStatus != null  and truckStatus != '' "> and a.truck_status = #{truckStatus}</if>
+            <if test="operationStatus != null  and operationStatus != '' "> and a.operation_status = #{operationStatus}</if>
+            <if test="policyNoStatus != null  and policyNoStatus != '' "> and a.policy_no_status = #{policyNoStatus}</if>
+            <if test="trailerBrand != null  and trailerBrand != '' "> and a.trailer_brand = #{trailerBrand}</if>
+            <if test="attribute != null  and attribute != '' "> and a.attribute = #{attribute}</if>
+            <if test="type != null  and type != '' "> and a.type = #{type}</if>
+            <if test="truckOwner != null  and truckOwner != '' "> and a.truck_owner = #{truckOwner}</if>
+            <if test="truckOwnerPhone != null  and truckOwnerPhone != '' "> and a.truck_owner_phone = #{truckOwnerPhone}</if>
+            <if test="tenantId != null "> and a.tenant_id = #{tenantId}</if>
+            <if test="isTrust != null and isTrust != '' "> and t.is_trust = #{isTrust}</if>
+            and a.del_flag = '0'
+        </where>
+        order by a.create_time desc
+    </select>
+    <!-- 根据车主id(自有,挂靠,外调)查询所有车牌号 -->
+    <select id="selectPlateNumberByTruckTeamId" resultMap="BaseResultMap">
+        select a.truck_id, a.status, a.plate_number, a.truck_team_id, a.truck_owner, a.truck_owner_phone,a.deposit_bank, a.truck_card_number,a.car_length,a.car_attribute,a.attribute
+        from tru_truck a
+        left join tru_truck_team t on a.truck_team_id = t.truck_team_id
+        left join tru_driver td on a.truck_id = td.plate_id
+        <where>
+            and a.del_flag = '0'
+            and td.status = '2'
+            <if test="truckId != null "> and a.truck_id = #{truckId}</if>
+            <if test="driverId != null "> and a.driver_id = #{driverId}</if>
+            <if test="truckOwnerId != null "> and a.truck_owner_id = #{truckOwnerId}</if>
+            <if test="truckTeamId != null "> and a.truck_team_id = #{truckTeamId}</if>
+            <if test="plateNumber != null  and plateNumber != '' "> and a.plate_number = #{plateNumber}</if>
+            <if test="truckStatus != null  and truckStatus != '' "> and a.truck_status = #{truckStatus}</if>
+            <if test="operationStatus != null  and operationStatus != '' "> and a.operation_status = #{operationStatus}</if>
+            <if test="policyNoStatus != null  and policyNoStatus != '' "> and a.policy_no_status = #{policyNoStatus}</if>
+            <if test="trailerBrand != null  and trailerBrand != '' "> and a.trailer_brand = #{trailerBrand}</if>
+            <if test="attribute != null  and attribute != '' "> and a.attribute = #{attribute}</if>
+            <if test="type != null  and type != '' "> and a.type = #{type}</if>
+            <if test="truckOwner != null  and truckOwner != '' "> and a.truck_owner = #{truckOwner}</if>
+            <if test="truckOwnerPhone != null  and truckOwnerPhone != '' "> and a.truck_owner_phone = #{truckOwnerPhone}</if>
+            <if test="tenantId != null "> and a.tenant_id = #{tenantId}</if>
+            <if test="isTrust != null and isTrust != '' "> and t.is_trust = #{isTrust}</if>
+        </where>
+    </select>
+
+    <!-- 根据车辆类型(自有,挂靠,外调)查询所有车牌号 -->
+    <select id="selectPlateNumberByAttribute" resultMap="BaseResultMap">
+        select a.truck_id, a.status,a.plate_number,a.truck_team_id, a.truck_owner,a.truck_owner_phone,a.deposit_bank, a.truck_card_number,a.car_length,a.attribute,a.car_attribute
+        from tru_truck a
+        left join tru_truck_team t on a.truck_team_id = t.truck_team_id
+        <where>
+            <if test="truckId != null "> and a.truck_id = #{truckId}</if>
+            <if test="driverId != null "> and a.driver_id = #{driverId}</if>
+            <if test="truckOwnerId != null "> and a.truck_owner_id = #{truckOwnerId}</if>
+            <if test="truckTeamId != null "> and a.truck_team_id = #{truckTeamId}</if>
+            <if test="plateNumber != null  and plateNumber != '' "> and a.plate_number = #{plateNumber}</if>
+            <if test="truckStatus != null  and truckStatus != '' "> and a.truck_status = #{truckStatus}</if>
+            <if test="operationStatus != null  and operationStatus != '' "> and a.operation_status = #{operationStatus}</if>
+            <if test="policyNoStatus != null  and policyNoStatus != '' "> and a.policy_no_status = #{policyNoStatus}</if>
+            <if test="trailerBrand != null  and trailerBrand != '' "> and a.trailer_brand = #{trailerBrand}</if>
+            <if test="attribute != null  and attribute != '' "> and a.attribute = #{attribute}</if>
+            <if test="type != null  and type != '' "> and a.type = #{type}</if>
+            <if test="truckOwner != null  and truckOwner != '' "> and a.truck_owner = #{truckOwner}</if>
+            <if test="truckOwnerPhone != null  and truckOwnerPhone != '' "> and a.truck_owner_phone = #{truckOwnerPhone}</if>
+            <if test="tenantId != null "> and a.tenant_id = #{tenantId}</if>
+            <if test="isTrust != null and isTrust != '' "> and t.is_trust = #{isTrust}</if>
+            and a.del_flag = '0'
+        </where>
+    </select>
+    <!-- 查询所有车牌号 -->
+    <select id="selectPlateNumberList" resultMap="BaseResultMap">
+        select a.truck_id, a.status, a.plate_number, a.truck_team_id, a.truck_owner, a.truck_owner_phone, a.deposit_bank, a.truck_card_number
+        , td.driver_id, td.driver_name, td.phone
+        from tru_truck a
+        left join tru_truck_team t on a.truck_team_id = t.truck_team_id
+        left join (
+            select td1.plate_id, td1.driver_id, td1.driver_name, td1.phone
+            from tru_driver td1
+            where td1.del_flag = '0' and td1.create_time = (
+                select min(td2.create_time)
+                from tru_driver td2
+                where td2.del_flag = '0'
+                group by td2.plate_id
+                having td1.plate_id = td2.plate_id)
+        ) td on a.truck_id = td.plate_id
+        <where>
+            and a.del_flag = '0'
+            <if test="truckId != null "> and a.truck_id = #{truckId}</if>
+            <if test="driverId != null "> and a.driver_id = #{driverId}</if>
+            <if test="truckOwnerId != null "> and a.truck_owner_id = #{truckOwnerId}</if>
+            <if test="truckTeamId != null "> and a.truck_team_id = #{truckTeamId}</if>
+            <if test="plateNumber != null  and plateNumber != '' "> and a.plate_number = #{plateNumber}</if>
+            <if test="truckStatus != null  and truckStatus != '' "> and a.truck_status = #{truckStatus}</if>
+            <if test="operationStatus != null  and operationStatus != '' "> and a.operation_status = #{operationStatus}</if>
+            <if test="policyNoStatus != null  and policyNoStatus != '' "> and a.policy_no_status = #{policyNoStatus}</if>
+            <if test="trailerBrand != null  and trailerBrand != '' "> and a.trailer_brand = #{trailerBrand}</if>
+            <if test="attribute != null  and attribute != '' "> and a.attribute = #{attribute}</if>
+            <if test="type != null  and type != '' "> and a.type = #{type}</if>
+            <if test="truckOwner != null  and truckOwner != '' "> and a.truck_owner = #{truckOwner}</if>
+            <if test="truckOwnerPhone != null  and truckOwnerPhone != '' "> and a.truck_owner_phone = #{truckOwnerPhone}</if>
+            <if test="tenantId != null "> and a.tenant_id = #{tenantId}</if>
+            <if test="isTrust != null and isTrust != '' "> and t.is_trust = #{isTrust}</if>
+        </where>
+    </select>
+
+    <!-- 搜索分页 -->
+    <select id="pageSearch" resultMap="BaseResultMap">
+        <include refid="Base_Column"/>
+        <where>
+            <if test="truckId != null "> and a.truck_id = #{truckId}</if>
+            <if test="status != null "> and a.status = #{status}</if>
+            <if test="driverId != null "> and a.driver_id = #{driverId}</if>
+            <if test="truckOwnerId != null "> and a.truck_owner_id = #{truckOwnerId}</if>
+            <if test="truckTeamId != null "> and a.truck_team_id = #{truckTeamId}</if>
+            <if test="plateNumber != null  and plateNumber != '' "> and a.plate_number = #{plateNumber}</if>
+            <if test="truckStatus != null  and truckStatus != '' "> and a.truck_status = #{truckStatus}</if>
+            <if test="operationStatus != null  and operationStatus != '' "> and a.operation_status = #{operationStatus}</if>
+            <if test="policyNoStatus != null  and policyNoStatus != '' "> and a.policy_no_status = #{policyNoStatus}</if>
+            <if test="trailerBrand != null  and trailerBrand != '' "> and a.trailer_brand = #{trailerBrand}</if>
+            <if test="carLength != null  and carLength != '' "> and a.car_length = #{carLength}</if>
+            <if test="carWeight != null  and carWeight != '' "> and a.car_weight = #{carWeight}</if>
+            <if test="carryCapacity != null  and carryCapacity != '' "> and a.carry_capacity = #{carryCapacity}</if>
+            <if test="type != null  and type != '' "> and a.type = #{type}</if>
+            <if test="truckOwner != null  and truckOwner != '' "> and a.truck_owner = #{truckOwner}</if>
+            <if test="truckOwnerPhone != null  and truckOwnerPhone != '' "> and a.truck_owner_phone = #{truckOwnerPhone}</if>
+            <if test="depositBank != null  and depositBank != '' "> and a.deposit_bank = #{depositBank}</if>
+            <if test="truckCardNumber != null  and truckCardNumber != '' "> and a.truck_card_number = #{truckCardNumber}</if>
+            <if test="carframeNumber != null  and carframeNumber != '' "> and a.carframe_number = #{carframeNumber}</if>
+            <if test="operationNumber != null  and operationNumber != '' "> and a.operation_number = #{operationNumber}</if>
+            <if test="invoiceNumber != null  and invoiceNumber != '' "> and a.invoice_number = #{invoiceNumber}</if>
+            <if test="policyNo != null  and policyNo != '' "> and a.policy_no = #{policyNo}</if>
+            <if test="brandNo != null  and brandNo != '' "> and a.brand_no = #{brandNo}</if>
+            <if test="attribute != null  and attribute != '' "> and a.attribute = #{attribute}</if>
+            <if test="engineNumber != null  and engineNumber != '' "> and a.engine_number = #{engineNumber}</if>
+            <if test="drivingLicense != null  and drivingLicense != '' "> and a.driving_license = #{drivingLicense}</if>
+            <if test="isSupervise != null  and isSupervise != '' "> and a.is_supervise = #{isSupervise}</if>
+            and a.del_flag = '0'
+            <if test="createBy != null  and createBy != '' "> and a.create_by = #{createBy}</if>
+            <if test="beginTime != null">
+                and date_format(a.create_time,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+            </if>
+            <if test="endTime != null">
+                and date_format(a.create_time,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+            </if>
+            <!--<if test="createTime != null "> and create_time = #{createTime}</if>-->
+            <if test="updateBy != null  and updateBy != '' "> and a.update_by = #{updateBy}</if>
+            <if test="updateTime != null "> and a.update_time = #{updateTime}</if>
+            <if test="remark != null  and remark != '' "> and a.remark = #{remark}</if>
+            <if test="tenantId != null "> and a.tenant_id = #{tenantId}</if>
+            <if test="isTrust != null and isTrust != '' "> and t.is_trust = #{isTrust}</if>
+        </where>
+        order by a.create_time
+    </select>
+
+    <!-- 多条价查询 -->
+    <select id="selectTruckList" parameterType="truTruck" resultMap="BaseResultMap">
+        <include refid="Base_Column"/>
+        <where>
+            <if test="truckId != null "> and a.truck_id = #{truckId}</if>
+            <if test="status != null "> and a.status = #{status}</if>
+            <if test="driverId != null "> and a.driver_id = #{driverId}</if>
+            <if test="truckOwnerId != null "> and a.truck_owner_id = #{truckOwnerId}</if>
+            <if test="truckTeamId != null "> and a.truck_team_id = #{truckTeamId}</if>
+            <if test="plateNumber != null  and plateNumber != '' "> and a.plate_number = #{plateNumber}</if>
+            <if test="carLength != null  and carLength != '' "> and a.car_length = #{carLength}</if>
+            <if test="carWeight != null  and carWeight != '' "> and a.car_weight = #{carWeight}</if>
+            <if test="carryCapacity != null  and carryCapacity != '' "> and a.carry_capacity = #{carryCapacity}</if>
+            <if test="type != null  and type != '' "> and a.type = #{type}</if>
+            <if test="truckOwner != null  and truckOwner != '' "> and a.truck_owner = #{truckOwner}</if>
+            <if test="truckOwnerPhone != null  and truckOwnerPhone != '' "> and a.truck_owner_phone = #{truckOwnerPhone}</if>
+            <if test="truckStatus != null  and truckStatus != '' "> and a.truck_status = #{truckStatus}</if>
+            <if test="operationStatus != null  and operationStatus != '' "> and a.operation_status = #{operationStatus}</if>
+            <if test="policyNoStatus != null  and policyNoStatus != '' "> and a.policy_no_status = #{policyNoStatus}</if>
+            <if test="depositBank != null  and depositBank != '' "> and a.deposit_bank = #{depositBank}</if>
+            <if test="truckCardNumber != null  and truckCardNumber != '' "> and a.truck_card_number = #{truckCardNumber}</if>
+            <if test="carframeNumber != null  and carframeNumber != '' "> and a.carframe_number = #{carframeNumber}</if>
+            <if test="operationNumber != null  and operationNumber != '' "> and a.operation_number = #{operationNumber}</if>
+            <if test="invoiceNumber != null  and invoiceNumber != '' "> and a.invoice_number = #{invoiceNumber}</if>
+            <if test="policyNo != null  and policyNo != '' "> and a.policy_no = #{policyNo}</if>
+            <if test="brandNo != null  and brandNo != '' "> and a.brand_no = #{brandNo}</if>
+            <if test="attribute != null  and attribute != '' "> and a.attribute = #{attribute}</if>
+            <if test="engineNumber != null  and engineNumber != '' "> and a.engine_number = #{engineNumber}</if>
+            <if test="drivingLicense != null  and drivingLicense != '' "> and a.driving_license = #{drivingLicense}</if>
+            <if test="isSupervise != null  and isSupervise != '' "> and a.is_supervise = #{isSupervise}</if>
+            and a.del_flag = '0'
+            <if test="createBy != null  and createBy != '' "> and a.create_by = #{createBy}</if>
+            <if test="createTime != null "> and a.create_time = #{createTime}</if>
+            <if test="updateBy != null  and updateBy != '' "> and a.update_by = #{updateBy}</if>
+            <if test="updateTime != null "> and a.update_time = #{updateTime}</if>
+            <if test="remark != null  and remark != '' "> and a.remark = #{remark}</if>
+            <if test="tenantId != null "> and a.tenant_id = #{tenantId}</if>
+            <if test="isTrust != null and isTrust != '' "> and t.is_trust = #{isTrust}</if>
+        </where>
+    </select>
+
+    <!-- 车牌号查询 -->
+    <select id="selectTruckByplateNumber" resultMap="BaseResultMap">
+        <include refid="Base_Column"/>
+        <where>
+            <if test="truckId != null "> and a.truck_id = #{truckId}</if>
+            <if test="status != null "> and a.status = #{status}</if>
+            <if test="driverId != null "> and a.driver_id = #{driverId}</if>
+            <if test="truckOwnerId != null "> and a.truck_owner_id = #{truckOwnerId}</if>
+            <if test="truckTeamId != null "> and a.truck_team_id = #{truckTeamId}</if>
+            <if test="plateNumber != null  and plateNumber != '' "> and a.plate_number = #{plateNumber}</if>
+            <if test="truckStatus != null  and truckStatus != '' "> and a.truck_status = #{truckStatus}</if>
+            <if test="operationStatus != null  and operationStatus != '' "> and a.operation_status = #{operationStatus}</if>
+            <if test="policyNoStatus != null  and policyNoStatus != '' "> and a.policy_no_status = #{policyNoStatus}</if>
+            <if test="trailerBrand != null  and trailerBrand != '' "> and a.trailer_brand = #{trailerBrand}</if>
+            <if test="attribute != null  and attribute != '' "> and a.attribute = #{attribute}</if>
+            <if test="type != null  and type != '' "> and a.type = #{type}</if>
+            <if test="truckOwner != null  and truckOwner != '' "> and a.truck_owner = #{truckOwner}</if>
+            <if test="truckOwnerPhone != null  and truckOwnerPhone != '' "> and a.truck_owner_phone = #{truckOwnerPhone}</if>
+            <if test="tenantId != null "> and a.tenant_id = #{tenantId}</if>
+            <if test="isTrust != null and isTrust != '' "> and t.is_trust = #{isTrust}</if>
+            and a.del_flag = '0'
+        </where>
+    </select>
+
+    <update id="deleteTruckByIds" parameterType="com.zhkj.lc.trunk.model.TruTruck">
+        update tru_truck
+        set del_flag='1', update_time=#{updateTime}
+        <if test="updateBy != null  and updateBy != ''  ">, update_by = #{updateBy}</if>
+        where del_flag = '0'
+            <if test="null != truckIds and truckIds.length > 0"> and truck_id in
+            <foreach item="truckId" collection="truckIds" open="(" separator="," close=")">
+                #{truckId}
+            </foreach>
+        </if>
+    </update>
+
+    <!-- 添加车辆,返回该条记录id-->
+    <insert id="addTruck" useGeneratedKeys="true" keyProperty="truckId" parameterType="com.zhkj.lc.trunk.model.TruTruck"  >
+        insert into tru_truck
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+        <if test="truckId != null "> truck_id,</if>
+        status,
+        <if test="driverId != null ">driver_id,</if>
+        <if test="truckOwnerId != null ">truck_owner_id,</if>
+        <if test="truckTeamId != null "> truck_team_id,</if>
+        <if test="plateNumber != null  and plateNumber != '' "> plate_number,</if>
+        <if test="trailerBrand != null  and trailerBrand != '' "> trailer_brand,</if>
+        <if test="carLength != null  and carLength != '' "> car_length,</if>
+        <if test="carWeight != null  and carWeight != '' ">  car_weight,</if>
+        <if test="carryCapacity != null  and carryCapacity != '' ">  carry_capacity,</if>
+
+        <if test="truckTime != null  ">  truck_time,</if>
+        <if test="operationTime != null  ">  operation_time,</if>
+        <if test="policyNoTime != null   ">  policy_no_time,</if>
+        <if test="truckStatus != null  and truckStatus != '' "> and truck_status,</if>
+        <if test="operationStatus != null  and operationStatus != '' "> and operation_status,</if>
+        <if test="policyNoStatus != null  and policyNoStatus != '' "> and policy_no_status,</if>
+
+        <if test="type != null  and type != '' "> type,</if>
+        <if test="truckOwner != null  and truckOwner != '' "> truck_owner,</if>
+        <if test="truckOwnerPhone != null  and truckOwnerPhone != '' "> truck_owner_phone,</if>
+        <if test="depositBank != null  and depositBank != '' ">deposit_bank,</if>
+        <if test="truckCardNumber != null  and truckCardNumber != '' "> truck_card_number,</if>
+        <if test="carframeNumber != null  and carframeNumber != '' "> carframe_number,</if>
+        <if test="operationNumber != null  and operationNumber != '' ">operation_number,</if>
+        <if test="invoiceNumber != null  and invoiceNumber != '' "> invoice_number,</if>
+        <if test="policyNo != null  and policyNo != '' "> policy_no,</if>
+        <if test="brandNo != null  and brandNo != '' ">  brand_no,</if>
+        <if test="attribute != null  and attribute != '' "> attribute,</if>
+        <if test="carAttribute != null  and carAttribute != '' "> car_attribute,</if>
+        <if test="engineNumber != null  and engineNumber != '' "> engine_number,</if>
+        <if test="drivingLicense != null  and drivingLicense != '' ">driving_license,</if>
+        <if test="isSupervise != null  and isSupervise != '' "> is_supervise,</if>
+         del_flag,
+        <if test="createBy != null  and createBy != '' ">create_by,</if>
+        <if test="createTime != null ">create_time,</if>
+        <if test="updateBy != null  and updateBy != '' ">update_by,</if>
+        <if test="updateTime != null "> update_time,</if>
+        <if test="remark != null  and remark != '' ">remark,</if>
+        <if test="tenantId != null "> tenant_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+        <if test="truckId != null "> #{truckId},</if>
+         0,
+        <if test="driverId != null ">#{driverId},</if>
+        <if test="truckOwnerId != null ">#{truckOwnerId},</if>
+        <if test="truckTeamId != null "> #{truckTeamId},</if>
+        <if test="plateNumber != null  and plateNumber != '' "> #{plateNumber},</if>
+        <if test="trailerBrand != null  and trailerBrand != '' "> #{trailerBrand},</if>
+        <if test="carLength != null  and carLength != '' "> #{carLength},</if>
+        <if test="carWeight != null  and carWeight != '' ">  #{carWeight},</if>
+        <if test="carryCapacity != null  and carryCapacity != '' ">  #{carryCapacity},</if>
+        <if test="truckTime != null   ">  #{truckTime},</if>
+        <if test="operationTime!= null  ">  #{operationTime},</if>
+        <if test="policyNoTime != null   ">  #{policyNoTime},</if>
+        <if test="truckStatus != null  and truckStatus != '' "> #{truckStatus},</if>
+        <if test="operationStatus != null  and operationStatus != '' ">  #{operationStatus},</if>
+        <if test="policyNoStatus != null  and policyNoStatus != '' ">  #{policyNoStatus},</if>
+        <if test="type != null  and type != '' "> #{type},</if>
+        <if test="truckOwner != null  and truckOwner != '' "> #{truckOwner},</if>
+        <if test="truckOwnerPhone != null  and truckOwnerPhone != '' "> #{truckOwnerPhone},</if>
+        <if test="depositBank != null  and depositBank != '' ">#{depositBank},</if>
+        <if test="truckCardNumber != null  and truckCardNumber != '' "> #{truckCardNumber},</if>
+        <if test="carframeNumber != null  and carframeNumber != '' "> #{carframeNumber},</if>
+        <if test="operationNumber != null  and operationNumber != '' ">#{operationNumber},</if>
+        <if test="invoiceNumber != null  and invoiceNumber != '' "> #{invoiceNumber},</if>
+        <if test="policyNo != null  and policyNo != '' "> #{policyNo},</if>
+        <if test="brandNo != null  and brandNo != '' ">  #{brandNo},</if>
+        <if test="attribute != null  and attribute != '' "> #{attribute},</if>
+        <if test="carAttribute != null  and carAttribute != '' "> #{carAttribute},</if>
+        <if test="engineNumber != null  and engineNumber != '' "> #{engineNumber},</if>
+        <if test="drivingLicense != null  and drivingLicense != '' ">#{drivingLicense},</if>
+        <if test="isSupervise != null  and isSupervise != '' "> #{isSupervise},</if>
+        '0',
+        <if test="createBy != null  and createBy != '' ">#{createBy},</if>
+        <if test="createTime != null ">#{createTime},</if>
+        <if test="updateBy != null  and updateBy != '' "> #{updateBy},</if>
+        <if test="updateTime != null "> #{updateTime},</if>
+        <if test="remark != null  and remark != '' ">#{remark},</if>
+        <if test="tenantId != null "> #{tenantId},</if>
+        </trim>
+    </insert>
+
+    <select id="selectTruckByDriverPlateId" parameterType="Integer" resultMap="BaseResult">
+        <include refid="Base_Column" />
+        where
+        a.truck_id = #{truckId}
+    </select>
+
+    <select id="selectTruckById" parameterType="Integer" resultMap="BaseResult">
+        <include refid="Base_Column" />
+        where
+            a.truck_id = #{truckId}
+    </select>
+
+    <select id="selectPayTypeForFegin" resultType="String">
+        select
+          ttt.pay_way
+        from tru_truck tt
+        left join tru_truck_team ttt on ttt.truck_team_id = tt.truck_team_id
+        where tt.truck_id = #{truckId}
+    </select>
+
+    <select id="countDrivers" parameterType="Integer" resultType="Integer">
+        SELECT COUNT(driver_id) driverSum
+        FROM tru_driver
+        where plate_id = #{truckId} and del_flag = '0'
+    </select>
+
+    <select id="selectPlateNumberListGPS" resultType="com.zhkj.lc.trunk.model.TruTruck">
+        select a.truck_id truckId, a.status, a.plate_number plateNumber, a.truck_team_id truckTeamId, td.driver_name driverName, td.phone
+        from tru_truck a
+        left join tru_truck_team t on a.truck_team_id = t.truck_team_id
+        left join (
+                select td1.plate_id, td1.driver_id, td1.driver_name, td1.phone
+                from tru_driver td1
+                where td1.del_flag = '0' and td1.create_time = (
+                                        select min(td2.create_time)
+                                        from tru_driver td2
+                                        where td2.del_flag = '0'
+                                        group by td2.plate_id
+                                        having td1.plate_id = td2.plate_id)) td on a.truck_id = td.plate_id
+        <where>
+            a.del_flag = '0'
+            <if test="tenantId != null "> and a.tenant_id = #{tenantId}</if>
+            <if test="isTrust != null and isTrust != '' "> and t.is_trust = #{isTrust}</if>
+        </where>
+    </select>
+
+    <select id="selectTruckIdBy" resultType="Integer">
+        SELECT b.truck_id
+        FROM tru_driver a
+        left join tru_truck b on a.plate_id = b.truck_id
+        where a.del_flag = '0'
+        <if test="driverId != null"> and a.driver_id = #{driverId}</if>
+        <if test="plateNumber != null and plateNumber != '' "> and b.plate_number = #{plateNumber}</if>
+    </select>
+    <!--查询车辆下在途司机个数-->
+    <select id="checkTruckDriverStatus" resultType="INTEGER">
+        SELECT
+            COUNT(truck_id)
+        FROM
+            tru_truck a
+            LEFT JOIN tru_driver td ON a.truck_id = td.plate_id
+        WHERE
+            a.del_flag = '0'
+            AND td.STATUS = '1'
+            AND a.plate_number = #{plateNumber}
+            AND a.tenant_id = #{tenantId}
+    </select>
+
+    <!--新增修改前车牌号不可重复验证查询-->
+    <select id="checkPlateNumber" resultType="Integer">
+        select count(truck_id) from tru_truck where plate_number = #{plateNumber} and tenant_id = #{tenantId} and del_flag = '0'
+    </select>
+
+    <!--新增修改前车牌号不可重复验证查询-->
+    <select id="checkPlateNumberById" resultType="Integer">
+        select truck_id from tru_truck where plate_number = #{plateNumber} and tenant_id = #{tenantId} and del_flag = '0'
+    </select>
+
+    <select id="selectListByOwnerId" resultType="com.zhkj.lc.common.vo.TruckVO">
+        select <include refid="Base_Column_List"/> from tru_truck
+        where del_flag = '0' and truck_owner_id = #{ownerId}
+    </select>
+
+    <select id="selectByPlateNumber" resultMap="BaseResult">
+        <include refid="Base_Column"/>
+         where a.plate_number = #{plateNumber} and a.tenant_id = #{tenantId}
+    </select>
+
+    <update id="updateTruckStatus" parameterType="com.zhkj.lc.common.vo.TruckVO">
+        update tru_truck
+        set status = #{status}
+        <where>
+            <if test="plateNumber != null and plateNumber != ''">
+                and plate_number = #{plateNumber}
+            </if>
+            <if test="truckId != null ">
+                and truck_id = #{truckId}
+            </if>
+        </where>
+    </update>
+
+</mapper>

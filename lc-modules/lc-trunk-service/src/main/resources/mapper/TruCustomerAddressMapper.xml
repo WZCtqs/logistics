@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.trunk.mapper.TruCustomerAddressMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zhkj.lc.trunk.model.TruCustomerAddress">
+        <id column="id" property="id" />
+        <result column="customer_id" property="customerId" />
+        <result column="data_type" property="dataType" />
+        <result column="people_name" property="peopleName" />
+        <result column="people_phone" property="peoplePhone" />
+        <result column="address" property="address" />
+        <result column="detaile_address" property="detaileAddress" />
+        <result column="del_flag" property="delFlag" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="tenant_id" property="tenantId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        select id, customer_id , data_type , people_name , people_phone , address, detaile_address ,
+        del_flag , create_by , create_time , update_by , update_time , tenant_id  from tru_customer_address
+    </sql>
+
+    <select id="selectListByCustomerId" resultMap="BaseResultMap" parameterType="com.zhkj.lc.trunk.model.TruCustomerAddress">
+        <include refid="Base_Column_List"/>
+        where del_flag = '0'
+        <if test="customerId != null and customerId != ''">
+            and customer_id = #{customerId}
+        </if>
+        <if test="dataType != null and dataType != ''">
+            and data_type = #{dataType}
+        </if>
+        <if test="tenantId != null and tenantId != ''">
+            and tenant_id = #{tenantId}
+        </if>
+    </select>
+
+</mapper>

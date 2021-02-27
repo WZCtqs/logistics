@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.order.mapper.TruBusinessMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="TruBusinessMap" type="com.zhkj.lc.order.model.entity.OrderFee">
+        <result column="plate_number" property="plateNumber" />
+        <result column="driver_id" property="driverId" />
+        <result column="truck_fee" property="truckFee" />
+        <result column="ex_fee" property="exFee" />
+
+    </resultMap>
+
+
+    <select id="selectOrderFeeList" resultMap="TruBusinessMap">
+        (SELECT
+        ocg.driver_id,
+        oct.plate_number,
+        IFNULL(oct.total_fee, 0) as truck_fee,
+        IFNULL(oef.exception_fee,0) as ex_fee
+        FROM
+        ord_common_goods ocg
+        left join ord_common_truck oct
+        on ocg.order_id = oct.order_id
+        left join ord_exception_fee oef
+        on oef.order_id = ocg.order_id
+        <where>
+            ocg.del_flag='0'
+            and ocg.status = '9'
+            <if test="feeMonth != null">and date_format(ocg.create_time,'%Y-%m')= #{feeMonth}</if>
+            <if test="tenantId != null">and ocg.tenant_id = #{tenantId}</if>
+            <if test="plateNumber != null and plateNumber!='' ">and oct.plate_number = #{plateNumber}</if>
+        </where>)
+        UNION
+        (SELECT
+        oo.driver_id,
+        oo.plate_number,
+        oo.need_pay as truck_fee,
+        IFNULL(oef.exception_fee,0) as ex_fee
+
+        FROM
+        ord_order oo
+        left join ord_exception_fee oef
+        on oef.order_id = oo.order_id
+        <where>
+            oo.del_flag='0'
+            and oo.status = '11'
+            <if test="feeMonth != null">and date_format(oo.create_time,'%Y-%m')= #{feeMonth}</if>
+            <if test="tenantId != null">and oo.tenant_id = #{tenantId}</if>
+            <if test="plateNumber != null and plateNumber!='' ">and oo.plate_number = #{plateNumber}</if>
+        </where>)
+    </select>
+    
+</mapper>

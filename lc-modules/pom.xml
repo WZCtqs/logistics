@@ -1,0 +1,48 @@
+<!--
+  ~    Copyright (c) 2018-2025, lengleng All rights reserved.
+  ~
+  ~ Redistribution and use in source and binary forms, with or without
+  ~ modification, are permitted provided that the following conditions are met:
+  ~
+  ~ Redistributions of source code must retain the above copyright notice,
+  ~ this list of conditions and the following disclaimer.
+  ~ Redistributions in binary form must reproduce the above copyright
+  ~ notice, this list of conditions and the following disclaimer in the
+  ~ documentation and/or other materials provided with the distribution.
+  ~ Neither the name of the lc4cloud.com developer nor the names of its
+  ~ contributors may be used to endorse or promote products derived from
+  ~ this software without specific prior written permission.
+  ~ Author: lengleng (wangiegie@gmail.com)
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>logistics-cloud</artifactId>
+        <groupId>com.zhkj</groupId>
+        <version>1.2.1</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.zhkj.lc</groupId>
+    <artifactId>lc-modules</artifactId>
+    <version>1.2.1</version>
+    <packaging>pom</packaging>
+
+    <name>lc-modules</name>
+    <url>http://maven.apache.org</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <modules>
+        <module>lc-mc-service</module>
+        <module>lc-upms-service</module>
+        <module>lc-order-service</module>
+        <module>lc-trunk-service</module>
+        <module>lc-oilcard-service</module>
+
+    </modules>
+
+</project>

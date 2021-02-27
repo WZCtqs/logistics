@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.admin.mapper.HelpInformationMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zhkj.lc.admin.model.entity.HelpInformation">
+        <id column="information_id" property="informationId" />
+        <result column="del_flag" property="delFlag" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="remarks" property="remarks" />
+        <result column="tenant_id" property="tenantId" />
+        <result column="title" property="title" />
+        <result column="content" property="content"
+                typeHandler="com.zhkj.lc.common.bean.handler.MyBlobTypeHandler" />
+        <result column="type" property="type" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        information_id AS informationId, del_flag AS delFlag, create_by AS createBy, create_time AS createTime, update_by AS updateBy, update_time AS updateTime, remarks, tenant_id AS tenantId, title, content, type
+    </sql>
+
+    <sql id="selectVo">
+        select information_id, del_flag, create_by, create_time, update_by, update_time,
+         remarks, tenant_id, title, content, type
+        from help_information
+    </sql>
+
+    <!-- 根据id查询 -->
+    <select id="selectInformationById" resultMap="BaseResultMap" parameterType="Integer">
+        <include refid="selectVo"/>
+         where del_flag = '0' and information_id = #{informationId}
+    </select>
+
+    <!-- 查询全部 -->
+    <select id="selectAll" parameterType="com.zhkj.lc.admin.model.entity.HelpInformation" resultMap="BaseResultMap">
+        select information_id, del_flag, create_by, create_time, update_by, update_time,
+        remarks, tenant_id, title, type
+        from help_information
+        where del_flag = '0'
+        <if test="title != null and title != '' "> and title like "%"#{title}"%" </if>
+        <if test="type != null and type != '' "> and type = #{type}</if>
+        <if test="tenantId != null "> and tenant_id = #{tenantId} </if>
+        ORDER BY update_time DESC
+    </select>
+
+    <!-- 新增 -->
+    <insert id="insertInformation" parameterType="com.zhkj.lc.admin.model.entity.HelpInformation">
+        insert into help_information
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="title != null  and title != '' ">title,</if>
+            <if test="content != null  and content != '' ">content,</if>
+            <if test="type != null  and type != '' ">type,</if>
+            <if test="createBy != null  and createBy != '' ">create_by,</if>
+            del_flag,
+            create_time,
+            update_time,
+            <if test="remarks != null  and remarks != '' ">remarks,</if>
+            <if test="tenantId != null "> tenant_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="title != null  and title != ''  ">#{title},</if>
+            <if test="content != null  and content != ''  ">#{content},</if>
+            <if test="type != null  and type != ''  ">#{type},</if>
+            <if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+            '0',
+            sysdate(),
+            sysdate(),
+            <if test="remarks != null  and remarks != '' ">#{remarks},</if>
+            <if test="tenantId != null "> #{tenantId},</if>
+        </trim>
+    </insert>
+
+    <!-- 编辑帮助信息 -->
+    <update id="updateInformation" parameterType="com.zhkj.lc.admin.model.entity.HelpInformation">
+      update help_information
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="title != null  and title != ''  ">title = #{title},</if>
+            <if test="content != null  and content != ''  ">content = #{content},</if>
+            <if test="type != null  and type != ''  ">type = #{type},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            update_time = sysdate(),
+            del_flag = '0',
+            <if test="remarks != null  and remarks != '' ">remarks = #{remarks},</if>
+            <if test="tenantId != null "> tenant_id = #{tenantId},</if>
+        </trim>
+    </update>
+
+    <!-- 批量删除 -->
+    <update id="deleteIds" parameterType="com.zhkj.lc.admin.model.entity.HelpInformation">
+        update help_information
+        set del_flag = '1', update_time = sysdate()
+        <if test="updateBy != null  and updateBy != ''  ">,update_by = #{updateBy}</if>
+        where information_id in
+        <foreach item="informationId" collection="informationIds" open="(" separator="," close=")">
+            #{informationId}
+        </foreach>
+    </update>
+
+</mapper>

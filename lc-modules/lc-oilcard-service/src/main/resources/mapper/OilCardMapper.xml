@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.oilcard.mapper.OilCardMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="OilCardResultMap" type="com.zhkj.lc.oilcard.model.OilCard">
+        <id column="oil_card_id" property="oilCardId" />
+        <result column="oil_card_number" property="oilCardNumber" />
+        <result column="deposit" property="deposit" />
+        <result column="card_type" property="cardType" />
+        <result column="card_status" property="cardStatus" />
+        <result column="major_id" property="majorId" />
+        <result column="major_number" property="majorNumber" />
+        <result column="apply_id" property="applyId" />
+        <result column="owner_driver_id" property="ownerDriverId" />
+        <result column="driver_name" property="driverName" />
+        <result column="is_owner" property="isOwner" />
+        <result column="card_quantity" property="cardQuantity" />
+        <result column="open_card_place" property="openCardPlace" />
+        <result column="open_date" property="openDate" />
+        <result column="amount" property="amount" />
+        <result column="return_date" property="returnDate" />
+        <result column="return_record" property="returnRecord" />
+        <result column="truck_id" property="truckId" />
+        <result column="plate_number" property="plateNumber" />
+        <result column="truck_owner" property="truckOwner" />
+        <result column="attribute" property="attribute" />
+
+        <result column="bank_owner" property="bankOwner" />
+        <result column="bank_name" property="bankName" />
+        <result column="bank_number" property="bankNumber" />
+        <result column="bank_owner_phone" property="bankOwnerPhone" />
+        <result column="del_flag" property="delFlag" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="tenant_id" property="tenantId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        oil_card_id AS oilCardId, oil_card_number AS oilCardNumber, deposit, card_type AS cardType, card_status AS cardStatus, major_id AS majorId, apply_id AS applyId, card_quantity AS cardQuantity, open_card_place AS openCardPlace, open_date AS openDate, amount, return_date AS returnDate, return_record AS returnRecord, truck_id AS truckId, bank_owner AS bankOwner, bank_name AS bankName, bank_number AS bankNumber, bank_owner_phone AS bankOwnerPhone, del_flag AS delFlag, create_by AS createBy, create_time AS createTime, update_by AS updateBy, update_time AS updateTime, tenant_id AS tenantId
+    </sql>
+
+    <sql id="selectCardVo">
+        select a.oil_card_id, a.oil_card_number, a.card_type, a.card_status, a.major_id, a.apply_id, a.owner_driver_id, a.card_quantity, a.open_card_place, a.open_date, a.amount, a.deposit, a.return_date, a.return_record, a.truck_id, a.bank_owner, a.bank_name, a.bank_number, a.bank_owner_phone, a.del_flag, a.create_by, a.create_time, a.update_by, a.update_time, a.tenant_id
+        , d.major_number
+        from oil_card AS a
+        left join oil_major AS d on a.major_id = d.major_id
+    </sql>
+
+    <sql id="selectCardVoJoin">
+        select a.oil_card_id AS oilCardId, a.oil_card_number AS oilCardNumber, a.card_type AS cardType, a.card_status AS cardStatus, a.major_id AS majorId, a.apply_id AS applyId, a.owner_driver_id AS ownerDriverId, a.card_quantity AS cardQuantity, a.open_card_place AS openCardPlace, a.open_date AS openDate, a.amount AS amount, a.deposit AS deposit, a.return_date AS returnDate, a.return_record AS returnRecord, a.truck_id AS truckId, a.bank_owner AS bankOwner, a.bank_name AS bankName, a.bank_number AS bankNumber, a.bank_owner_phone AS bankOwnerPhone, a.del_flag AS delFlag,a.create_by AS createBy, a.create_time AS createTime, a.update_by AS updateBy, a.update_time AS updateTime, a.tenant_id AS tenantId,b.plate_number as plateNumber,b.truck_owner,
+        b.attribute,b.truck_owner_phone truckOwnerPhone, c.driver_name, c.is_owner, d.major_number AS majorNumber,d.major_name AS majorName,d.major_company AS majorCompany
+        from oil_card AS a
+        left join logistics_truckdb.tru_truck AS b on a.truck_id = b.truck_id and b.del_flag = '0'
+        left join logistics_truckdb.tru_driver AS c on a.owner_driver_id = c.driver_id and c.del_flag = '0'
+        left join oil_major AS d on a.major_id = d.major_id
+    </sql>
+
+    <sql id="selectCardExportVO">
+        select  a.oil_card_id,a.oil_card_number as oilCardNum, a.card_type as cardType,
+         a.card_status as cardStatus,d.major_number as majorNum
+        from oil_card AS a
+        left join oil_major AS d on a.major_id = d.major_id
+    </sql>
+
+    <select id="selectCardListByIds" resultMap="OilCardResultMap">
+        <include refid="selectCardVoJoin"/>
+        where a.del_flag='0' and a.oil_card_id in
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+              #{id}
+            </foreach>
+        order by a.create_time desc
+    </select>
+
+    <select id="selectCardVOListByIds" resultType="com.zhkj.lc.common.vo.OilCardExportVO">
+        <include refid="selectCardExportVO"/>
+        where a.del_flag='0' and a.oil_card_id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        order by a.create_time desc
+    </select>
+
+
+    <select id="selectCardList" resultType="com.zhkj.lc.oilcard.model.OilCard">
+        <include refid="selectCardVoJoin"/>
+        <where>
+            <if test="oilCardId != null  and oilCardId != '' "> and a.oil_card_id = #{oilCardId}</if>
+            <if test="oilCardNumber != null  and oilCardNumber != '' "> and a.oil_card_number = #{oilCardNumber}</if>
+            <if test="cardType != null  and cardType != '' "> and a.card_type = #{cardType}</if>
+            <if test="cardStatus != null  and cardStatus != '' "> and a.card_status = #{cardStatus}</if>
+            <if test="majorId != null "> and a.major_id = #{majorId}</if>
+            <if test="applyId != null "> and a.apply_id = #{applyId}</if>
+            <if test="ownerDriverId != null  ">and a.owner_driver_id = #{ownerDriverId}</if>
+            <if test="cardQuantity != null "> and a.card_quantity = #{cardQuantity}</if>
+            <if test="openCardPlace != null  and openCardPlace != '' "> and a.open_card_place = #{openCardPlace}</if>
+            <if test="driverName != null  and driverName != '' "> and c.driver_name = #{driverName}</if>
+            <if test="plateNumber != null  and plateNumber != '' "> and b.plate_number = #{plateNumber}</if>
+            <if test="attribute != null  and attribute != '' "> and b.attribute = #{attribute}</if>
+
+            <!--<if test="openDate != null "> and open_date = #{openDate}</if>-->
+            <if test="beginTime != null "><!-- 开始时间检索 -->
+                and date_format(a.open_date,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+            </if>
+            <if test="endTime != null "><!-- 结束时间检索 -->
+                and date_format(a.open_date,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+            </if>
+            <if test="amount != null "> and a.amount = #{amount}</if>
+            <if test="deposit != null "> and a.deposit = #{deposit}</if>
+            <!--<if test="beginTimeReturn != null and beginTimeReturn != ''">&lt;!&ndash; 开始时间检索 &ndash;&gt;
+                and date_format(return_date,'%y%m%d') &gt;= date_format(#{beginTimeReturn},'%y%m%d')
+            </if>
+            <if test="endTimeReturn != null and endTimeReturn != ''">&lt;!&ndash; 结束时间检索 &ndash;&gt;
+                and date_format(return_date,'%y%m%d') &lt;= date_format(#{endTimeReturn},'%y%m%d')
+            </if>-->
+            <if test="returnDate != null "> and a.return_date = #{returnDate}</if>
+            <if test="returnRecord != null  and returnRecord != '' "> and a.return_record = #{returnRecord}</if>
+            <if test="truckIds != null and truckIds.length > 0 "> and a.truck_id in
+                <foreach collection="truckIds" item="truckId" open="(" separator="," close=")">
+                    #{truckId}
+                </foreach>
+            </if>
+            <!--<if test="attribute != null and attribute != ''"> and b.attribute = #{attribute}</if>-->
+            <if test="bankOwner != null  and bankOwner != '' "> and a.bank_owner = #{bankOwner}</if>
+            <if test="bankName != null  and bankName != '' "> and a.bank_name = #{bankName}</if>
+            <if test="bankNumber != null  and bankNumber != '' "> and a.bank_number = #{bankNumber}</if>
+            <if test="bankOwnerPhone != null  and bankOwnerPhone != '' "> and a.bank_owner_phone = #{bankOwnerPhone}</if>
+            <if test="createBy != null  and createBy != '' "> and a.create_by = #{createBy}</if>
+            <if test="createTime != null "> and a.create_time = #{createTime}</if>
+            <if test="updateBy != null  and updateBy != '' "> and a.update_by = #{updateBy}</if>
+            <if test="updateTime != null "> and a.update_time = #{updateTime}</if>
+            <if test="tenantId != null "> and a.tenant_id = #{tenantId}</if>
+            <if test="majorNumber != null and  majorNumber !=''"> and d.major_number = #{majorNumber}</if>
+            and a.del_flag='0'
+        </where>
+        order by a.create_time desc
+    </select>
+    <select id="selectCardVOList" resultType="com.zhkj.lc.common.vo.OilCardExportVO">
+        <include refid="selectCardExportVO"/>
+        <where>
+            <if test="oilCardId != null  and oilCardId != '' "> and a.oil_card_id = #{oilCardId}</if>
+            <if test="oilCardNumber != null  and oilCardNumber != '' "> and a.oil_card_number = #{oilCardNumber}</if>
+            <if test="cardType != null  and cardType != '' "> and a.card_type = #{cardType}</if>
+            <if test="cardStatus != null  and cardStatus != '' "> and a.card_status = #{cardStatus}</if>
+            <if test="majorId != null "> and a.major_id = #{majorId}</if>
+            <if test="applyId != null "> and a.apply_id = #{applyId}</if>
+            <if test="ownerDriverId != null  ">and a.owner_driver_id = #{ownerDriverId}</if>
+            <if test="cardQuantity != null "> and a.card_quantity = #{cardQuantity}</if>
+            <if test="openCardPlace != null  and openCardPlace != '' "> and a.open_card_place = #{openCardPlace}</if>
+            <if test="driverName != null  and driverName != '' "> and c.driver_name = #{driverName}</if>
+            <if test="plateNumber != null  and plateNumber != '' "> and b.plate_number = #{plateNumber}</if>
+            <if test="attribute != null  and attribute != '' "> and b.attribute = #{attribute}</if>
+
+            <!--<if test="openDate != null "> and open_date = #{openDate}</if>-->
+            <if test="beginTime != null "><!-- 开始时间检索 -->
+                and date_format(a.open_date,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+            </if>
+            <if test="endTime != null "><!-- 结束时间检索 -->
+                and date_format(a.open_date,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+            </if>
+            <if test="amount != null "> and a.amount = #{amount}</if>
+            <if test="deposit != null "> and a.deposit = #{deposit}</if>
+            <!--<if test="beginTimeReturn != null and beginTimeReturn != ''">&lt;!&ndash; 开始时间检索 &ndash;&gt;
+                and date_format(return_date,'%y%m%d') &gt;= date_format(#{beginTimeReturn},'%y%m%d')
+            </if>
+            <if test="endTimeReturn != null and endTimeReturn != ''">&lt;!&ndash; 结束时间检索 &ndash;&gt;
+                and date_format(return_date,'%y%m%d') &lt;= date_format(#{endTimeReturn},'%y%m%d')
+            </if>-->
+            <if test="returnDate != null "> and a.return_date = #{returnDate}</if>
+            <if test="returnRecord != null  and returnRecord != '' "> and a.return_record = #{returnRecord}</if>
+            <if test="truckIds != null and truckIds.length > 0 "> and a.truck_id in
+                <foreach collection="truckIds" item="truckId" open="(" separator="," close=")">
+                    #{truckId}
+                </foreach>
+            </if>
+            <!--<if test="attribute != null and attribute != ''"> and b.attribute = #{attribute}</if>-->
+            <if test="bankOwner != null  and bankOwner != '' "> and a.bank_owner = #{bankOwner}</if>
+            <if test="bankName != null  and bankName != '' "> and a.bank_name = #{bankName}</if>
+            <if test="bankNumber != null  and bankNumber != '' "> and a.bank_number = #{bankNumber}</if>
+            <if test="bankOwnerPhone != null  and bankOwnerPhone != '' "> and a.bank_owner_phone = #{bankOwnerPhone}</if>
+            <if test="createBy != null  and createBy != '' "> and a.create_by = #{createBy}</if>
+            <if test="createTime != null "> and a.create_time = #{createTime}</if>
+            <if test="updateBy != null  and updateBy != '' "> and a.update_by = #{updateBy}</if>
+            <if test="updateTime != null "> and a.update_time = #{updateTime}</if>
+            <if test="tenantId != null "> and a.tenant_id = #{tenantId}</if>
+            and a.del_flag='0'
+        </where>
+        order by a.create_time desc
+    </select>
+
+    <select id="selectByOilCardId" resultType="com.zhkj.lc.oilcard.model.OilCard">
+        <include refid="selectCardVoJoin"/>
+        where a.oil_card_id = #{oilCardId} and a.del_flag='0'
+    </select>
+
+    <select id="selectCardByOilCardNumber" parameterType="java.lang.String" resultMap="OilCardResultMap">
+        <include refid="selectCardVoJoin"/>
+        where a.oil_card_number = #{oilCardNumber} and a.del_flag='0' and a.card_status='正常'
+        <if test="tenantId != null "> and a.tenant_id = #{tenantId} </if>
+        order by a.create_time desc limit 1
+    </select>
+
+    <select id="selectOilCardByOilCardNumber" parameterType="java.lang.String" resultMap="OilCardResultMap">
+        <include refid="selectCardVoJoin"/>
+        where a.oil_card_number = #{oilCardNumber} and a.del_flag='0' and a.card_status='未使用'
+        <if test="tenantId != null "> and a.tenant_id = #{tenantId} </if>
+        order by a.create_time desc limit 1
+    </select>
+
+    <select id="selectOilCardNumber"  resultType="com.zhkj.lc.oilcard.model.OilCard">
+        select oil_card_id AS oilCardId,oil_card_number AS oilCardNumber
+        from oil_card
+        where del_flag='0' and card_status='正常'
+        <if test="tenantId != null "> and tenant_id = #{tenantId} </if>
+        order by create_time desc
+    </select>
+
+    <select id="selectOpenCardPlace" parameterType="Integer" resultType="String">
+        select DISTINCT open_card_place
+        from oil_card
+        where del_flag='0'
+        <if test="tenantId != null "> and tenant_id = #{tenantId} </if>
+    </select>
+
+    <select id="selectOilCardNumByMajorId" parameterType="Integer" resultType="String">
+        select DISTINCT oil_card_number
+        from oil_card
+        where del_flag='0'
+        and card_status = '未使用'
+        <if test="majorId != null "> and major_id = #{majorId} </if>
+    </select>
+
+    <select id="countOilCard" resultType="Integer">
+        SELECT
+        COUNT( e.oil_card_id )
+        FROM
+        (
+        SELECT
+        i.*
+        FROM
+        oil_card i
+        WHERE
+        i.del_flag = '0'
+        AND i.card_status = '正常'
+        <if test="tenantId != null "> and i.tenant_id = #{tenantId} </if>
+        <if test="driverIds != null and driverIds.length > 0 "> and i.owner_driver_id in
+            <foreach collection="driverIds" item="driverId" open="(" separator="," close=")">
+                #{driverId}
+            </foreach>
+        </if>
+        UNION
+        SELECT
+        o.*
+        FROM
+        (
+        SELECT
+        a.*
+        FROM
+        oil_card a,
+        oil_card b
+        WHERE
+        a.del_flag = '0'
+        AND a.del_flag = b.del_flag
+        <if test="tenantId != null "> and a.tenant_id = #{tenantId} </if>
+        AND a.tenant_id = b.tenant_id
+        AND ( a.card_status <![CDATA[<>]]> '正常' AND a.card_status <![CDATA[<>]]> '退卡' )
+        AND ( b.card_status <![CDATA[<>]]> '正常' AND b.card_status <![CDATA[<>]]> '退卡' )
+        <if test="driverIds != null and driverIds.length > 0 "> and a.owner_driver_id in
+            <foreach collection="driverIds" item="driverId" open="(" separator="," close=")">
+                #{driverId}
+            </foreach>
+        </if>
+        AND a.truck_id = b.truck_id
+        AND a.update_time <![CDATA[>]]> b.update_time
+        ) o
+        WHERE
+        o.oil_card_id NOT IN ( SELECT oil_card_id FROM oil_exception WHERE del_flag = '0' AND `status` = '1' )
+        ) e
+    </select>
+
+
+    <select id="selectAllOilCardNumber"  resultType="com.zhkj.lc.oilcard.model.OilCard">
+        select oil_card_id ,oil_card_number AS oilCardNumber
+        from oil_card
+        where del_flag='0'
+        <if test="tenantId != null "> and tenant_id = #{tenantId} </if>
+        order by create_time desc
+    </select>
+
+    <insert id="insertOilCard" parameterType="com.zhkj.lc.oilcard.model.OilCard">
+        insert into oil_card
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="oilCardNumber != null  and oilCardNumber != ''  ">oil_card_number,</if>
+            <if test="cardType != null  and cardType != ''  ">card_type,</if>
+            <if test="cardStatus != null  and cardStatus != '' ">card_status,</if>
+            <if test="majorId != null "> major_id,</if>
+            <if test="applyId != null  ">apply_id,</if>
+            <if test="ownerDriverId != null  ">owner_driver_id,</if>
+            <if test="cardQuantity != null  ">card_quantity,</if>
+            <if test="openCardPlace != null  and openCardPlace != ''  ">open_card_place,</if>
+            <if test="openDate != null  ">open_date,</if>
+            <if test="amount != null  ">amount,</if>
+            <if test="deposit != null  ">deposit,</if>
+            <if test="returnDate != null  ">return_date,</if>
+            <if test="returnRecord != null  and returnRecord != ''  ">return_record,</if>
+            <if test="truckId != null  ">truck_id,</if>
+            <if test="bankOwner != null  and bankOwner != ''  ">bank_owner,</if>
+            <if test="bankName != null  and bankName != ''  ">bank_name,</if>
+            <if test="bankNumber != null  and bankNumber != ''  ">bank_number,</if>
+            <if test="bankOwnerPhone != null  and bankOwnerPhone != '' ">bank_owner_phone,</if>
+            <if test="delFlag != null  and delFlag != ''  ">del_flag,</if>
+            <if test="createBy != null  and createBy != ''  ">create_by,</if>
+            create_time,
+            <if test="tenantId != null "> tenant_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="oilCardNumber != null  and oilCardNumber != ''  ">#{oilCardNumber},</if>
+            <if test="cardType != null  and cardType != ''  ">#{cardType},</if>
+            <if test="cardStatus != null  and cardStatus != '' ">#{cardStatus},</if>
+            <if test="majorId != null ">#{majorId},</if>
+            <if test="applyId != null  ">#{applyId},</if>
+            <if test="ownerDriverId != null  ">#{ownerDriverId},</if>
+            <if test="cardQuantity != null  ">#{cardQuantity},</if>
+            <if test="openCardPlace != null  and openCardPlace != ''  ">#{openCardPlace},</if>
+            <if test="openDate != null  ">#{openDate},</if>
+            <if test="amount != null  ">#{amount},</if>
+            <if test="deposit != null  ">#{deposit},</if>
+            <if test="returnDate != null  ">#{returnDate},</if>
+            <if test="returnRecord != null  and returnRecord != ''  ">#{returnRecord},</if>
+            <if test="truckId != null  ">#{truckId},</if>
+            <if test="bankOwner != null  and bankOwner != ''  ">#{bankOwner},</if>
+            <if test="bankName != null  and bankName != ''  ">#{bankName},</if>
+            <if test="bankNumber != null  and bankNumber != ''  ">#{bankNumber},</if>
+            <if test="bankOwnerPhone != null  and bankOwnerPhone != '' ">#{bankOwnerPhone},</if>
+            <if test="delFlag != null  and delFlag != ''  ">#{delFlag},</if>
+            <if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+            sysdate(),
+            <if test="tenantId != null "> #{tenantId},</if>
+        </trim>
+    </insert>
+
+    <update id="updateOilCard" parameterType="com.zhkj.lc.oilcard.model.OilCard">
+        update oil_card
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="oilCardNumber != null  and oilCardNumber != ''  ">oil_card_number = #{oilCardNumber},</if>
+            <if test="cardType != null  and cardType != ''  ">card_type = #{cardType},</if>
+            <if test="cardStatus != null  and cardStatus != '' ">card_status = #{cardStatus},</if>
+            <if test="majorId != null ">major_id = #{majorId},</if>
+            <if test="applyId != null  ">apply_id = #{applyId},</if>
+            <if test="ownerDriverId != null  ">owner_driver_id = #{ownerDriverId},</if>
+            <if test="cardQuantity != null  ">card_quantity = #{cardQuantity},</if>
+            <if test="openCardPlace != null  and openCardPlace != ''  ">open_card_place = #{openCardPlace},</if>
+            <if test="openDate != null  ">open_date = #{openDate},</if>
+            <if test="amount != null  ">amount = #{amount},</if>
+            <if test="deposit != null  ">deposit = #{deposit},</if>
+            <if test="returnDate != null  ">return_date = #{returnDate},</if>
+            <if test="returnRecord != null  and returnRecord != ''  ">return_record = #{returnRecord},</if>
+            <if test="truckId != null  ">truck_id = #{truckId},</if>
+            <if test="bankOwner != null  and bankOwner != ''  ">bank_owner = #{bankOwner},</if>
+            <if test="bankName != null  and bankName != ''  ">bank_name = #{bankName},</if>
+            <if test="bankNumber != null  and bankNumber != ''  ">bank_number = #{bankNumber},</if>
+            <if test="bankOwnerPhone != null  and bankOwnerPhone != '' ">bank_owner_phone = #{bankOwnerPhone},</if>
+            <if test="delFlag != null  and delFlag != ''  ">del_flag = #{delFlag},</if>
+            <if test="createBy != null  and createBy != ''  ">create_by = #{createBy},</if>
+            <if test="createTime != null  ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            update_time = sysdate(),
+            <if test="tenantId != null "> tenant_id = #{tenantId},</if>
+        </trim>
+        where oil_card_id = #{oilCardId}
+    </update>
+
+    <update id="deleteCardByIds" parameterType="String">
+        update oil_card
+        set del_flag=#{delFlag}, update_time=sysdate()
+        <if test="updateBy != null  and updateBy != ''  ">,update_by = #{updateBy}</if>
+        where del_flag = '0'
+        <if test="null != oilCardIds and oilCardIds.length > 0 "> and oil_card_id in
+            <foreach item="oilCardId" collection="oilCardIds" open="(" separator="," close=")">
+                #{oilCardId}
+            </foreach>
+        </if>
+    </update>
+
+    <!-- 小程序接口(根据申请人id查询所有油卡信息) -->
+    <select id="selectAllCardByOwnerId" parameterType="Integer" resultMap="OilCardResultMap">
+        select a.oil_card_id, a.oil_card_number, a.card_type
+        , a.card_status
+        , a.major_id, a.apply_id, a.owner_driver_id, a.card_quantity, a.open_card_place, a.open_date, a.amount, a.deposit, a.return_date, a.return_record, a.truck_id, a.tenant_id
+        , d.major_number
+        from oil_card AS a
+        left join oil_major AS d on a.major_id = d.major_id
+        where a.del_flag = '0'
+        and a.card_status &lt;&gt; '退卡'
+        and a.oil_card_id not in (select oil_card_id from oil_exception where status = '1' and exception_type &lt;&gt; '2')
+        <if test="ownerDriverId != null "> and a.owner_driver_id = #{ownerDriverId} </if>
+        <if test="tenantId != null "> and a.tenant_id = #{tenantId} </if>
+        order by a.create_time desc
+    </select>
+
+    <!-- 小程序接口(根据申请人id查询所有正常油卡信息) -->
+    <select id="selectCardByOwnerId" parameterType="Integer" resultMap="OilCardResultMap">
+        <include refid="selectCardVo"/>
+        where a.del_flag = '0'
+        and a.card_status = '正常'
+        <if test="ownerDriverId != null "> and a.owner_driver_id = #{ownerDriverId} </if>
+        <if test="tenantId != null "> and a.tenant_id = #{tenantId} </if>
+        order by a.create_time desc
+    </select>
+
+    <select id="driversCardNum" resultType="Integer">
+        select
+          count(oil_card_id)
+        from
+          oil_card
+        where owner_driver_id = #{driverId}
+        and card_status &lt;&gt; '退卡'
+        and tenant_id = #{tenantId}
+        and del_flag = 0
+    </select>
+    <!-- 根据车牌号查询该车辆下所有正常油卡信息) -->
+    <select id="findAllCardsByPlateNum" resultType="com.zhkj.lc.oilcard.model.OilCard" parameterType="java.lang.String">
+        <include refid="selectCardVoJoin"/>
+        where a.del_flag = '0'
+        and a.card_status = '正常'
+        <if test="plateNumber != null "> and b.plate_number = #{plateNumber} </if>
+        <if test="tenantId != null "> and a.tenant_id = #{tenantId} </if>
+        order by a.create_time desc
+    </select>
+
+    <!-- 根据车辆id查询该车辆下所有正常油卡信息) -->
+    <select id="countCardNumByTruckId" resultType="com.zhkj.lc.common.vo.OilCardVO">
+        SELECT
+        COUNT(a.card_quantity) AS quantity,
+        a.truck_id AS truckId,
+        b.plate_number AS plateNumber
+        FROM oil_card a
+        left join logistics_truckdb.tru_truck AS b on a.truck_id = b.truck_id and b.del_flag = '0'
+        where a.del_flag = '0'
+        and a.card_status = '正常'
+        <if test="plateNumber != null and plateNumber !=''"> and b.plate_number = #{plateNumber} </if>
+        <if test="tenantId != null "> and a.tenant_id = #{tenantId} </if>
+        GROUP BY a.truck_id
+    </select>
+
+
+    <select id="findAllCardsByMajorId" resultType="com.zhkj.lc.oilcard.model.OilCard">
+
+        select oil_card_id AS oilCardId, oil_card_number AS oilCardNumber, card_status AS cardStatus, major_id AS majorId
+        FROM oil_card
+        where del_flag = '0'
+        and card_status = '未使用'
+        <if test="majorId != null and majorId !=''"> and major_id = #{majorId} </if>
+        <if test="tenantId != null "> and tenant_id = #{tenantId} </if>
+
+    </select>
+</mapper>

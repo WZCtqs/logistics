@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.trunk.mapper.ContractMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zhkj.lc.trunk.model.Contract">
+        <id column="id" property="id" />
+        <result column="contract_number" property="contractNumber" />
+        <result column="contract_name" property="contractName" />
+        <result column="contract_type" property="contractType" />
+        <result column="customer_id" property="customerId" />
+        <result column="contact" property="contact" />
+        <result column="phone" property="phone" />
+        <result column="saleman" property="saleman" />
+        <result column="sign_date" property="signDate" />
+        <result column="expiry_date" property="expiryDate" />
+        <result column="remind_date" property="remindDate" />
+        <result column="status" property="status" />
+        <result column="contract_file" property="contractFile" />
+        <result column="remark" property="remark" />
+        <result column="del_flag" property="delFlag" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="tenant_id" property="tenantId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,contract_number AS contractNumber, contract_name AS contractName, contract_type AS contractType, customer_id AS customerId, contact, phone, saleman, sign_date AS signDate, expiry_date AS expiryDate, remind_date AS remindDate, status, contract_file AS contractFile, remark, del_flag AS delFlag, create_by AS createBy, create_time AS createTime, update_by AS updateBy, update_time AS updateTime, tenant_id AS tenantId
+    </sql>
+    <sql id="Base_Column">
+        id ,contract_number, contract_name, contract_type, customer_id, contact, saleman, sign_date , expiry_date , remind_date, status, phone, contract_file, remark, del_flag , create_by, create_time, update_by, update_time , tenant_id
+    </sql>
+
+    <update id="deleteByIds" parameterType="com.zhkj.lc.trunk.model.Contract">
+        update contract
+        set del_flag='1',update_time=#{updateTime}
+        <if test="updateBy != null  and updateBy != ''  ">,update_by = #{updateBy}</if>
+        where contract_number in
+        <foreach item="id" collection="contractNumbers" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <select id="selectPageList" resultMap="BaseResultMap">
+        SELECT c.id, c.contract_number, c.contract_name,c.contract_type,c.contract_file,
+        CASE c.contract_type
+        WHEN 'HD' THEN
+        tc.customer_name
+        WHEN 'GK' THEN
+        td.team_name
+        WHEN 'CD' THEN
+        tt.team_name
+        END AS customerName,
+        CASE c.contract_type
+        WHEN 'HD' THEN
+        tc.is_trust
+        WHEN 'GK' THEN
+        td.is_trust
+        WHEN 'CD' THEN
+        tt.is_trust
+        END AS customerIsTrust,
+        c.customer_id, c.contact, c.phone, c.saleman,c.sign_date,c.expiry_date, c.remind_date, c.status,c.remark
+        FROM contract c
+        LEFT JOIN tru_customer tc ON tc.customer_id = c.customer_id
+        LEFT JOIN tru_truck_team td ON td.truck_team_id = c.customer_id and td.team_type = '个体车队'
+        LEFT JOIN tru_truck_team tt ON tt.truck_team_id = c.customer_id and tt.team_type = '运输车队'
+        <where>
+            <if test="contractNumber != null  and contractNumber != '' "> and c.contract_number = #{contractNumber}</if>
+            <if test="contractName != null  and contractName != '' "> and c.contract_name = #{contractName}</if>
+            <if test="contractType != null  and contractType != '' "> and c.contract_type = #{contractType}</if>
+            <if test="customerId != null "> and c.customer_id = #{customerId}</if>
+            <if test="contact != null  and contact != '' "> and c.contact = #{contact}</if>
+            <if test="saleman != null  and saleman != '' "> and c.saleman = #{saleman}</if>
+            <if test="signDate != null "> and c.sign_date = #{signDate}</if>
+            <if test="expiryDate != null "> and c.expiry_date = #{expiryDate}</if>
+            <if test="remindDate != null "> and c.remind_date = #{remindDate}</if>
+            <if test="status != null  and status != '' "> and c.status = #{status}</if>
+            <if test="contractFile != null  and contractFile != '' "> and c.contract_file = #{contractFile}</if>
+            <if test="remark != null  and remark != '' "> and c.remark = #{remark}</if>
+            <if test="tenantId != null "> and c.tenant_id = #{tenantId}</if>
+            and c.del_flag = '0'
+           <!-- <if test="createBy != null  and createBy != '' "> and create_by = #{createBy}</if>
+            <if test="createTime != null "> and create_time = #{createTime}</if>
+            <if test="updateBy != null  and updateBy != '' "> and update_by = #{updateBy}</if>
+            <if test="updateTime != null "> and update_time = #{updateTime}</if>-->
+        </where>
+        order by c.create_time desc
+    </select>
+
+    <select id="selectByIds" resultType="com.zhkj.lc.trunk.model.Contract" resultMap="BaseResultMap">
+        select <include refid="Base_Column"/>
+        from contract
+        where del_flag = '0' and contract_number in
+        <foreach item="id" collection="contractNumbers" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
+
+    <select id="selectAllUnexpiredContract" resultType="com.zhkj.lc.trunk.model.Contract" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from contract
+        <where>
+            <if test="status != null  and status != '' "> and <![CDATA[ status <> #{status} ]]></if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+            and del_flag = '0'
+        </where>
+    </select>
+    <select id="selectByContractNumber" resultType="com.zhkj.lc.trunk.model.Contract" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from contract
+        <where>
+            <if test="contractNumber != null  and contractNumber != '' "> and contract_number = #{contractNumber}</if>
+            <if test="status != null  and status != '' "> and <![CDATA[ status <> #{status} ]]></if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+            and del_flag = '0'
+        </where>
+    </select>
+    <select id="selectAll" resultType="com.zhkj.lc.trunk.model.Contract" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from contract
+        <where>
+            <if test="contractNumber != null  and contractNumber != '' "> and contract_number = #{contractNumber}</if>
+            <if test="contractName != null  and contractName != '' "> and contract_name = #{contractName}</if>
+            <if test="contractType != null  and contractType != '' "> and contract_type = #{contractType}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="contact != null  and contact != '' "> and contact = #{contact}</if>
+            <if test="saleman != null  and saleman != '' "> and saleman = #{saleman}</if>
+            <if test="signDate != null "> and sign_date = #{signDate}</if>
+            <if test="expiryDate != null "> and expiry_date = #{expiryDate}</if>
+            <if test="remindDate != null "> and remind_date = #{remindDate}</if>
+            <if test="status != null  and status != '' "> and status = #{status}</if>
+            <if test="contractFile != null  and contractFile != '' "> and contract_file = #{contractFile}</if>
+            <if test="remark != null  and remark != '' "> and remark = #{remark}</if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+            and del_flag = '0'
+            <!-- <if test="createBy != null  and createBy != '' "> and create_by = #{createBy}</if>
+             <if test="createTime != null "> and create_time = #{createTime}</if>
+             <if test="updateBy != null  and updateBy != '' "> and update_by = #{updateBy}</if>
+             <if test="updateTime != null "> and update_time = #{updateTime}</if>-->
+        </where>
+    </select>
+
+    <select id="countNoFinishContract" resultType="Integer">
+        select count(contract_number)
+        from contract
+        where del_flag = '0'
+            <if test="truckTeamIds != null and truckTeamIds.length > 0 "> and customer_id in
+                <foreach item="truckTeamId" collection="truckTeamIds" open="(" separator="," close=")">
+                    #{truckTeamId}
+                </foreach>
+            </if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+            and status not in ('2') and contract_type in ('CD')
+    </select>
+
+    <insert id="insertContract" parameterType="com.zhkj.lc.trunk.model.Contract">
+        insert into contract
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="contractNumber != null  and contractNumber != ''  ">contract_number,</if>
+            <if test="contractName != null  and contractName != ''  ">contract_name,</if>
+            <if test="contractType != null  and contractType != ''  ">contract_type,</if>
+            <if test="customerId != null  ">customer_id,</if>
+            <if test="contact != null  and contact != ''  ">contact,</if>
+            <if test="phone != null  and phone != ''  ">phone,</if>
+            <if test="saleman != null  and saleman != ''  ">saleman,</if>
+            <if test="signDate != null  ">sign_date,</if>
+            <if test="expiryDate != null  ">expiry_date,</if>
+            <if test="remindDate != null  ">remind_date,</if>
+            <if test="status != null  and status != ''  ">status,</if>
+            <if test="contractFile != null  and contractFile != ''  ">contract_file,</if>
+            <if test="remark != null  and remark != ''  ">remark,</if>
+            <if test="delFlag != null  and delFlag != ''  ">del_flag,</if>
+            <if test="createBy != null  and createBy != ''  ">create_by,</if>
+            <if test="createTime != null  ">create_time,</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by,</if>
+            <if test="updateTime != null  ">update_time,</if>
+            <if test="tenantId != null  ">tenant_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="contractNumber != null  and contractNumber != ''  ">#{contractNumber},</if>
+            <if test="contractName != null  and contractName != ''  ">#{contractName},</if>
+            <if test="contractType != null  and contractType != ''  ">#{contractType},</if>
+            <if test="customerId != null  ">#{customerId},</if>
+            <if test="contact != null  and contact != ''  ">#{contact},</if>
+            <if test="phone != null  and phone != ''  ">#{phone},</if>
+            <if test="saleman != null  and saleman != ''  ">#{saleman},</if>
+            <if test="signDate != null  ">#{signDate},</if>
+            <if test="expiryDate != null  ">#{expiryDate},</if>
+            <if test="remindDate != null  ">#{remindDate},</if>
+            <if test="status != null  and status != ''  ">#{status},</if>
+            <if test="contractFile != null  and contractFile != ''  ">#{contractFile},</if>
+            <if test="remark != null  and remark != ''  ">#{remark},</if>
+            <if test="delFlag != null  and delFlag != ''  ">#{delFlag},</if>
+            <if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+            <if test="createTime != null  ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">#{updateBy},</if>
+            <if test="updateTime != null  ">#{updateTime},</if>
+            <if test="tenantId != null  ">#{tenantId},</if>
+        </trim>
+    </insert>
+    
+</mapper>

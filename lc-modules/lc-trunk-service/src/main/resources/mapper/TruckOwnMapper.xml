@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.trunk.mapper.TruTruckOwnMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zhkj.lc.trunk.model.TruTruckOwn">
+        <id column="id" property="id" />
+        <result column="truckown_name" property="truckownName" />
+        <result column="truckown_phone" property="truckownPhone" />
+        <result column="bank_number" property="bankNumber" />
+        <result column="xopen_id" property="xopenId" />
+        <result column="gopen_id" property="gopenId" />
+        <result column="del_flag" property="delFlag" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="remark" property="remark" />
+        <result column="tenant_id" property="tenantId" />
+        <collection property="truckList" column="id" select="com.zhkj.lc.trunk.mapper.TruTruckMapper.selectListByOwnerId"/>
+    </resultMap>
+
+    <sql id="Base_Column">
+         id,truckown_name, truckown_phone,bank_number,xopen_id,gopen_id , del_flag ,
+         create_by ,create_time , update_by , update_time, remark,tenant_id
+    </sql>
+
+    <select id="allTruTruckOwn" parameterType="com.zhkj.lc.trunk.model.TruTruckOwn" resultMap="BaseResultMap">
+      select
+        <include refid="Base_Column"/>
+      from tru_truck_own tto
+        where tto.del_flag = '0'
+            <if test="id != null "> and tto.id = #{id}</if>
+            <if test="truckownName != null and truckownName != '' "> and tto.truckown_name = #{truckownName}</if>
+            <if test="truckownPhone != null and truckownPhone != '' "> and tto.truckown_phone = #{truckownPhone}</if>
+            <if test="tenantId != null "> and tto.tenant_id = #{tenantId}</if>
+    </select>
+
+    <update id="deleteByTruTruckOwn" parameterType="com.zhkj.lc.trunk.model.TruTruckOwn" >
+        update tru_truck_own
+        set del_flag='1', update_time=#{updateTime}
+        <if test="updateBy != null  and updateBy != ''  ">, update_by = #{updateBy}</if>
+        where tenant_id = #{tenantId}
+            and id in
+            <foreach item="id" collection="truckOwnIds" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+    </update>
+
+    <select id="selectOwnerByPlateNumber" resultMap="BaseResultMap">
+        select
+        tto.id,tto.truckown_name, tto.truckown_phone,tto.xopen_id,tto.gopen_id , tto.del_flag ,
+         tto.create_by ,tto.create_time , tto.update_by , tto.update_time, tto.remark,tto.tenant_id
+        from
+        tru_truck tt
+        left JOIN tru_truck_own tto
+        on tto.id = tt.truck_owner_id
+        where plate_number = #{plateNumber} and tt.del_flag = '0'
+        and tt.tenant_id =  #{tenantId}
+    </select>
+
+    <select id="getPlateNumbersByTruckOwnId" parameterType="com.zhkj.lc.trunk.model.TruTruckOwn" resultType="java.lang.String">
+        select
+        tt.plate_number
+        from
+        tru_truck tt
+        left JOIN tru_truck_own tto
+        on tto.id = tt.truck_owner_id
+        <where>
+            tto.del_flag = '0' and tt.del_flag= '0'
+            and tto.tenant_id = #{tenantId}
+            <if test='id != null  '> and tto.id = #{id}</if>
+            <if test='truckOwnIds != null and truckOwnIds.length != 0 '>
+            and tto.id  in
+            <foreach item="id" collection="truckOwnIds" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectTruckOwnBygopenId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column"/>
+        from
+        tru_truck_own
+        where del_flag = '0'
+        and gopen_id = #{gopenId}
+    </select>
+
+
+    <select id="selectTruckOwnByPhoneXopenId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column"/>
+        from
+        tru_truck_own
+        where del_flag = '0'
+        and xopen_id = #{xopenId}
+        and truckown_phone = #{phone}
+    </select>
+
+    <select id="getCarDataByTruckOwnId"  resultType="com.zhkj.lc.trunk.model.TruTruck">
+        select
+        tt.plate_number AS plateNumber, td.driver_name AS driverName,tt.brand_no AS brandNo,tt.attribute AS attribute,
+        tt.car_length AS carLength,tt.carry_capacity  AS carryCapacity,tt.trailer_brand AS trailerBrand,tt.policy_no AS policyNo,
+        tt.carframe_number AS carframeNumber, tt.operation_number AS  operationNumber , tt.car_attribute AS carAttribute ,
+        tt.engine_number AS  engineNumber,tt.driving_license AS drivingLicense
+        from
+        tru_truck as tt
+        left join
+        (select * from tru_driver where del_flag = '0' ORDER BY create_time desc) as td
+        on td.plate_id = tt.truck_id and tt.del_flag = '0'
+        left JOIN tru_truck_own as tto on tto.id = tt.truck_owner_id
+        <where>
+            tto.del_flag = '0' and tt.del_flag= '0'
+            <if test='truckOwnId != null '> and tto.id = #{truckOwnId}</if>
+        </where>
+    </select>
+</mapper>

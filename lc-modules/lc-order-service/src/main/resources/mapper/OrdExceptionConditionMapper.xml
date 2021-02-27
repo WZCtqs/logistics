@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.order.mapper.OrdExceptionConditionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="exMap" type="com.zhkj.lc.order.model.entity.OrdExceptionCondition">
+        <id column="id" property="id" />
+        <result column="order_id" property="orderId" />
+
+        <result column="submit_date" property="submitDate" />
+        <result column="ex_remarks" property="exRemarks" />
+        <result column="oec_file" property="oecFile" />
+        <result column="del_flag" property="delFlag" />
+        <result column="tenant_id" property="tenantId" />
+        <result column="order_status" property="orderStatus" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+      select   id, order_id, submit_date, ex_remarks,oec_file, del_flag,tenant_id,order_status
+      from ord_exception_condition
+    </sql>
+
+    <select id="selectExCondition" resultMap="exMap">
+        <include refid="Base_Column_List"/>
+        where order_id = #{orderId}
+    </select>
+
+    <select id="getExConditions" resultMap="exMap">
+        <include refid="Base_Column_List"/>
+        <where>
+            del_flag ='0'
+            <if test="orderId != null  and orderId != '' "> and order_id = #{orderId}</if>
+            <if test="fromDate != null "> and date_format(submit_date,'%Y-%m-%d') &gt;= #{fromDate}</if>
+            <if test="toDate != null "> and date_format(submit_date,'%Y-%m-%d') &lt;= #{toDate}</if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+        </where>
+        order by submit_date desc
+    </select>
+
+    <select id="getExConditionsByOrderId" resultMap="exMap">
+        <include refid="Base_Column_List"/>
+        <where>
+            del_flag ='0'
+
+
+            <if test="orderId != null  and orderId != '' "> and order_id = #{orderId}</if>
+
+        </where>
+        order by submit_date desc
+    </select>
+
+    <!--导出异常情况查询-->
+    <select id="selectExportEXConList" resultMap="exMap">
+        <include refid="Base_Column_List"/>
+        <where>
+            del_flag ='0'
+
+            <if test="ycId.length > 0">
+                and id in
+                <foreach item="id" collection="ycId" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+
+        </where>
+        order by submit_date desc
+
+    </select>
+  <!--批量删除异常情况-->
+    <update id="deleteByExIds">
+        update ord_exception_condition  set
+        del_flag= '1'
+        <where>
+
+        <if test="exid.length > 0">
+            and id in
+            <foreach item="id" collection="exid" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        </where>
+    </update>
+
+    <update id="deleteByOrderId">
+        update ord_exception_condition
+        set del_flag = #{delFlag}
+        where order_id = #{orderId}
+        and tenant_id = #{tenantId}
+    </update>
+</mapper>

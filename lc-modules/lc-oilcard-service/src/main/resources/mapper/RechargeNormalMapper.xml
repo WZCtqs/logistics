@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.oilcard.mapper.RechargeNormalMapper">
+    
+    <resultMap type="com.zhkj.lc.oilcard.model.RechargeNormal" id="BaseResultMap">
+        <id column="recharge_id" property="rechargeId"  />
+        <result column="oil_card_id" property="oilCardId"   />
+        <result column="oil_card_number" property="oilCardNumber"  />
+        <result column="card_type" property="cardType"   />
+        <result column="open_card_place" property="openCardPlace" />
+        <result column="major_id" property="majorId"  />
+        <result column="major_number" property="majorNumber" />
+        <result column="truck_id" property="truckId"  />
+        <result column="plate_number" property="plateNumber"  />
+        <result column="attribute" property="attribute" />
+        <result column="truck_owner" property="truckOwner" />
+        <result column="transport_cost" property="transportCost"  />
+        <result column="no" property="no" />
+        <result column="apply_date" property="applyDate" />
+        <result column="recharge_sum" property="rechargeSum" />
+        <result column="apply_remark" property="applyRemark"  />
+        <result column="recharge_type" property="rechargeType"  />
+        <result column="owner_driver_id" property="ownerDriverId" />
+        <result column="order_id" property="orderId" />
+        <result column="driver_name" property="driverName" />
+        <result column="is_owner" property="isOwner" />
+        <result column="is_passed" property="isPassed"  />
+        <result column="fail_remark" property="failRemark"  />
+        <result column="recharge_date" property="rechargeDate" />
+        <result column="month_order_num" property="monthOrderNum"  />
+        <result column="month_recharge_sum" property="monthRechargeSum"  />
+        <result column="del_flag" property="delFlag"  />
+        <result column="create_by" property="createBy"  />
+        <result column="create_time" property="createTime"  />
+        <result column="update_by" property="updateBy"   />
+        <result column="update_time" property="updateTime" />
+        <result column="tenant_id" property="tenantId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        recharge_id AS rechargeId, oil_card_id AS oilCardId, major_id AS majorId, truck_id AS truckId, transport_cost AS transportCost, no, apply_date AS applyDate, recharge_sum AS rechargeSum, apply_remark AS applyRemark,recharge_type AS rechargeType, start_place AS startPlace, end_place AS endPlace, container_no AS containerNo, deposit, is_passed AS isPassed, fail_remark AS failRemark, recharge_date AS rechargeDate, dept_name AS deptName, reimburse_num AS reimburseNum, total_transport_cost AS totalTransportCost, month_order_num AS monthOrderNum, month_recharge_sum AS monthRechargeSum, del_flag AS delFlag, create_by AS createBy, create_time AS createTime, update_by AS updateBy, update_time AS updateTime, tenant_id AS tenantId
+    </sql>
+
+    <sql id="selectRechargeVo">
+        select recharge_id, oil_card_id, major_id, truck_id, transport_cost, no, apply_date, recharge_sum, apply_remark,recharge_type, owner_driver_id, order_id, is_passed, fail_remark, recharge_date, month_order_num, month_recharge_sum, del_flag, create_by, create_time, update_by, update_time,tenant_id from oil_recharge
+    </sql>
+
+    <sql id="selectRechargeVoJoin">
+        select recharge_id, a.oil_card_id, a.major_id, a.truck_id, a.transport_cost, a.no, a.apply_date, a.recharge_sum, a.apply_remark, a.recharge_type, a.owner_driver_id, a.order_id, a.is_passed, a.fail_remark, a.recharge_date, a.month_order_num, a.month_recharge_sum, a.del_flag, a.create_by, a.create_time, a.update_by, a.update_time, a.tenant_id
+          , b.oil_card_number, b.card_type, b.open_card_place
+          , d.major_number
+--           , t.plate_number, t.attribute, t.truck_owner
+--           , c.driver_name, c.is_owner
+        from oil_recharge a
+        left join oil_card b on a.oil_card_id = b.oil_card_id and b.del_flag = '0'
+        left join oil_major AS d on b.major_id = d.major_id and d.del_flag = '0'
+--         left join logistics_truckdb.tru_truck t on a.truck_id = t.truck_id and t.del_flag = '0'
+--         left join logistics_truckdb.tru_driver AS c on a.owner_driver_id = c.driver_id and c.del_flag = '0'
+    </sql>
+
+    <!--<select id="selectById" resultMap="BaseResultMap">
+        <include refid="selectRechargeVoJoin"/>
+        where a.recharge_id = #{rechargeId} and a.del_flag = '0'
+    </select>-->
+
+    <select id="selectRechargeNormalListByIds" resultMap="BaseResultMap">
+        <include refid="selectRechargeVoJoin"/>
+        where a.del_flag = '0' and a.recharge_id in
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        order by a.create_time desc
+    </select>
+
+    <select id="selectRechargeNormalList" resultMap="BaseResultMap">
+        <include refid="selectRechargeVoJoin"/>
+        <where>
+            <if test="rechargeId != null "> and a.recharge_id = #{rechargeId}</if>
+            <if test="oilCardId != null "> and a.oil_card_id = #{oilCardId}</if>
+            <if test="cardType != null  and cardType != '' "> and b.card_type = #{cardType}</if>
+            <if test="openCardPlace != null  and openCardPlace != '' "> and b.open_card_place = #{openCardPlace}</if>
+            <if test="majorId != null "> and a.major_id = #{majorId}</if>
+            <if test="truckIds != null and truckIds.length > 0 "> and a.truck_id in
+                <foreach collection="truckIds" item="truckId" open="(" separator="," close=")">
+                    #{truckId}
+                </foreach>
+            </if>
+            <!--<if test="attribute != null and attribute != ''"> and t.attribute = #{attribute}</if>-->
+            <!--<if test="truckOwner != null and truckOwner != '' "> and t.truck_owner = #{truckOwner}</if>-->
+            <!--<if test="plateNumber != null and plateNumber != '' "> and t.plate_number = #{plateNumber}</if>-->
+            <if test="transportCost != null "> and a.transport_cost = #{transportCost}</if>
+            <if test="no != null  and no != '' "> and a.no = #{no}</if>
+            <!--<if test="applyDate != null "> and a.apply_date = #{applyDate}</if>-->
+            <if test="beginTime != null and beginTime != '' "><!-- 开始时间检索 -->
+                and date_format(a.apply_date,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+            </if>
+            <if test="endTime != null and endTime != ''  "><!-- 结束时间检索 -->
+                and date_format(a.apply_date,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+            </if>
+            <if test="rechargeSum != null "> and a.recharge_sum = #{rechargeSum}</if>
+            <if test="applyRemark != null and applyRemark != ''  "> and a.apply_remark = #{applyRemark}</if>
+            <if test="rechargeType != null  and rechargeType != '' "> and a.recharge_type = #{rechargeType}</if>
+            <if test="ownerDriverId != null  ">and a.owner_driver_id = #{ownerDriverId}</if>
+            <if test="orderId != null and orderId != ''  "> and a.order_id = #{orderId}</if>
+            <if test="isPassed != null  and isPassed != '' "> and a.is_passed = #{isPassed}</if>
+            <if test="failRemark != null  and failRemark != '' "> and a.fail_remark = #{failRemark}</if>
+            <if test="rechargeTime != null "> and date_format(a.recharge_date,'%Y-%m-%d') = #{rechargeTime}</if>
+            <if test="monthOrderNum != null "> and a.month_order_num = #{monthOrderNum}</if>
+            <if test="monthRechargeSum != null "> and a.month_recharge_sum = #{monthRechargeSum}</if>
+            <if test="createBy != null  and createBy != '' "> and a.create_by = #{createBy}</if>
+            <if test="createTime != null "> and a.create_time = #{createTime}</if>
+            <if test="updateBy != null  and updateBy != '' "> and a.update_by = #{updateBy}</if>
+            <if test="updateTime != null "> and a.update_time = #{updateTime}</if>
+            <if test="tenantId != null ">  and a.tenant_id = #{tenantId}</if>
+            <if test="majorNumber != null and majorNumber != '' "> and d.major_number = #{majorNumber}</if>
+            and a.del_flag = '0'
+        </where>
+        order by a.create_time desc
+    </select>
+
+    <select id="selectRechargedNormalList" resultMap="BaseResultMap">
+        <include refid="selectRechargeVoJoin"/>
+        <where>
+            <if test="rechargeId != null "> and a.recharge_id = #{rechargeId}</if>
+            <if test="oilCardId != null "> and a.oil_card_id = #{oilCardId}</if>
+            <if test="cardType != null  and cardType != '' "> and b.card_type = #{cardType}</if>
+            <if test="openCardPlace != null  and openCardPlace != '' "> and b.open_card_place = #{openCardPlace}</if>
+            <if test="majorId != null "> and a.major_id = #{majorId}</if>
+            <if test="truckId != null "> and a.truck_id = #{truckId}</if>
+            <!--<if test="applyDate != null "> and a.apply_date = #{applyDate}</if>-->
+            <if test="beginTime != null and beginTime != '' "><!-- 开始时间检索 -->
+                and date_format(a.recharge_date,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+            </if>
+            <if test="endTime != null and endTime != ''  "><!-- 结束时间检索 -->
+                and date_format(a.recharge_date,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+            </if>
+            <if test="rechargeType != null  and rechargeType != '' "> and a.recharge_type = #{rechargeType}</if>
+            <if test="ownerDriverId != null  ">and a.owner_driver_id = #{ownerDriverId}</if>
+            <if test="orderId != null and orderId != ''  "> and a.order_id = #{orderId}</if>
+            <if test="isPassed != null  and isPassed != '' "> and a.is_passed = #{isPassed}</if>
+            <if test="tenantId != null ">  and a.tenant_id = #{tenantId}</if>
+            and a.del_flag = '0' and a.recharge_date is not null
+        </where>
+        order by a.create_time desc
+    </select>
+
+</mapper>

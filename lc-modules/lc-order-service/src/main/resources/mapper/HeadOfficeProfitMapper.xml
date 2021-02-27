@@ -1,0 +1,1671 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.order.mapper.HeadOfficeProfitMapper">
+
+    <resultMap id="BaseResultMap" type="com.zhkj.lc.order.dto.HeadOfficeProfit">
+        <result column="recTransportFee" property="recTransportFee"/>
+        <result column="recPickFee" property="recPickFee"/>
+        <result column="recPackFee" property="recPackFee"/>
+        <result column="recReleaseFee" property="recReleaseFee"/>
+        <result column="recPickcnFee" property="recPickcnFee"/>
+        <result column="recExceptionFee" property="recExceptionFee"/>
+        <result column="payTeamTransportFee" property="payTeamTransportFee"/>
+        <result column="payTeamPackFee" property="payTeamPackFee"/>
+        <result column="payTeamReleaseFee" property="payTeamReleaseFee"/>
+        <result column="payTeamOilFee" property="payTeamOilFee"/>
+        <result column="payTeamExceptionFee" property="payTeamExceptionFee"/>
+        <result column="payTeamOtherFee" property="payTeamOtherFee"/>
+        <result column="payPersonOilFee" property="payPersonOilFee"/>
+        <result column="payPersonPackFee" property="payPersonPackFee"/>
+        <result column="payPersonReleaseFee" property="payPersonReleaseFee"/>
+        <result column="payPersonExceptionFee" property="payPersonExceptionFee"/>
+        <result column="payPersonOtherFee" property="payPersonOtherFee"/>
+        <result column="rate" property="rate"/>
+    </resultMap>
+
+    <!-- 近7天车队 -->
+    <select id="selectLast7daysTeam" resultMap="BaseResultMap">
+        SELECT
+        IFNULL(sum( recTransportFee ),0) recTransportFee,
+        IFNULL(sum( recPickFee),0) recPickFee,
+        IFNULL(sum( recPackFee ),0) recPackFee,
+        IFNULL(sum( recReleaseFee ),0) recReleaseFee,
+        IFNULL(sum( recPickcnFee ),0) recPickcnFee,
+        IFNULL(sum( recExceptionFee ),0) recExceptionFee,
+        IFNULL(sum(payTeamTransportFee),0) payTeamTransportFee,
+        IFNULL(sum(payTeamPackFee),0) payTeamPackFee,
+        IFNULL(sum(payTeamReleaseFee),0) payTeamReleaseFee,
+        IFNULL(sum(payTeamExceptionFee),0) payTeamExceptionFee,
+        IFNULL(sum(payTeamOilFee),0) payTeamOilFee
+        <!--IFNULL(sum(rate),0) rate-->
+        FROM
+            (SELECT
+            driverId,
+            IFNULL(sum( recTransportFee ),0) recTransportFee,
+            IFNULL(sum( recPickFee),0) recPickFee,
+            IFNULL(sum( recPackFee ),0) recPackFee,
+            IFNULL(sum( recReleaseFee ),0) recReleaseFee,
+            IFNULL(sum( recPickcnFee ),0) recPickcnFee,
+            IFNULL(sum( recExceptionFee ),0) recExceptionFee,
+            IFNULL(sum(payTeamTransportFee),0) payTeamTransportFee,
+            IFNULL(sum(payTeamPackFee),0) payTeamPackFee,
+            IFNULL(sum(payTeamReleaseFee),0) payTeamReleaseFee,
+            IFNULL(sum(payTeamExceptionFee),0) payTeamExceptionFee,
+            IFNULL(sum(payTeamOilFee),0) payTeamOilFee
+            <!--IFNULL(sum(rate),0) rate-->
+            FROM
+            #收入
+            (SELECT
+            driverId,
+            sum( transportFee ) recTransportFee,
+            sum( pickFee ) recPickFee,
+            sum( packFee ) recPackFee,
+            sum( releaseFee ) recReleaseFee,
+            sum( pickcnFee ) recPickcnFee,
+            sum( exceptionFee ) recExceptionFee,
+            NULL payTeamTransportFee,
+            NULL payTeamPackFee,
+            NULL payTeamReleaseFee,
+            NULL payTeamExceptionFee,
+            NULL payTeamOilFee
+            <!--NULL rate-->
+            FROM
+            (
+            SELECT
+            o.driver_id driverId,
+            SUM( o.receivables ) transportFee,
+            NULL pickFee,
+            NULL packFee,
+            NULL releaseFee,
+            sum( o.pickcn_fee ) pickcnFee,
+            sum( e.exception_fee ) exceptionFee
+            FROM
+            ord_order o
+            LEFT JOIN ord_exception_fee e ON o.order_id = e.order_id
+            WHERE
+            date_sub( curdate( ), INTERVAL 7 DAY ) &lt;= date( o.create_time )
+            AND ( o.balance_status = '2' OR o.balance_status = '3' )
+            AND ( o.need_pay_status = '5' OR o.need_pay_status = '6' )
+            AND o.del_flag = '0'
+            AND o.tenant_id = #{tenantId}
+            GROUP BY o.driver_id
+            UNION ALL
+            SELECT
+            c.driver_id driverId,
+            SUM( c.transport_fee ) transportFee,
+            sum( c.pick_fee ) pickFee,
+            sum( c.pack_fee ) packFee,
+            sum( c.release_fee ) releaseFee,
+            NULL pickcnFee,
+            sum( e.exception_fee ) exceptionFee
+            FROM
+            ord_common_goods c
+            LEFT JOIN ord_common_truck t ON t.order_id = c.order_id
+            LEFT JOIN ord_exception_fee e ON c.order_id = e.order_id
+            WHERE
+            date_sub( curdate( ), INTERVAL 7 DAY ) &lt;= date( c.create_time )
+            AND ( c.balance_status = '2' OR c.balance_status = '3' )
+            AND ( t.need_pay_status = '5' OR t.need_pay_status = '6' )
+            AND c.del_flag = '0'
+            AND c.tenant_id = #{tenantId}
+            GROUP BY c.driver_id
+            ) a
+            GROUP BY a.driverId
+            UNION ALL
+            SELECT
+            driverId,
+            NULL recTransportFee,
+            NULL recPickFee,
+            NULL recPackFee,
+            NULL recReleaseFee,
+            NULL recPickcnFee,
+            NULL recExceptionFee,
+            sum( a.transportFee ) payTeamTransportFee,
+            sum( a.packFee ) payTeamPackFee,
+            sum( a.releaseFee ) payTeamReleaseFee,
+            sum( a.oilFee ) payTeamExceptionFee,
+            sum( a.exceptionFee ) payTeamOilFee
+            <!--NULL rate-->
+            FROM
+            (
+            SELECT
+            oo.driver_id driverId,
+            sum( oo.need_pay ) transportFee,
+            NULL packFee,
+            NULL releaseFee,
+            NULL oilFee,
+            sum( oe.exception_fee ) exceptionFee
+            FROM
+            ord_order oo
+            LEFT JOIN ord_exception_fee oe ON oe.order_id = oo.order_id
+            WHERE
+            date_sub( curdate( ), INTERVAL 7 DAY ) &lt;= date( oo.create_time )
+            AND ( oo.balance_status = '2' OR oo.balance_status = '3' )
+            AND ( oo.need_pay_status = '5' OR oo.need_pay_status = '6' )
+            AND oo.del_flag = '0'
+            AND oo.tenant_id = #{tenantId}
+            GROUP BY oo.driver_id
+            UNION ALL
+            SELECT
+            cg.driver_id driverId,
+            sum( ct.transport_fee ) transportFee,
+            sum( ct.pack_fee ) packFee,
+            sum( ct.release_fee ) releaseFee,
+            sum( oil_fee ) oilFee,
+            sum( oe.exception_fee ) exceptionFee
+            FROM
+            ord_common_truck ct
+            LEFT JOIN ord_common_goods cg ON cg.order_id = ct.order_id
+            LEFT JOIN ord_exception_fee oe ON ct.order_id = oe.order_id
+            WHERE
+            date_sub( curdate( ), INTERVAL 7 DAY ) &lt;= date( cg.create_time )
+            AND ( cg.balance_status = '2' OR cg.balance_status = '3' )
+            AND ( ct.need_pay_status = '5' OR ct.need_pay_status = '6' )
+            AND cg.del_flag = '0'
+            AND cg.tenant_id = #{tenantId}
+            GROUP BY cg.driver_id
+            ) a
+            GROUP BY a.driverId
+            )a
+            GROUP BY driverId) a
+        <where>
+        <if test="list != null and list.size > 0 ">
+            driverId in
+              <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+                  #{item.driverId}
+              </foreach>
+        </if>
+        </where>
+    </select>
+
+    <!-- 近七天利润自有车 -->
+    <select id="selectLast7daysPerson" resultMap="BaseResultMap">
+        SELECT
+        IFNULL(sum( recTransportFee ),0) recTransportFee,
+        IFNULL(sum( recPickFee),0) recPickFee,
+        IFNULL(sum( recPackFee ),0) recPackFee,
+        IFNULL(sum( recReleaseFee ),0) recReleaseFee,
+        IFNULL(sum( recPickcnFee ),0) recPickcnFee,
+        IFNULL(sum( recExceptionFee ),0) recExceptionFee,
+        IFNULL(sum(payPersonPackFee),0) payPersonPackFee,
+        IFNULL(sum(payPersonReleaseFee),0) payPersonReleaseFee,
+        IFNULL(sum(payPersonExceptionFee),0) payPersonExceptionFee,
+        IFNULL(sum(payPersonOilFee),0) payPersonOilFee
+        <!--IFNULL(sum(rate),0) rate-->
+        FROM
+        (SELECT
+        driverId,
+        IFNULL(sum( recTransportFee ),0) recTransportFee,
+        IFNULL(sum( recPickFee),0) recPickFee,
+        IFNULL(sum( recPackFee ),0) recPackFee,
+        IFNULL(sum( recReleaseFee ),0) recReleaseFee,
+        IFNULL(sum( recPickcnFee ),0) recPickcnFee,
+        IFNULL(sum( recExceptionFee ),0) recExceptionFee,
+        IFNULL(sum(payPersonPackFee),0) payPersonPackFee,
+        IFNULL(sum(payPersonReleaseFee),0) payPersonReleaseFee,
+        IFNULL(sum(payPersonExceptionFee),0) payPersonExceptionFee,
+        IFNULL(sum(payPersonOilFee),0) payPersonOilFee
+        <!--IFNULL(sum(rate),0) rate-->
+        FROM
+        #收入
+        (SELECT
+        driverId,
+        sum( transportFee ) recTransportFee,
+        sum( pickFee ) recPickFee,
+        sum( packFee ) recPackFee,
+        sum( releaseFee ) recReleaseFee,
+        sum( pickcnFee ) recPickcnFee,
+        sum( exceptionFee ) recExceptionFee,
+        NULL payPersonPackFee,
+        NULL payPersonReleaseFee,
+        NULL payPersonExceptionFee,
+        NULL payPersonOilFee
+        <!--NULL rate-->
+        FROM
+        (
+        SELECT
+        o.driver_id driverId,
+        SUM( o.receivables ) transportFee,
+        NULL pickFee,
+        NULL packFee,
+        NULL releaseFee,
+        sum( o.pickcn_fee ) pickcnFee,
+        sum( e.exception_fee ) exceptionFee
+        FROM
+        ord_order o
+        LEFT JOIN ord_exception_fee e ON o.order_id = e.order_id
+        WHERE
+        date_sub( curdate( ), INTERVAL 7 DAY ) &lt;= date( o.create_time )
+        AND ( o.balance_status = '2' OR o.balance_status = '3' )
+        AND ( o.need_pay_status = '5' OR o.need_pay_status = '6' )
+        AND o.del_flag = '0'
+        AND o.tenant_id = #{tenantId}
+        GROUP BY o.driver_id
+        UNION ALL
+        SELECT
+        c.driver_id driverId,
+        SUM( c.transport_fee ) transportFee,
+        sum( c.pick_fee ) pickFee,
+        sum( c.pack_fee ) packFee,
+        sum( c.release_fee ) releaseFee,
+        NULL pickcnFee,
+        sum( e.exception_fee ) exceptionFee
+        FROM
+        ord_common_goods c
+        LEFT JOIN ord_common_truck t ON t.order_id = c.order_id
+        LEFT JOIN ord_exception_fee e ON c.order_id = e.order_id
+        WHERE
+        date_sub( curdate( ), INTERVAL 7 DAY ) &lt;= date( c.create_time )
+        AND ( c.balance_status = '2' OR c.balance_status = '3' )
+        AND ( t.need_pay_status = '5' OR t.need_pay_status = '6' )
+        AND c.del_flag = '0'
+        AND c.tenant_id = #{tenantId}
+        GROUP BY c.driver_id
+        ) a
+        GROUP BY a.driverId
+        UNION ALL
+        SELECT
+        driverId,
+        NULL recTransportFee,
+        NULL recPickFee,
+        NULL recPackFee,
+        NULL recReleaseFee,
+        NULL recPickcnFee,
+        NULL recExceptionFee,
+        sum(packFee) payPersonPackFee,
+        sum(releaseFee) payPersonReleaseFee,
+        sum(exceptionFee) payPersonExceptionFee,
+        sum(oilFee) payPersonOilFee
+        <!--NULL rate-->
+        FROM
+        (
+        SELECT
+        oo.driver_id driverId,
+        NULL packFee,
+        NULL releaseFee,
+        NULL oilFee,
+        sum( oe.exception_fee ) exceptionFee
+        FROM
+        ord_order oo
+        LEFT JOIN ord_exception_fee oe ON oe.order_id = oo.order_id
+        WHERE
+        date_sub( curdate( ), INTERVAL 7 DAY ) &lt;= date( oo.create_time )
+        AND ( oo.balance_status = '2' OR oo.balance_status = '3' )
+        AND ( oo.need_pay_status = '5' OR oo.need_pay_status = '6' )
+        AND oo.del_flag = '0'
+        AND oo.tenant_id = #{tenantId}
+        GROUP BY oo.driver_id
+        UNION ALL
+        SELECT
+        cg.driver_id driverId,
+        sum( ct.pack_fee ) packFee,
+        sum( ct.release_fee ) releaseFee,
+        sum( oil_fee ) oilFee,
+        sum( oe.exception_fee ) exceptionFee
+        FROM
+        ord_common_truck ct
+        LEFT JOIN ord_common_goods cg ON cg.order_id = ct.order_id
+        LEFT JOIN ord_exception_fee oe ON ct.order_id = oe.order_id
+        WHERE
+        date_sub( curdate( ), INTERVAL 7 DAY ) &lt;= date( cg.create_time )
+        AND ( cg.balance_status = '2' OR cg.balance_status = '3' )
+        AND ( ct.need_pay_status = '5' OR ct.need_pay_status = '6' )
+        AND cg.del_flag = '0'
+        AND cg.tenant_id = #{tenantId}
+        GROUP BY cg.driver_id
+        ) a
+        GROUP BY a.driverId
+        )a
+        GROUP BY driverId) a
+        <where>
+            <if test="list != null and list.size > 0 ">
+                driverId in
+                <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+                    #{item.driverId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectLast7daysRate" resultMap="BaseResultMap">
+        SELECT
+            IFNULL(SUM(IFNULL( ( c.transport_fee ), 0 ) + IFNULL( ( c.pick_fee ), 0 ) + IFNULL( ( c.pack_fee ), 0 ) + IFNULL( ( c.release_fee ), 0 ) + IFNULL( ( e.exception_fee ), 0 )),0) rate
+        FROM
+            ord_common_goods c
+            LEFT JOIN ord_common_truck t ON t.order_id = c.order_id
+            LEFT JOIN ord_exception_fee e ON c.order_id = e.order_id
+        WHERE
+            date_sub( curdate( ), INTERVAL 7 DAY ) &lt;= date( c.create_time )
+            AND ( c.balance_status = '2' OR c.balance_status = '3' )
+            AND ( t.need_pay_status = '5' OR t.need_pay_status = '6' )
+            AND c.del_flag = '0'
+            AND c.tenant_id = #{tenantId}
+            AND c.driver_id = #{driverId}
+    </select>
+
+
+    <select id="selectMonthdaysTeam" resultMap="BaseResultMap">
+        SELECT
+        IFNULL(sum( recTransportFee ),0) recTransportFee,
+        IFNULL(sum( recPickFee),0) recPickFee,
+        IFNULL(sum( recPackFee ),0) recPackFee,
+        IFNULL(sum( recReleaseFee ),0) recReleaseFee,
+        IFNULL(sum( recPickcnFee ),0) recPickcnFee,
+        IFNULL(sum( recExceptionFee ),0) recExceptionFee,
+        IFNULL(sum(payTeamTransportFee),0) payTeamTransportFee,
+        IFNULL(sum(payTeamPackFee),0) payTeamPackFee,
+        IFNULL(sum(payTeamReleaseFee),0) payTeamReleaseFee,
+        IFNULL(sum(payTeamExceptionFee),0) payTeamExceptionFee,
+        IFNULL(sum(payTeamOilFee),0) payTeamOilFee
+        <!--IFNULL(sum(rate),0) rate-->
+        FROM
+        (SELECT
+        driverId,
+        IFNULL(sum( recTransportFee ),0) recTransportFee,
+        IFNULL(sum( recPickFee),0) recPickFee,
+        IFNULL(sum( recPackFee ),0) recPackFee,
+        IFNULL(sum( recReleaseFee ),0) recReleaseFee,
+        IFNULL(sum( recPickcnFee ),0) recPickcnFee,
+        IFNULL(sum( recExceptionFee ),0) recExceptionFee,
+        IFNULL(sum(payTeamTransportFee),0) payTeamTransportFee,
+        IFNULL(sum(payTeamPackFee),0) payTeamPackFee,
+        IFNULL(sum(payTeamReleaseFee),0) payTeamReleaseFee,
+        IFNULL(sum(payTeamExceptionFee),0) payTeamExceptionFee,
+        IFNULL(sum(payTeamOilFee),0) payTeamOilFee
+        <!--IFNULL(sum(rate),0) rate-->
+        FROM
+        #收入
+        (SELECT
+        driverId,
+        sum( transportFee ) recTransportFee,
+        sum( pickFee ) recPickFee,
+        sum( packFee ) recPackFee,
+        sum( releaseFee ) recReleaseFee,
+        sum( pickcnFee ) recPickcnFee,
+        sum( exceptionFee ) recExceptionFee,
+        NULL payTeamTransportFee,
+        NULL payTeamPackFee,
+        NULL payTeamReleaseFee,
+        NULL payTeamExceptionFee,
+        NULL payTeamOilFee
+        <!--NULL rate-->
+        FROM
+        (
+        SELECT
+        o.driver_id driverId,
+        SUM( o.receivables ) transportFee,
+        NULL pickFee,
+        NULL packFee,
+        NULL releaseFee,
+        sum( o.pickcn_fee ) pickcnFee,
+        sum( e.exception_fee ) exceptionFee
+        FROM
+        ord_order o
+        LEFT JOIN ord_exception_fee e ON o.order_id = e.order_id
+        WHERE
+        date_format(o.create_time,'%Y-%m')=date_format(now(),'%Y-%m')
+        AND ( o.balance_status = '2' OR o.balance_status = '3' )
+        AND ( o.need_pay_status = '5' OR o.need_pay_status = '6' )
+        AND o.del_flag = '0'
+        AND o.tenant_id = #{tenantId}
+        GROUP BY o.driver_id
+        UNION ALL
+        SELECT
+        c.driver_id driverId,
+        SUM( c.transport_fee ) transportFee,
+        sum( c.pick_fee ) pickFee,
+        sum( c.pack_fee ) packFee,
+        sum( c.release_fee ) releaseFee,
+        NULL pickcnFee,
+        sum( e.exception_fee ) exceptionFee
+        FROM
+        ord_common_goods c
+        LEFT JOIN ord_common_truck t ON t.order_id = c.order_id
+        LEFT JOIN ord_exception_fee e ON c.order_id = e.order_id
+        WHERE
+        date_format(c.create_time,'%Y-%m')=date_format(now(),'%Y-%m')
+        AND ( c.balance_status = '2' OR c.balance_status = '3' )
+        AND ( t.need_pay_status = '5' OR t.need_pay_status = '6' )
+        AND c.del_flag = '0'
+        AND c.tenant_id = #{tenantId}
+        GROUP BY c.driver_id
+        ) a
+        GROUP BY a.driverId
+        UNION ALL
+        SELECT
+        driverId,
+        NULL recTransportFee,
+        NULL recPickFee,
+        NULL recPackFee,
+        NULL recReleaseFee,
+        NULL recPickcnFee,
+        NULL recExceptionFee,
+        sum( a.transportFee ) payTeamTransportFee,
+        sum( a.packFee ) payTeamPackFee,
+        sum( a.releaseFee ) payTeamReleaseFee,
+        sum( a.oilFee ) payTeamExceptionFee,
+        sum( a.exceptionFee ) payTeamOilFee
+        <!--NULL rate-->
+        FROM
+        (
+        SELECT
+        oo.driver_id driverId,
+        sum( oo.need_pay ) transportFee,
+        NULL packFee,
+        NULL releaseFee,
+        NULL oilFee,
+        sum( oe.exception_fee ) exceptionFee
+        FROM
+        ord_order oo
+        LEFT JOIN ord_exception_fee oe ON oe.order_id = oo.order_id
+        WHERE
+        date_format(oo.create_time,'%Y-%m')=date_format(now(),'%Y-%m')
+        AND ( oo.balance_status = '2' OR oo.balance_status = '3' )
+        AND ( oo.need_pay_status = '5' OR oo.need_pay_status = '6' )
+        AND oo.del_flag = '0'
+        AND oo.tenant_id = #{tenantId}
+        GROUP BY oo.driver_id
+        UNION ALL
+        SELECT
+        cg.driver_id driverId,
+        sum( ct.transport_fee ) transportFee,
+        sum( ct.pack_fee ) packFee,
+        sum( ct.release_fee ) releaseFee,
+        sum( oil_fee ) oilFee,
+        sum( oe.exception_fee ) exceptionFee
+        FROM
+        ord_common_truck ct
+        LEFT JOIN ord_common_goods cg ON cg.order_id = ct.order_id
+        LEFT JOIN ord_exception_fee oe ON ct.order_id = oe.order_id
+        WHERE
+        date_format(cg.create_time,'%Y-%m')=date_format(now(),'%Y-%m')
+        AND ( cg.balance_status = '2' OR cg.balance_status = '3' )
+        AND ( ct.need_pay_status = '5' OR ct.need_pay_status = '6' )
+        AND cg.del_flag = '0'
+        AND cg.tenant_id = #{tenantId}
+        GROUP BY cg.driver_id
+        ) a
+        GROUP BY a.driverId
+        )a
+        GROUP BY driverId) a
+        <where>
+            <if test="list != null and list.size > 0 ">
+                driverId in
+                <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+                    #{item.driverId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <!-- 本月利润自有车 -->
+    <select id="selectMonthdaysPerson" resultMap="BaseResultMap">
+        SELECT
+        IFNULL(sum( recTransportFee ),0) recTransportFee,
+        IFNULL(sum( recPickFee),0) recPickFee,
+        IFNULL(sum( recPackFee ),0) recPackFee,
+        IFNULL(sum( recReleaseFee ),0) recReleaseFee,
+        IFNULL(sum( recPickcnFee ),0) recPickcnFee,
+        IFNULL(sum( recExceptionFee ),0) recExceptionFee,
+        IFNULL(sum(payPersonPackFee),0) payPersonPackFee,
+        IFNULL(sum(payPersonReleaseFee),0) payPersonReleaseFee,
+        IFNULL(sum(payPersonExceptionFee),0) payPersonExceptionFee,
+        IFNULL(sum(payPersonOilFee),0) payPersonOilFee
+        <!--IFNULL(sum(rate),0) rate-->
+        FROM
+        (SELECT
+        driverId,
+        IFNULL(sum( recTransportFee ),0) recTransportFee,
+        IFNULL(sum( recPickFee),0) recPickFee,
+        IFNULL(sum( recPackFee ),0) recPackFee,
+        IFNULL(sum( recReleaseFee ),0) recReleaseFee,
+        IFNULL(sum( recPickcnFee ),0) recPickcnFee,
+        IFNULL(sum( recExceptionFee ),0) recExceptionFee,
+        IFNULL(sum(payPersonPackFee),0) payPersonPackFee,
+        IFNULL(sum(payPersonReleaseFee),0) payPersonReleaseFee,
+        IFNULL(sum(payPersonExceptionFee),0) payPersonExceptionFee,
+        IFNULL(sum(payPersonOilFee),0) payPersonOilFee
+        <!--IFNULL(sum(rate),0) rate-->
+        FROM
+        #收入
+        (SELECT
+        driverId,
+        sum( transportFee ) recTransportFee,
+        sum( pickFee ) recPickFee,
+        sum( packFee ) recPackFee,
+        sum( releaseFee ) recReleaseFee,
+        sum( pickcnFee ) recPickcnFee,
+        sum( exceptionFee ) recExceptionFee,
+        NULL payPersonPackFee,
+        NULL payPersonReleaseFee,
+        NULL payPersonExceptionFee,
+        NULL payPersonOilFee
+        <!--NULL rate-->
+        FROM
+        (
+        SELECT
+        o.driver_id driverId,
+        SUM( o.receivables ) transportFee,
+        NULL pickFee,
+        NULL packFee,
+        NULL releaseFee,
+        sum( o.pickcn_fee ) pickcnFee,
+        sum( e.exception_fee ) exceptionFee
+        FROM
+        ord_order o
+        LEFT JOIN ord_exception_fee e ON o.order_id = e.order_id
+        WHERE
+        date_format(o.create_time,'%Y-%m')=date_format(now(),'%Y-%m')
+        AND ( o.balance_status = '2' OR o.balance_status = '3' )
+        AND ( o.need_pay_status = '5' OR o.need_pay_status = '6' )
+        AND o.del_flag = '0'
+        AND o.tenant_id = #{tenantId}
+        GROUP BY o.driver_id
+        UNION ALL
+        SELECT
+        c.driver_id driverId,
+        SUM( c.transport_fee ) transportFee,
+        sum( c.pick_fee ) pickFee,
+        sum( c.pack_fee ) packFee,
+        sum( c.release_fee ) releaseFee,
+        NULL pickcnFee,
+        sum( e.exception_fee ) exceptionFee
+        FROM
+        ord_common_goods c
+        LEFT JOIN ord_common_truck t ON t.order_id = c.order_id
+        LEFT JOIN ord_exception_fee e ON c.order_id = e.order_id
+        WHERE
+        date_format(c.create_time,'%Y-%m')=date_format(now(),'%Y-%m')
+        AND ( c.balance_status = '2' OR c.balance_status = '3' )
+        AND ( t.need_pay_status = '5' OR t.need_pay_status = '6' )
+        AND c.del_flag = '0'
+        AND c.tenant_id = #{tenantId}
+        GROUP BY c.driver_id
+        ) a
+        GROUP BY a.driverId
+        UNION ALL
+        SELECT
+        driverId,
+        NULL recTransportFee,
+        NULL recPickFee,
+        NULL recPackFee,
+        NULL recReleaseFee,
+        NULL recPickcnFee,
+        NULL recExceptionFee,
+        sum(packFee) payPersonPackFee,
+        sum(releaseFee) payPersonReleaseFee,
+        sum(exceptionFee) payPersonExceptionFee,
+        sum(oilFee) payPersonOilFee
+        <!--NULL rate-->
+        FROM
+        (
+        SELECT
+        oo.driver_id driverId,
+        NULL packFee,
+        NULL releaseFee,
+        NULL oilFee,
+        sum( oe.exception_fee ) exceptionFee
+        FROM
+        ord_order oo
+        LEFT JOIN ord_exception_fee oe ON oe.order_id = oo.order_id
+        WHERE
+        date_format(oo.create_time,'%Y-%m')=date_format(now(),'%Y-%m')
+        AND ( oo.balance_status = '2' OR oo.balance_status = '3' )
+        AND ( oo.need_pay_status = '5' OR oo.need_pay_status = '6' )
+        AND oo.del_flag = '0'
+        AND oo.tenant_id = #{tenantId}
+        GROUP BY oo.driver_id
+        UNION ALL
+        SELECT
+        cg.driver_id driverId,
+        sum( ct.pack_fee ) packFee,
+        sum( ct.release_fee ) releaseFee,
+        sum( oil_fee ) oilFee,
+        sum( oe.exception_fee ) exceptionFee
+        FROM
+        ord_common_truck ct
+        LEFT JOIN ord_common_goods cg ON cg.order_id = ct.order_id
+        LEFT JOIN ord_exception_fee oe ON ct.order_id = oe.order_id
+        WHERE
+        date_format(cg.create_time,'%Y-%m')=date_format(now(),'%Y-%m')
+        AND ( cg.balance_status = '2' OR cg.balance_status = '3' )
+        AND ( ct.need_pay_status = '5' OR ct.need_pay_status = '6' )
+        AND cg.del_flag = '0'
+        AND cg.tenant_id = #{tenantId}
+        GROUP BY cg.driver_id
+        ) a
+        GROUP BY a.driverId
+        )a
+        GROUP BY driverId) a
+        <where>
+            <if test="list != null and list.size > 0 ">
+                driverId in
+                <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+                    #{item.driverId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectMonthdaysRate" resultMap="BaseResultMap">
+        SELECT
+            IFNULL(SUM(IFNULL( ( c.transport_fee ), 0 ) + IFNULL( ( c.pick_fee ), 0 ) + IFNULL( ( c.pack_fee ), 0 ) + IFNULL( ( c.release_fee ), 0 ) + IFNULL( ( e.exception_fee ), 0 )),0) rate
+        FROM
+            ord_common_goods c
+            LEFT JOIN ord_common_truck t ON t.order_id = c.order_id
+            LEFT JOIN ord_exception_fee e ON c.order_id = e.order_id
+        WHERE
+            date_format(c.create_time,'%Y-%m')=date_format(now(),'%Y-%m')
+            AND ( c.balance_status = '2' OR c.balance_status = '3' )
+            AND ( t.need_pay_status = '5' OR t.need_pay_status = '6' )
+            AND c.del_flag = '0'
+            AND c.tenant_id = #{tenantId}
+            AND c.driver_id = #{driverId}
+    </select>
+
+
+    <select id="selectCurrentSeasonTeam" resultMap="BaseResultMap">
+        SELECT
+        IFNULL(sum( recTransportFee ),0) recTransportFee,
+        IFNULL(sum( recPickFee),0) recPickFee,
+        IFNULL(sum( recPackFee ),0) recPackFee,
+        IFNULL(sum( recReleaseFee ),0) recReleaseFee,
+        IFNULL(sum( recPickcnFee ),0) recPickcnFee,
+        IFNULL(sum( recExceptionFee ),0) recExceptionFee,
+        IFNULL(sum(payTeamTransportFee),0) payTeamTransportFee,
+        IFNULL(sum(payTeamPackFee),0) payTeamPackFee,
+        IFNULL(sum(payTeamReleaseFee),0) payTeamReleaseFee,
+        IFNULL(sum(payTeamExceptionFee),0) payTeamExceptionFee,
+        IFNULL(sum(payTeamOilFee),0) payTeamOilFee
+        <!--IFNULL(sum(rate),0) rate-->
+        FROM
+        (SELECT
+        driverId,
+        IFNULL(sum( recTransportFee ),0) recTransportFee,
+        IFNULL(sum( recPickFee),0) recPickFee,
+        IFNULL(sum( recPackFee ),0) recPackFee,
+        IFNULL(sum( recReleaseFee ),0) recReleaseFee,
+        IFNULL(sum( recPickcnFee ),0) recPickcnFee,
+        IFNULL(sum( recExceptionFee ),0) recExceptionFee,
+        IFNULL(sum(payTeamTransportFee),0) payTeamTransportFee,
+        IFNULL(sum(payTeamPackFee),0) payTeamPackFee,
+        IFNULL(sum(payTeamReleaseFee),0) payTeamReleaseFee,
+        IFNULL(sum(payTeamExceptionFee),0) payTeamExceptionFee,
+        IFNULL(sum(payTeamOilFee),0) payTeamOilFee
+        <!--IFNULL(sum(rate),0) rate-->
+        FROM
+        #收入
+        (SELECT
+        driverId,
+        sum( transportFee ) recTransportFee,
+        sum( pickFee ) recPickFee,
+        sum( packFee ) recPackFee,
+        sum( releaseFee ) recReleaseFee,
+        sum( pickcnFee ) recPickcnFee,
+        sum( exceptionFee ) recExceptionFee,
+        NULL payTeamTransportFee,
+        NULL payTeamPackFee,
+        NULL payTeamReleaseFee,
+        NULL payTeamExceptionFee,
+        NULL payTeamOilFee
+        <!--NULL rate-->
+        FROM
+        (
+        SELECT
+        o.driver_id driverId,
+        SUM( o.receivables ) transportFee,
+        NULL pickFee,
+        NULL packFee,
+        NULL releaseFee,
+        sum( o.pickcn_fee ) pickcnFee,
+        sum( e.exception_fee ) exceptionFee
+        FROM
+        ord_order o
+        LEFT JOIN ord_exception_fee e ON o.order_id = e.order_id
+        WHERE
+        QUARTER(o.create_time)=QUARTER(now())
+        AND ( o.balance_status = '2' OR o.balance_status = '3' )
+        AND ( o.need_pay_status = '5' OR o.need_pay_status = '6' )
+        AND o.del_flag = '0'
+        AND o.tenant_id = #{tenantId}
+        GROUP BY o.driver_id
+        UNION ALL
+        SELECT
+        c.driver_id driverId,
+        SUM( c.transport_fee ) transportFee,
+        sum( c.pick_fee ) pickFee,
+        sum( c.pack_fee ) packFee,
+        sum( c.release_fee ) releaseFee,
+        NULL pickcnFee,
+        sum( e.exception_fee ) exceptionFee
+        FROM
+        ord_common_goods c
+        LEFT JOIN ord_common_truck t ON t.order_id = c.order_id
+        LEFT JOIN ord_exception_fee e ON c.order_id = e.order_id
+        WHERE
+        QUARTER(c.create_time)=QUARTER(now())
+        AND ( c.balance_status = '2' OR c.balance_status = '3' )
+        AND ( t.need_pay_status = '5' OR t.need_pay_status = '6' )
+        AND c.del_flag = '0'
+        AND c.tenant_id = #{tenantId}
+        GROUP BY c.driver_id
+        ) a
+        GROUP BY a.driverId
+        UNION ALL
+        SELECT
+        driverId,
+        NULL recTransportFee,
+        NULL recPickFee,
+        NULL recPackFee,
+        NULL recReleaseFee,
+        NULL recPickcnFee,
+        NULL recExceptionFee,
+        sum( a.transportFee ) payTeamTransportFee,
+        sum( a.packFee ) payTeamPackFee,
+        sum( a.releaseFee ) payTeamReleaseFee,
+        sum( a.oilFee ) payTeamExceptionFee,
+        sum( a.exceptionFee ) payTeamOilFee
+        <!--NULL rate-->
+        FROM
+        (
+        SELECT
+        oo.driver_id driverId,
+        sum( oo.need_pay ) transportFee,
+        NULL packFee,
+        NULL releaseFee,
+        NULL oilFee,
+        sum( oe.exception_fee ) exceptionFee
+        FROM
+        ord_order oo
+        LEFT JOIN ord_exception_fee oe ON oe.order_id = oo.order_id
+        WHERE
+        QUARTER(oo.create_time)=QUARTER(now())
+        AND ( oo.balance_status = '2' OR oo.balance_status = '3' )
+        AND ( oo.need_pay_status = '5' OR oo.need_pay_status = '6' )
+        AND oo.del_flag = '0'
+        AND oo.tenant_id = #{tenantId}
+        GROUP BY oo.driver_id
+        UNION ALL
+        SELECT
+        cg.driver_id driverId,
+        sum( ct.transport_fee ) transportFee,
+        sum( ct.pack_fee ) packFee,
+        sum( ct.release_fee ) releaseFee,
+        sum( oil_fee ) oilFee,
+        sum( oe.exception_fee ) exceptionFee
+        FROM
+        ord_common_truck ct
+        LEFT JOIN ord_common_goods cg ON cg.order_id = ct.order_id
+        LEFT JOIN ord_exception_fee oe ON ct.order_id = oe.order_id
+        WHERE
+        QUARTER(cg.create_time)=QUARTER(now())
+        AND ( cg.balance_status = '2' OR cg.balance_status = '3' )
+        AND ( ct.need_pay_status = '5' OR ct.need_pay_status = '6' )
+        AND cg.del_flag = '0'
+        AND cg.tenant_id = #{tenantId}
+        GROUP BY cg.driver_id
+        ) a
+        GROUP BY a.driverId
+        )a
+        GROUP BY driverId) a
+        <where>
+            <if test="list != null and list.size > 0 ">
+                driverId in
+                <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+                    #{item.driverId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <!-- 本季度利润自有车 -->
+    <select id="selectCurrentSeasonPerson" resultMap="BaseResultMap">
+        SELECT
+        IFNULL(sum( recTransportFee ),0) recTransportFee,
+        IFNULL(sum( recPickFee),0) recPickFee,
+        IFNULL(sum( recPackFee ),0) recPackFee,
+        IFNULL(sum( recReleaseFee ),0) recReleaseFee,
+        IFNULL(sum( recPickcnFee ),0) recPickcnFee,
+        IFNULL(sum( recExceptionFee ),0) recExceptionFee,
+        IFNULL(sum(payPersonPackFee),0) payPersonPackFee,
+        IFNULL(sum(payPersonReleaseFee),0) payPersonReleaseFee,
+        IFNULL(sum(payPersonExceptionFee),0) payPersonExceptionFee,
+        IFNULL(sum(payPersonOilFee),0) payPersonOilFee
+        <!--IFNULL(sum(rate),0) rate-->
+        FROM
+        (SELECT
+        driverId,
+        IFNULL(sum( recTransportFee ),0) recTransportFee,
+        IFNULL(sum( recPickFee),0) recPickFee,
+        IFNULL(sum( recPackFee ),0) recPackFee,
+        IFNULL(sum( recReleaseFee ),0) recReleaseFee,
+        IFNULL(sum( recPickcnFee ),0) recPickcnFee,
+        IFNULL(sum( recExceptionFee ),0) recExceptionFee,
+        IFNULL(sum(payPersonPackFee),0) payPersonPackFee,
+        IFNULL(sum(payPersonReleaseFee),0) payPersonReleaseFee,
+        IFNULL(sum(payPersonExceptionFee),0) payPersonExceptionFee,
+        IFNULL(sum(payPersonOilFee),0) payPersonOilFee
+        <!--IFNULL(sum(rate),0) rate-->
+        FROM
+        #收入
+        (SELECT
+        driverId,
+        sum( transportFee ) recTransportFee,
+        sum( pickFee ) recPickFee,
+        sum( packFee ) recPackFee,
+        sum( releaseFee ) recReleaseFee,
+        sum( pickcnFee ) recPickcnFee,
+        sum( exceptionFee ) recExceptionFee,
+        NULL payPersonPackFee,
+        NULL payPersonReleaseFee,
+        NULL payPersonExceptionFee,
+        NULL payPersonOilFee
+        <!--NULL rate-->
+        FROM
+        (
+        SELECT
+        o.driver_id driverId,
+        SUM( o.receivables ) transportFee,
+        NULL pickFee,
+        NULL packFee,
+        NULL releaseFee,
+        sum( o.pickcn_fee ) pickcnFee,
+        sum( e.exception_fee ) exceptionFee
+        FROM
+        ord_order o
+        LEFT JOIN ord_exception_fee e ON o.order_id = e.order_id
+        WHERE
+        QUARTER(o.create_time)=QUARTER(now())
+        AND ( o.balance_status = '2' OR o.balance_status = '3' )
+        AND ( o.need_pay_status = '5' OR o.need_pay_status = '6' )
+        AND o.del_flag = '0'
+        AND o.tenant_id = #{tenantId}
+        GROUP BY o.driver_id
+        UNION ALL
+        SELECT
+        c.driver_id driverId,
+        SUM( c.transport_fee ) transportFee,
+        sum( c.pick_fee ) pickFee,
+        sum( c.pack_fee ) packFee,
+        sum( c.release_fee ) releaseFee,
+        NULL pickcnFee,
+        sum( e.exception_fee ) exceptionFee
+        FROM
+        ord_common_goods c
+        LEFT JOIN ord_common_truck t ON t.order_id = c.order_id
+        LEFT JOIN ord_exception_fee e ON c.order_id = e.order_id
+        WHERE
+        QUARTER(c.create_time)=QUARTER(now())
+        AND ( c.balance_status = '2' OR c.balance_status = '3' )
+        AND ( t.need_pay_status = '5' OR t.need_pay_status = '6' )
+        AND c.del_flag = '0'
+        AND c.tenant_id = #{tenantId}
+        GROUP BY c.driver_id
+        ) a
+        GROUP BY a.driverId
+        UNION ALL
+        SELECT
+        driverId,
+        NULL recTransportFee,
+        NULL recPickFee,
+        NULL recPackFee,
+        NULL recReleaseFee,
+        NULL recPickcnFee,
+        NULL recExceptionFee,
+        sum(packFee) payPersonPackFee,
+        sum(releaseFee) payPersonReleaseFee,
+        sum(exceptionFee) payPersonExceptionFee,
+        sum(oilFee) payPersonOilFee
+        <!--NULL rate-->
+        FROM
+        (
+        SELECT
+        oo.driver_id driverId,
+        NULL packFee,
+        NULL releaseFee,
+        NULL oilFee,
+        sum( oe.exception_fee ) exceptionFee
+        FROM
+        ord_order oo
+        LEFT JOIN ord_exception_fee oe ON oe.order_id = oo.order_id
+        WHERE
+        QUARTER(oo.create_time)=QUARTER(now())
+        AND ( oo.balance_status = '2' OR oo.balance_status = '3' )
+        AND ( oo.need_pay_status = '5' OR oo.need_pay_status = '6' )
+        AND oo.del_flag = '0'
+        AND oo.tenant_id = #{tenantId}
+        GROUP BY oo.driver_id
+        UNION ALL
+        SELECT
+        cg.driver_id driverId,
+        sum( ct.pack_fee ) packFee,
+        sum( ct.release_fee ) releaseFee,
+        sum( oil_fee ) oilFee,
+        sum( oe.exception_fee ) exceptionFee
+        FROM
+        ord_common_truck ct
+        LEFT JOIN ord_common_goods cg ON cg.order_id = ct.order_id
+        LEFT JOIN ord_exception_fee oe ON ct.order_id = oe.order_id
+        WHERE
+        QUARTER(cg.create_time)=QUARTER(now())
+        AND ( cg.balance_status = '2' OR cg.balance_status = '3' )
+        AND ( ct.need_pay_status = '5' OR ct.need_pay_status = '6' )
+        AND cg.del_flag = '0'
+        AND cg.tenant_id = #{tenantId}
+        GROUP BY cg.driver_id
+        ) a
+        GROUP BY a.driverId
+        )a
+        GROUP BY driverId) a
+        <where>
+            <if test="list != null and list.size > 0 ">
+                driverId in
+                <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+                    #{item.driverId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectCurrentSeasonRate" resultMap="BaseResultMap">
+        SELECT
+            IFNULL(SUM(IFNULL( ( c.transport_fee ), 0 ) + IFNULL( ( c.pick_fee ), 0 ) + IFNULL( ( c.pack_fee ), 0 ) + IFNULL( ( c.release_fee ), 0 ) + IFNULL( ( e.exception_fee ), 0 )),0) rate
+        FROM
+            ord_common_goods c
+            LEFT JOIN ord_common_truck t ON t.order_id = c.order_id
+            LEFT JOIN ord_exception_fee e ON c.order_id = e.order_id
+        WHERE
+            QUARTER(c.create_time)=QUARTER(now())
+            AND ( c.balance_status = '2' OR c.balance_status = '3' )
+            AND ( t.need_pay_status = '5' OR t.need_pay_status = '6' )
+            AND c.del_flag = '0'
+            AND c.tenant_id = #{tenantId}
+            AND c.driver_id = #{driverId}
+    </select>
+
+    <select id="selectLast6MonthsTeam" resultMap="BaseResultMap">
+        SELECT
+        IFNULL(sum( recTransportFee ),0) recTransportFee,
+        IFNULL(sum( recPickFee),0) recPickFee,
+        IFNULL(sum( recPackFee ),0) recPackFee,
+        IFNULL(sum( recReleaseFee ),0) recReleaseFee,
+        IFNULL(sum( recPickcnFee ),0) recPickcnFee,
+        IFNULL(sum( recExceptionFee ),0) recExceptionFee,
+        IFNULL(sum(payTeamTransportFee),0) payTeamTransportFee,
+        IFNULL(sum(payTeamPackFee),0) payTeamPackFee,
+        IFNULL(sum(payTeamReleaseFee),0) payTeamReleaseFee,
+        IFNULL(sum(payTeamExceptionFee),0) payTeamExceptionFee,
+        IFNULL(sum(payTeamOilFee),0) payTeamOilFee
+        <!--IFNULL(sum(rate),0) rate-->
+        FROM
+        (SELECT
+        driverId,
+        IFNULL(sum( recTransportFee ),0) recTransportFee,
+        IFNULL(sum( recPickFee),0) recPickFee,
+        IFNULL(sum( recPackFee ),0) recPackFee,
+        IFNULL(sum( recReleaseFee ),0) recReleaseFee,
+        IFNULL(sum( recPickcnFee ),0) recPickcnFee,
+        IFNULL(sum( recExceptionFee ),0) recExceptionFee,
+        IFNULL(sum(payTeamTransportFee),0) payTeamTransportFee,
+        IFNULL(sum(payTeamPackFee),0) payTeamPackFee,
+        IFNULL(sum(payTeamReleaseFee),0) payTeamReleaseFee,
+        IFNULL(sum(payTeamExceptionFee),0) payTeamExceptionFee,
+        IFNULL(sum(payTeamOilFee),0) payTeamOilFee
+        <!--IFNULL(sum(rate),0) rate-->
+        FROM
+        #收入
+        (SELECT
+        driverId,
+        sum( transportFee ) recTransportFee,
+        sum( pickFee ) recPickFee,
+        sum( packFee ) recPackFee,
+        sum( releaseFee ) recReleaseFee,
+        sum( pickcnFee ) recPickcnFee,
+        sum( exceptionFee ) recExceptionFee,
+        NULL payTeamTransportFee,
+        NULL payTeamPackFee,
+        NULL payTeamReleaseFee,
+        NULL payTeamExceptionFee,
+        NULL payTeamOilFee
+        <!--NULL rate-->
+        FROM
+        (
+        SELECT
+        o.driver_id driverId,
+        SUM( o.receivables ) transportFee,
+        NULL pickFee,
+        NULL packFee,
+        NULL releaseFee,
+        sum( o.pickcn_fee ) pickcnFee,
+        sum( e.exception_fee ) exceptionFee
+        FROM
+        ord_order o
+        LEFT JOIN ord_exception_fee e ON o.order_id = e.order_id
+        WHERE
+        (o.create_time between date_sub(now(),interval 6 month) and now())
+        AND ( o.balance_status = '2' OR o.balance_status = '3' )
+        AND ( o.need_pay_status = '5' OR o.need_pay_status = '6' )
+        AND o.del_flag = '0'
+        AND o.tenant_id = #{tenantId}
+        GROUP BY o.driver_id
+        UNION ALL
+        SELECT
+        c.driver_id driverId,
+        SUM( c.transport_fee ) transportFee,
+        sum( c.pick_fee ) pickFee,
+        sum( c.pack_fee ) packFee,
+        sum( c.release_fee ) releaseFee,
+        NULL pickcnFee,
+        sum( e.exception_fee ) exceptionFee
+        FROM
+        ord_common_goods c
+        LEFT JOIN ord_common_truck t ON t.order_id = c.order_id
+        LEFT JOIN ord_exception_fee e ON c.order_id = e.order_id
+        WHERE
+        (c.create_time between date_sub(now(),interval 6 month) and now())
+        AND ( c.balance_status = '2' OR c.balance_status = '3' )
+        AND ( t.need_pay_status = '5' OR t.need_pay_status = '6' )
+        AND c.del_flag = '0'
+        AND c.tenant_id = #{tenantId}
+        GROUP BY c.driver_id
+        ) a
+        GROUP BY a.driverId
+        UNION ALL
+        SELECT
+        driverId,
+        NULL recTransportFee,
+        NULL recPickFee,
+        NULL recPackFee,
+        NULL recReleaseFee,
+        NULL recPickcnFee,
+        NULL recExceptionFee,
+        sum( a.transportFee ) payTeamTransportFee,
+        sum( a.packFee ) payTeamPackFee,
+        sum( a.releaseFee ) payTeamReleaseFee,
+        sum( a.oilFee ) payTeamExceptionFee,
+        sum( a.exceptionFee ) payTeamOilFee
+        <!--NULL rate-->
+        FROM
+        (
+        SELECT
+        oo.driver_id driverId,
+        sum( oo.need_pay ) transportFee,
+        NULL packFee,
+        NULL releaseFee,
+        NULL oilFee,
+        sum( oe.exception_fee ) exceptionFee
+        FROM
+        ord_order oo
+        LEFT JOIN ord_exception_fee oe ON oe.order_id = oo.order_id
+        WHERE
+        (oo.create_time between date_sub(now(),interval 6 month) and now())
+        AND ( oo.balance_status = '2' OR oo.balance_status = '3' )
+        AND ( oo.need_pay_status = '5' OR oo.need_pay_status = '6' )
+        AND oo.del_flag = '0'
+        AND oo.tenant_id = #{tenantId}
+        GROUP BY oo.driver_id
+        UNION ALL
+        SELECT
+        cg.driver_id driverId,
+        sum( ct.transport_fee ) transportFee,
+        sum( ct.pack_fee ) packFee,
+        sum( ct.release_fee ) releaseFee,
+        sum( oil_fee ) oilFee,
+        sum( oe.exception_fee ) exceptionFee
+        FROM
+        ord_common_truck ct
+        LEFT JOIN ord_common_goods cg ON cg.order_id = ct.order_id
+        LEFT JOIN ord_exception_fee oe ON ct.order_id = oe.order_id
+        WHERE
+        (cg.create_time between date_sub(now(),interval 6 month) and now())
+        AND ( cg.balance_status = '2' OR cg.balance_status = '3' )
+        AND ( ct.need_pay_status = '5' OR ct.need_pay_status = '6' )
+        AND cg.del_flag = '0'
+        AND cg.tenant_id = #{tenantId}
+        GROUP BY cg.driver_id
+        ) a
+        GROUP BY a.driverId
+        )a
+        GROUP BY driverId) a
+        <where>
+            <if test="list != null and list.size > 0 ">
+                driverId in
+                <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+                    #{item.driverId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <!-- 本季度利润自有车 -->
+    <select id="selectLast6MonthsPerson" resultMap="BaseResultMap">
+        SELECT
+        IFNULL(sum( recTransportFee ),0) recTransportFee,
+        IFNULL(sum( recPickFee),0) recPickFee,
+        IFNULL(sum( recPackFee ),0) recPackFee,
+        IFNULL(sum( recReleaseFee ),0) recReleaseFee,
+        IFNULL(sum( recPickcnFee ),0) recPickcnFee,
+        IFNULL(sum( recExceptionFee ),0) recExceptionFee,
+        IFNULL(sum(payPersonPackFee),0) payPersonPackFee,
+        IFNULL(sum(payPersonReleaseFee),0) payPersonReleaseFee,
+        IFNULL(sum(payPersonExceptionFee),0) payPersonExceptionFee,
+        IFNULL(sum(payPersonOilFee),0) payPersonOilFee
+        <!--IFNULL(sum(rate),0) rate-->
+        FROM
+        (SELECT
+        driverId,
+        IFNULL(sum( recTransportFee ),0) recTransportFee,
+        IFNULL(sum( recPickFee),0) recPickFee,
+        IFNULL(sum( recPackFee ),0) recPackFee,
+        IFNULL(sum( recReleaseFee ),0) recReleaseFee,
+        IFNULL(sum( recPickcnFee ),0) recPickcnFee,
+        IFNULL(sum( recExceptionFee ),0) recExceptionFee,
+        IFNULL(sum(payPersonPackFee),0) payPersonPackFee,
+        IFNULL(sum(payPersonReleaseFee),0) payPersonReleaseFee,
+        IFNULL(sum(payPersonExceptionFee),0) payPersonExceptionFee,
+        IFNULL(sum(payPersonOilFee),0) payPersonOilFee
+        <!--IFNULL(sum(rate),0) rate-->
+        FROM
+        #收入
+        (SELECT
+        driverId,
+        sum( transportFee ) recTransportFee,
+        sum( pickFee ) recPickFee,
+        sum( packFee ) recPackFee,
+        sum( releaseFee ) recReleaseFee,
+        sum( pickcnFee ) recPickcnFee,
+        sum( exceptionFee ) recExceptionFee,
+        NULL payPersonPackFee,
+        NULL payPersonReleaseFee,
+        NULL payPersonExceptionFee,
+        NULL payPersonOilFee
+        <!--NULL rate-->
+        FROM
+        (
+        SELECT
+        o.driver_id driverId,
+        SUM( o.receivables ) transportFee,
+        NULL pickFee,
+        NULL packFee,
+        NULL releaseFee,
+        sum( o.pickcn_fee ) pickcnFee,
+        sum( e.exception_fee ) exceptionFee
+        FROM
+        ord_order o
+        LEFT JOIN ord_exception_fee e ON o.order_id = e.order_id
+        WHERE
+        (o.create_time between date_sub(now(),interval 6 month) and now())
+        AND ( o.balance_status = '2' OR o.balance_status = '3' )
+        AND ( o.need_pay_status = '5' OR o.need_pay_status = '6' )
+        AND o.del_flag = '0'
+        AND o.tenant_id = #{tenantId}
+        GROUP BY o.driver_id
+        UNION ALL
+        SELECT
+        c.driver_id driverId,
+        SUM( c.transport_fee ) transportFee,
+        sum( c.pick_fee ) pickFee,
+        sum( c.pack_fee ) packFee,
+        sum( c.release_fee ) releaseFee,
+        NULL pickcnFee,
+        sum( e.exception_fee ) exceptionFee
+        FROM
+        ord_common_goods c
+        LEFT JOIN ord_common_truck t ON t.order_id = c.order_id
+        LEFT JOIN ord_exception_fee e ON c.order_id = e.order_id
+        WHERE
+        (c.create_time between date_sub(now(),interval 6 month) and now())
+        AND ( c.balance_status = '2' OR c.balance_status = '3' )
+        AND ( t.need_pay_status = '5' OR t.need_pay_status = '6' )
+        AND c.del_flag = '0'
+        AND c.tenant_id = #{tenantId}
+        GROUP BY c.driver_id
+        ) a
+        GROUP BY a.driverId
+        UNION ALL
+        SELECT
+        driverId,
+        NULL recTransportFee,
+        NULL recPickFee,
+        NULL recPackFee,
+        NULL recReleaseFee,
+        NULL recPickcnFee,
+        NULL recExceptionFee,
+        sum(packFee) payPersonPackFee,
+        sum(releaseFee) payPersonReleaseFee,
+        sum(exceptionFee) payPersonExceptionFee,
+        sum(oilFee) payPersonOilFee
+        <!--NULL rate-->
+        FROM
+        (
+        SELECT
+        oo.driver_id driverId,
+        NULL packFee,
+        NULL releaseFee,
+        NULL oilFee,
+        sum( oe.exception_fee ) exceptionFee
+        FROM
+        ord_order oo
+        LEFT JOIN ord_exception_fee oe ON oe.order_id = oo.order_id
+        WHERE
+        (oo.create_time between date_sub(now(),interval 6 month) and now())
+        AND ( oo.balance_status = '2' OR oo.balance_status = '3' )
+        AND ( oo.need_pay_status = '5' OR oo.need_pay_status = '6' )
+        AND oo.del_flag = '0'
+        AND oo.tenant_id = #{tenantId}
+        GROUP BY oo.driver_id
+        UNION ALL
+        SELECT
+        cg.driver_id driverId,
+        sum( ct.pack_fee ) packFee,
+        sum( ct.release_fee ) releaseFee,
+        sum( oil_fee ) oilFee,
+        sum( oe.exception_fee ) exceptionFee
+        FROM
+        ord_common_truck ct
+        LEFT JOIN ord_common_goods cg ON cg.order_id = ct.order_id
+        LEFT JOIN ord_exception_fee oe ON ct.order_id = oe.order_id
+        WHERE
+        (cg.create_time between date_sub(now(),interval 6 month) and now())
+        AND ( cg.balance_status = '2' OR cg.balance_status = '3' )
+        AND ( ct.need_pay_status = '5' OR ct.need_pay_status = '6' )
+        AND cg.del_flag = '0'
+        AND cg.tenant_id = #{tenantId}
+        GROUP BY cg.driver_id
+        ) a
+        GROUP BY a.driverId
+        )a
+        GROUP BY driverId) a
+        <where>
+            <if test="list != null and list.size > 0 ">
+                driverId in
+                <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+                    #{item.driverId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectLast6MonthsRate" resultMap="BaseResultMap">
+        SELECT
+            IFNULL(SUM(IFNULL( ( c.transport_fee ), 0 ) + IFNULL( ( c.pick_fee ), 0 ) + IFNULL( ( c.pack_fee ), 0 ) + IFNULL( ( c.release_fee ), 0 ) + IFNULL( ( e.exception_fee ), 0 )),0) rate
+        FROM
+            ord_common_goods c
+            LEFT JOIN ord_common_truck t ON t.order_id = c.order_id
+            LEFT JOIN ord_exception_fee e ON c.order_id = e.order_id
+        WHERE
+            (c.create_time between date_sub(now(),interval 6 month) and now())
+            AND ( c.balance_status = '2' OR c.balance_status = '3' )
+            AND ( t.need_pay_status = '5' OR t.need_pay_status = '6' )
+            AND c.del_flag = '0'
+            AND c.tenant_id = #{tenantId}
+            AND c.driver_id = #{driverId}
+    </select>
+
+    <select id="selectSomeTimeTeam" parameterType="com.zhkj.lc.order.dto.HeadOfficeProfit" resultMap="BaseResultMap">
+        SELECT
+        IFNULL(sum( recTransportFee ),0) recTransportFee,
+        IFNULL(sum( recPickFee),0) recPickFee,
+        IFNULL(sum( recPackFee ),0) recPackFee,
+        IFNULL(sum( recReleaseFee ),0) recReleaseFee,
+        IFNULL(sum( recPickcnFee ),0) recPickcnFee,
+        IFNULL(sum( recExceptionFee ),0) recExceptionFee,
+        IFNULL(sum(payTeamTransportFee),0) payTeamTransportFee,
+        IFNULL(sum(payTeamPackFee),0) payTeamPackFee,
+        IFNULL(sum(payTeamReleaseFee),0) payTeamReleaseFee,
+        IFNULL(sum(payTeamExceptionFee),0) payTeamExceptionFee,
+        IFNULL(sum(payTeamOilFee),0) payTeamOilFee
+        <!--IFNULL(sum(rate),0) rate-->
+        FROM
+        (SELECT
+        driverId,
+        IFNULL(sum( recTransportFee ),0) recTransportFee,
+        IFNULL(sum( recPickFee),0) recPickFee,
+        IFNULL(sum( recPackFee ),0) recPackFee,
+        IFNULL(sum( recReleaseFee ),0) recReleaseFee,
+        IFNULL(sum( recPickcnFee ),0) recPickcnFee,
+        IFNULL(sum( recExceptionFee ),0) recExceptionFee,
+        IFNULL(sum(payTeamTransportFee),0) payTeamTransportFee,
+        IFNULL(sum(payTeamPackFee),0) payTeamPackFee,
+        IFNULL(sum(payTeamReleaseFee),0) payTeamReleaseFee,
+        IFNULL(sum(payTeamExceptionFee),0) payTeamExceptionFee,
+        IFNULL(sum(payTeamOilFee),0) payTeamOilFee
+        <!--IFNULL(sum(rate),0) rate-->
+        FROM
+        #收入
+        (SELECT
+        driverId,
+        sum( transportFee ) recTransportFee,
+        sum( pickFee ) recPickFee,
+        sum( packFee ) recPackFee,
+        sum( releaseFee ) recReleaseFee,
+        sum( pickcnFee ) recPickcnFee,
+        sum( exceptionFee ) recExceptionFee,
+        NULL payTeamTransportFee,
+        NULL payTeamPackFee,
+        NULL payTeamReleaseFee,
+        NULL payTeamExceptionFee,
+        NULL payTeamOilFee
+        <!--NULL rate-->
+        FROM
+        (
+        SELECT
+        o.driver_id driverId,
+        SUM( o.receivables ) transportFee,
+        NULL pickFee,
+        NULL packFee,
+        NULL releaseFee,
+        sum( o.pickcn_fee ) pickcnFee,
+        sum( e.exception_fee ) exceptionFee
+        FROM
+        ord_order o
+        LEFT JOIN ord_exception_fee e ON o.order_id = e.order_id
+        WHERE
+        ( o.balance_status = '2' OR o.balance_status = '3' )
+        AND ( o.need_pay_status = '5' OR o.need_pay_status = '6' )
+        AND o.del_flag = '0'
+        AND o.tenant_id = #{tenantId}
+        <if test="beginTime != null"><!-- 开始时间检索 -->
+            and date_format(o.create_time,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+        </if>
+        <if test="endTime != null"><!-- 结束时间检索 -->
+            and date_format(o.create_time,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+        </if>
+        GROUP BY o.driver_id
+        UNION ALL
+        SELECT
+        c.driver_id driverId,
+        SUM( c.transport_fee ) transportFee,
+        sum( c.pick_fee ) pickFee,
+        sum( c.pack_fee ) packFee,
+        sum( c.release_fee ) releaseFee,
+        NULL pickcnFee,
+        sum( e.exception_fee ) exceptionFee
+        FROM
+        ord_common_goods c
+        LEFT JOIN ord_common_truck t ON t.order_id = c.order_id
+        LEFT JOIN ord_exception_fee e ON c.order_id = e.order_id
+        WHERE
+        ( c.balance_status = '2' OR c.balance_status = '3' )
+        AND ( t.need_pay_status = '5' OR t.need_pay_status = '6' )
+        AND c.del_flag = '0'
+        AND c.tenant_id = #{tenantId}
+        <if test="beginTime != null"><!-- 开始时间检索 -->
+            and date_format(c.create_time,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+        </if>
+        <if test="endTime != null"><!-- 结束时间检索 -->
+            and date_format(c.create_time,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+        </if>
+        GROUP BY c.driver_id
+        ) a
+        GROUP BY a.driverId
+        UNION ALL
+        SELECT
+        driverId,
+        NULL recTransportFee,
+        NULL recPickFee,
+        NULL recPackFee,
+        NULL recReleaseFee,
+        NULL recPickcnFee,
+        NULL recExceptionFee,
+        sum( a.transportFee ) payTeamTransportFee,
+        sum( a.packFee ) payTeamPackFee,
+        sum( a.releaseFee ) payTeamReleaseFee,
+        sum( a.oilFee ) payTeamExceptionFee,
+        sum( a.exceptionFee ) payTeamOilFee
+        <!--NULL rate-->
+        FROM
+        (
+        SELECT
+        oo.driver_id driverId,
+        sum( oo.need_pay ) transportFee,
+        NULL packFee,
+        NULL releaseFee,
+        NULL oilFee,
+        sum( oe.exception_fee ) exceptionFee
+        FROM
+        ord_order oo
+        LEFT JOIN ord_exception_fee oe ON oe.order_id = oo.order_id
+        WHERE
+        (oo.create_time between date_sub(now(),interval 6 month) and now())
+        AND ( oo.balance_status = '2' OR oo.balance_status = '3' )
+        AND ( oo.need_pay_status = '5' OR oo.need_pay_status = '6' )
+        AND oo.del_flag = '0'
+        AND oo.tenant_id = #{tenantId}
+        <if test="beginTime != null"><!-- 开始时间检索 -->
+            and date_format(oo.create_time,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+        </if>
+        <if test="endTime != null"><!-- 结束时间检索 -->
+            and date_format(oo.create_time,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+        </if>
+        GROUP BY oo.driver_id
+        UNION ALL
+        SELECT
+        cg.driver_id driverId,
+        sum( ct.transport_fee ) transportFee,
+        sum( ct.pack_fee ) packFee,
+        sum( ct.release_fee ) releaseFee,
+        sum( oil_fee ) oilFee,
+        sum( oe.exception_fee ) exceptionFee
+        FROM
+        ord_common_truck ct
+        LEFT JOIN ord_common_goods cg ON cg.order_id = ct.order_id
+        LEFT JOIN ord_exception_fee oe ON ct.order_id = oe.order_id
+        WHERE
+        ( cg.balance_status = '2' OR cg.balance_status = '3' )
+        AND ( ct.need_pay_status = '5' OR ct.need_pay_status = '6' )
+        AND cg.del_flag = '0'
+        AND cg.tenant_id = #{tenantId}
+        <if test="beginTime != null"><!-- 开始时间检索 -->
+            and date_format(cg.create_time,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+        </if>
+        <if test="endTime != null"><!-- 结束时间检索 -->
+            and date_format(cg.create_time,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+        </if>
+        GROUP BY cg.driver_id
+        ) a
+        GROUP BY a.driverId
+        )a
+        GROUP BY driverId) a
+        <where>
+            <if test="list != null and list.size > 0 ">
+                driverId in
+                <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+                    #{item.driverId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <!-- 某段时间利润自有车 -->
+    <select id="selectSomeTimePerson" parameterType="com.zhkj.lc.order.dto.HeadOfficeProfit" resultMap="BaseResultMap">
+        SELECT
+        IFNULL(sum( recTransportFee ),0) recTransportFee,
+        IFNULL(sum( recPickFee),0) recPickFee,
+        IFNULL(sum( recPackFee ),0) recPackFee,
+        IFNULL(sum( recReleaseFee ),0) recReleaseFee,
+        IFNULL(sum( recPickcnFee ),0) recPickcnFee,
+        IFNULL(sum( recExceptionFee ),0) recExceptionFee,
+        IFNULL(sum(payPersonPackFee),0) payPersonPackFee,
+        IFNULL(sum(payPersonReleaseFee),0) payPersonReleaseFee,
+        IFNULL(sum(payPersonExceptionFee),0) payPersonExceptionFee,
+        IFNULL(sum(payPersonOilFee),0) payPersonOilFee
+        <!--IFNULL(sum(rate),0) rate-->
+        FROM
+        (SELECT
+        driverId,
+        IFNULL(sum( recTransportFee ),0) recTransportFee,
+        IFNULL(sum( recPickFee),0) recPickFee,
+        IFNULL(sum( recPackFee ),0) recPackFee,
+        IFNULL(sum( recReleaseFee ),0) recReleaseFee,
+        IFNULL(sum( recPickcnFee ),0) recPickcnFee,
+        IFNULL(sum( recExceptionFee ),0) recExceptionFee,
+        IFNULL(sum(payPersonPackFee),0) payPersonPackFee,
+        IFNULL(sum(payPersonReleaseFee),0) payPersonReleaseFee,
+        IFNULL(sum(payPersonExceptionFee),0) payPersonExceptionFee,
+        IFNULL(sum(payPersonOilFee),0) payPersonOilFee
+        <!--IFNULL(sum(rate),0) rate-->
+        FROM
+        #收入
+        (SELECT
+        driverId,
+        sum( transportFee ) recTransportFee,
+        sum( pickFee ) recPickFee,
+        sum( packFee ) recPackFee,
+        sum( releaseFee ) recReleaseFee,
+        sum( pickcnFee ) recPickcnFee,
+        sum( exceptionFee ) recExceptionFee,
+        NULL payPersonPackFee,
+        NULL payPersonReleaseFee,
+        NULL payPersonExceptionFee,
+        NULL payPersonOilFee
+        <!--NULL rate-->
+        FROM
+        (
+        SELECT
+        o.driver_id driverId,
+        SUM( o.receivables ) transportFee,
+        NULL pickFee,
+        NULL packFee,
+        NULL releaseFee,
+        sum( o.pickcn_fee ) pickcnFee,
+        sum( e.exception_fee ) exceptionFee
+        FROM
+        ord_order o
+        LEFT JOIN ord_exception_fee e ON o.order_id = e.order_id
+        WHERE
+        ( o.balance_status = '2' OR o.balance_status = '3' )
+        AND ( o.need_pay_status = '5' OR o.need_pay_status = '6' )
+        AND o.del_flag = '0'
+        AND o.tenant_id = #{tenantId}
+        <if test="beginTime != null"><!-- 开始时间检索 -->
+            and date_format(o.create_time,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+        </if>
+        <if test="endTime != null"><!-- 结束时间检索 -->
+            and date_format(o.create_time,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+        </if>
+        GROUP BY o.driver_id
+        UNION ALL
+        SELECT
+        c.driver_id driverId,
+        SUM( c.transport_fee ) transportFee,
+        sum( c.pick_fee ) pickFee,
+        sum( c.pack_fee ) packFee,
+        sum( c.release_fee ) releaseFee,
+        NULL pickcnFee,
+        sum( e.exception_fee ) exceptionFee
+        FROM
+        ord_common_goods c
+        LEFT JOIN ord_common_truck t ON t.order_id = c.order_id
+        LEFT JOIN ord_exception_fee e ON c.order_id = e.order_id
+        WHERE
+        ( c.balance_status = '2' OR c.balance_status = '3' )
+        AND ( t.need_pay_status = '5' OR t.need_pay_status = '6' )
+        AND c.del_flag = '0'
+        AND c.tenant_id = #{tenantId}
+        <if test="beginTime != null"><!-- 开始时间检索 -->
+            and date_format(c.create_time,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+        </if>
+        <if test="endTime != null"><!-- 结束时间检索 -->
+            and date_format(c.create_time,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+        </if>
+        GROUP BY c.driver_id
+        ) a
+        GROUP BY a.driverId
+        UNION ALL
+        SELECT
+        driverId,
+        NULL recTransportFee,
+        NULL recPickFee,
+        NULL recPackFee,
+        NULL recReleaseFee,
+        NULL recPickcnFee,
+        NULL recExceptionFee,
+        sum(packFee) payPersonPackFee,
+        sum(releaseFee) payPersonReleaseFee,
+        sum(exceptionFee) payPersonExceptionFee,
+        sum(oilFee) payPersonOilFee
+        <!--NULL rate-->
+        FROM
+        (
+        SELECT
+        oo.driver_id driverId,
+        NULL packFee,
+        NULL releaseFee,
+        NULL oilFee,
+        sum( oe.exception_fee ) exceptionFee
+        FROM
+        ord_order oo
+        LEFT JOIN ord_exception_fee oe ON oe.order_id = oo.order_id
+        WHERE
+        ( oo.balance_status = '2' OR oo.balance_status = '3' )
+        AND ( oo.need_pay_status = '5' OR oo.need_pay_status = '6' )
+        AND oo.del_flag = '0'
+        AND oo.tenant_id = #{tenantId}
+        <if test="beginTime != null"><!-- 开始时间检索 -->
+            and date_format(oo.create_time,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+        </if>
+        <if test="endTime != null"><!-- 结束时间检索 -->
+            and date_format(oo.create_time,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+        </if>
+        GROUP BY oo.driver_id
+        UNION ALL
+        SELECT
+        cg.driver_id driverId,
+        sum( ct.pack_fee ) packFee,
+        sum( ct.release_fee ) releaseFee,
+        sum( oil_fee ) oilFee,
+        sum( oe.exception_fee ) exceptionFee
+        FROM
+        ord_common_truck ct
+        LEFT JOIN ord_common_goods cg ON cg.order_id = ct.order_id
+        LEFT JOIN ord_exception_fee oe ON ct.order_id = oe.order_id
+        WHERE
+        (cg.balance_status = '2' OR cg.balance_status = '3' )
+        AND ( ct.need_pay_status = '5' OR ct.need_pay_status = '6' )
+        AND cg.del_flag = '0'
+        AND cg.tenant_id = #{tenantId}
+        <if test="beginTime != null"><!-- 开始时间检索 -->
+            and date_format(cg.create_time,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+        </if>
+        <if test="endTime != null"><!-- 结束时间检索 -->
+            and date_format(cg.create_time,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+        </if>
+        GROUP BY cg.driver_id
+        ) a
+        GROUP BY a.driverId
+        )a
+        GROUP BY driverId) a
+        <where>
+            <if test="list != null and list.size > 0 ">
+                driverId in
+                <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+                    #{item.driverId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectSomeTimeRate" parameterType="com.zhkj.lc.order.dto.HeadOfficeProfit" resultMap="BaseResultMap">
+        SELECT
+            IFNULL(SUM(IFNULL( ( c.transport_fee ), 0 ) + IFNULL( ( c.pick_fee ), 0 ) + IFNULL( ( c.pack_fee ), 0 ) + IFNULL( ( c.release_fee ), 0 ) + IFNULL( ( e.exception_fee ), 0 )),0) rate
+        FROM
+            ord_common_goods c
+            LEFT JOIN ord_common_truck t ON t.order_id = c.order_id
+            LEFT JOIN ord_exception_fee e ON c.order_id = e.order_id
+        WHERE
+           ( c.balance_status = '2' OR c.balance_status = '3' )
+            AND ( t.need_pay_status = '5' OR t.need_pay_status = '6' )
+            AND c.del_flag = '0'
+            AND c.tenant_id = #{tenantId}
+            AND c.driver_id = #{driverId}
+            <if test="beginTime != null"><!-- 开始时间检索 -->
+                and date_format(c.create_time,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+            </if>
+            <if test="endTime != null"><!-- 结束时间检索 -->
+                and date_format(c.create_time,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+            </if>
+    </select>
+
+</mapper>

@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.order.mapper.TruckProfitMapper">
+    <resultMap id="BaseResultMap" type="com.zhkj.lc.order.dto.TruckProfit">
+        <result column="plateNumber" property="plateNumber"/>
+        <result column="kilometre" property="kilometre"/>
+        <result column="orderSum" property="orderSum"/>
+        <result column="receivable" property="receivable"/>
+        <result column="expensesPay" property="expensesPay"/>
+        <result column="rate" property="rate"/>
+    </resultMap>
+
+    <select id="selectLast7daysProfit" resultMap="BaseResultMap">
+        SELECT
+            IFNULL(sum( kilometre ),0) kilometre,
+            count(oo.driver_id) orderSum,
+            IFNULL(sum(IFNULL( oo.receivables, 0 ) + IFNULL( oo.pickcn_fee, 0 ) + IFNULL( oo.parking_fee, 0 ) + IFNULL( ef.exception_fee, 0 )),0) receivable,
+            IFNULL(sum(oo.need_pay),0) needFee ,
+            IFNULL(sum(IFNULL( oo.pickcn_fee, 0 ) + IFNULL( oo.parking_fee, 0 ) + IFNULL( ef.exception_fee, 0 )),0) exceptionFee
+        FROM
+            ord_order oo
+            LEFT JOIN ord_exception_fee ef ON oo.order_id = ef.order_id and ef.del_flag = '0'
+        WHERE
+            oo.del_flag = '0'
+            AND ( oo.balance_status = '2' OR oo.balance_status = '3' )
+            AND ( oo.need_pay_status = '5' OR oo.need_pay_status = '6' )
+            AND oo.driver_id = #{driverId}
+            AND date_sub(curdate(), INTERVAL 7 DAY) &lt;= date(oo.create_time)
+            AND oo.tenant_id = #{tenantId}
+            GROUP BY oo.driver_id
+        union all
+        select
+            IFNULL(sum( cg.charged_mileage ),0) kilometre,
+            count(cg.driver_id) orderSum,
+            IFNULL(sum(IFNULL( cg.transport_fee, 0 ) + IFNULL( cg.pick_fee, 0 ) + IFNULL( cg.pack_fee, 0 ) + IFNULL( cg.release_fee, 0 ) + IFNULL( cg.insurance_fee, 0 ) + IFNULL( cg.other_fee, 0 ) + IFNULL( ef.exception_fee, 0 )),0) receivable,
+            IFNULL(sum(ct.transport_fee),0) needFee,
+            IFNULL(sum(IFNULL( ct.pack_fee, 0 ) + IFNULL( ct.pack_fee, 0 ) + IFNULL( ct.release_fee, 0 ) + IFNULL( ef.exception_fee, 0 )),0) exceptionFee
+        FROM
+            ord_common_goods cg
+            LEFT JOIN ord_common_truck ct ON cg.order_id = ct.order_id
+            LEFT JOIN ord_exception_fee ef ON cg.order_id = ef.order_id and ef.del_flag = '0'
+        WHERE
+            cg.del_flag = '0'
+            AND ( cg.balance_status = '2' OR cg.balance_status = '3' )
+            AND ( ct.need_pay_status = '5' OR ct.need_pay_status = '6' )
+            AND cg.driver_id = #{driverId}
+            AND date_sub(curdate(), INTERVAL 7 DAY) &lt;= date(cg.create_time)
+            AND cg.tenant_id = #{tenantId}
+            GROUP BY cg.driver_id
+    </select>
+
+    <select id="selectLast7daysRate" resultType="BigDecimal">
+        SELECT IFNULL(sum(cg.transport_fee),0) rate
+        FROM ord_common_goods cg
+        left join ord_common_truck ct on cg.order_id = ct.order_id
+        WHERE
+            cg.del_flag = '0'
+            AND ( cg.balance_status = '2' OR cg.balance_status = '3' )
+            AND ( ct.need_pay_status = '5' OR ct.need_pay_status = '6' )
+            AND date_sub(curdate(), INTERVAL 7 DAY) &lt;= date(cg.create_time)
+            AND cg.driver_id = #{driverId}
+            AND cg.tenant_id = #{tenantId}
+            GROUP BY cg.driver_id
+    </select>
+
+
+    <select id="selectMonthdaysProfit" resultMap="BaseResultMap">
+        SELECT
+            IFNULL(sum( kilometre ),0) kilometre,
+            count(oo.driver_id) orderSum,
+            IFNULL(sum(IFNULL( oo.receivables, 0 ) + IFNULL( oo.pickcn_fee, 0 ) + IFNULL( oo.parking_fee, 0 ) + IFNULL( ef.exception_fee, 0 )),0) receivable,
+            IFNULL(sum(oo.need_pay),0) needFee ,
+            IFNULL(sum(IFNULL( oo.pickcn_fee, 0 ) + IFNULL( oo.parking_fee, 0 ) + IFNULL( ef.exception_fee, 0 )),0) exceptionFee
+        FROM
+            ord_order oo
+            LEFT JOIN ord_exception_fee ef ON oo.order_id = ef.order_id and ef.del_flag = '0'
+        WHERE
+            oo.del_flag = '0'
+            AND ( oo.balance_status = '2' OR oo.balance_status = '3' )
+            AND ( oo.need_pay_status = '5' OR oo.need_pay_status = '6' )
+            AND oo.driver_id = #{driverId}
+            AND date_format(oo.create_time,'%Y-%m')=date_format(now(),'%Y-%m')
+            AND oo.tenant_id = #{tenantId}
+            GROUP BY oo.driver_id
+        union all
+        select
+            IFNULL(sum( cg.charged_mileage ),0) kilometre,
+            count(cg.driver_id) orderSum,
+            IFNULL(sum(IFNULL( cg.transport_fee, 0 ) + IFNULL( cg.pick_fee, 0 ) + IFNULL( cg.pack_fee, 0 ) + IFNULL( cg.release_fee, 0 ) + IFNULL( cg.insurance_fee, 0 ) + IFNULL( cg.other_fee, 0 ) + IFNULL( ef.exception_fee, 0 )),0) receivable,
+            IFNULL(sum(ct.transport_fee),0) needFee,
+            IFNULL(sum(IFNULL( ct.pack_fee, 0 ) + IFNULL( ct.pack_fee, 0 ) + IFNULL( ct.release_fee, 0 ) + IFNULL( ef.exception_fee, 0 )),0) exceptionFee
+        FROM
+            ord_common_goods cg
+            LEFT JOIN ord_common_truck ct ON cg.order_id = ct.order_id
+            LEFT JOIN ord_exception_fee ef ON cg.order_id = ef.order_id and ef.del_flag = '0'
+        WHERE
+            cg.del_flag = '0'
+            AND ( cg.balance_status = '2' OR cg.balance_status = '3' )
+            AND ( ct.need_pay_status = '5' OR ct.need_pay_status = '6' )
+            AND cg.driver_id = #{driverId}
+            AND date_format(cg.create_time,'%Y-%m')=date_format(now(),'%Y-%m')
+            AND cg.tenant_id = #{tenantId}
+            GROUP BY cg.driver_id
+    </select>
+
+    <select id="selectMonthdaysRate" resultType="BigDecimal">
+        SELECT IFNULL(sum(cg.transport_fee),0) rate
+        FROM ord_common_goods cg
+        left join ord_common_truck ct on cg.order_id = ct.order_id
+        WHERE
+            cg.del_flag = '0'
+            AND ( cg.balance_status = '2' OR cg.balance_status = '3' )
+            AND ( ct.need_pay_status = '5' OR ct.need_pay_status = '6' )
+            AND date_format(cg.create_time,'%Y-%m')=date_format(now(),'%Y-%m')
+            AND cg.driver_id = #{driverId}
+            AND cg.tenant_id = #{tenantId}
+            GROUP BY cg.driver_id
+    </select>
+
+
+    <select id="selectCurrentSeasonProfit" resultMap="BaseResultMap">
+        SELECT
+            IFNULL(sum( kilometre ),0) kilometre,
+            count(oo.driver_id) orderSum,
+            IFNULL(sum(IFNULL( oo.receivables, 0 ) + IFNULL( oo.pickcn_fee, 0 ) + IFNULL( oo.parking_fee, 0 ) + IFNULL( ef.exception_fee, 0 )),0) receivable,
+            IFNULL(sum(oo.need_pay),0) needFee ,
+            IFNULL(sum(IFNULL( oo.pickcn_fee, 0 ) + IFNULL( oo.parking_fee, 0 ) + IFNULL( ef.exception_fee, 0 )),0) exceptionFee
+        FROM
+            ord_order oo
+            LEFT JOIN ord_exception_fee ef ON oo.order_id = ef.order_id and ef.del_flag = '0'
+        WHERE
+            oo.del_flag = '0'
+            AND ( oo.balance_status = '2' OR oo.balance_status = '3' )
+            AND ( oo.need_pay_status = '5' OR oo.need_pay_status = '6' )
+            AND oo.driver_id = #{driverId}
+            AND QUARTER(oo.create_time)=QUARTER(now())
+            AND oo.tenant_id = #{tenantId}
+            GROUP BY oo.driver_id
+        union all
+        select
+            IFNULL(sum( cg.charged_mileage ),0) kilometre,
+            count(cg.driver_id) orderSum,
+            IFNULL(sum(IFNULL( cg.transport_fee, 0 ) + IFNULL( cg.pick_fee, 0 ) + IFNULL( cg.pack_fee, 0 ) + IFNULL( cg.release_fee, 0 ) + IFNULL( cg.insurance_fee, 0 ) + IFNULL( cg.other_fee, 0 ) + IFNULL( ef.exception_fee, 0 )),0) receivable,
+            IFNULL(sum(ct.transport_fee),0) needFee,
+            IFNULL(sum(IFNULL( ct.pack_fee, 0 ) + IFNULL( ct.pack_fee, 0 ) + IFNULL( ct.release_fee, 0 ) + IFNULL( ef.exception_fee, 0 )),0) exceptionFee
+        FROM
+            ord_common_goods cg
+            LEFT JOIN ord_common_truck ct ON cg.order_id = ct.order_id
+            LEFT JOIN ord_exception_fee ef ON cg.order_id = ef.order_id and ef.del_flag = '0'
+        WHERE
+            cg.del_flag = '0'
+            AND ( cg.balance_status = '2' OR cg.balance_status = '3' )
+            AND ( ct.need_pay_status = '5' OR ct.need_pay_status = '6' )
+            AND cg.driver_id = #{driverId}
+            AND QUARTER(cg.create_time)=QUARTER(now())
+            AND cg.tenant_id = #{tenantId}
+            GROUP BY cg.driver_id
+    </select>
+
+    <select id="selectCurrentSeasonRate" resultType="BigDecimal">
+        SELECT IFNULL(sum(cg.transport_fee),0) rate
+        FROM ord_common_goods cg
+        left join ord_common_truck ct on cg.order_id = ct.order_id
+        WHERE
+            cg.del_flag = '0'
+            AND ( cg.balance_status = '2' OR cg.balance_status = '3' )
+            AND ( ct.need_pay_status = '5' OR ct.need_pay_status = '6' )
+            AND QUARTER(cg.create_time)=QUARTER(now())
+            AND cg.driver_id = #{driverId}
+            AND cg.tenant_id = #{tenantId}
+            GROUP BY cg.driver_id
+    </select>
+
+    <select id="selectLast6MonthsProfit" resultMap="BaseResultMap">
+        SELECT
+            IFNULL(sum( kilometre ),0) kilometre,
+            count(oo.driver_id) orderSum,
+            IFNULL(sum(IFNULL( oo.receivables, 0 ) + IFNULL( oo.pickcn_fee, 0 ) + IFNULL( oo.parking_fee, 0 ) + IFNULL( ef.exception_fee, 0 )),0) receivable,
+            IFNULL(sum(oo.need_pay),0) needFee ,
+            IFNULL(sum(IFNULL( oo.pickcn_fee, 0 ) + IFNULL( oo.parking_fee, 0 ) + IFNULL( ef.exception_fee, 0 )),0) exceptionFee
+        FROM
+            ord_order oo
+            LEFT JOIN ord_exception_fee ef ON oo.order_id = ef.order_id and ef.del_flag = '0'
+        WHERE
+            oo.del_flag = '0'
+            AND ( oo.balance_status = '2' OR oo.balance_status = '3' )
+            AND ( oo.need_pay_status = '5' OR oo.need_pay_status = '6' )
+            AND oo.driver_id = #{driverId}
+            AND (oo.create_time between date_sub(now(),interval 6 month) and now())
+            AND oo.tenant_id = #{tenantId}
+            GROUP BY oo.driver_id
+        union all
+        select
+            IFNULL(sum( cg.charged_mileage ),0) kilometre,
+            count(cg.driver_id) orderSum,
+            IFNULL(sum(IFNULL( cg.transport_fee, 0 ) + IFNULL( cg.pick_fee, 0 ) + IFNULL( cg.pack_fee, 0 ) + IFNULL( cg.release_fee, 0 ) + IFNULL( cg.insurance_fee, 0 ) + IFNULL( cg.other_fee, 0 ) + IFNULL( ef.exception_fee, 0 )),0) receivable,
+            IFNULL(sum(ct.transport_fee),0) needFee,
+            IFNULL(sum(IFNULL( ct.pack_fee, 0 ) + IFNULL( ct.pack_fee, 0 ) + IFNULL( ct.release_fee, 0 ) + IFNULL( ef.exception_fee, 0 )),0) exceptionFee
+        FROM
+            ord_common_goods cg
+            LEFT JOIN ord_common_truck ct ON cg.order_id = ct.order_id
+            LEFT JOIN ord_exception_fee ef ON cg.order_id = ef.order_id and ef.del_flag = '0'
+        WHERE
+            cg.del_flag = '0'
+            AND ( cg.balance_status = '2' OR cg.balance_status = '3' )
+            AND ( ct.need_pay_status = '5' OR ct.need_pay_status = '6' )
+            AND cg.driver_id = #{driverId}
+            AND (cg.create_time between date_sub(now(),interval 6 month) and now())
+            AND cg.tenant_id = #{tenantId}
+            GROUP BY cg.driver_id
+    </select>
+
+    <select id="selectLast6MonthsRate" parameterType="com.zhkj.lc.order.dto.TruckProfit" resultType="BigDecimal">
+        SELECT IFNULL(sum(cg.transport_fee),0) rate
+        FROM ord_common_goods cg
+        left join ord_common_truck ct on cg.order_id = ct.order_id
+        WHERE
+            cg.del_flag = '0'
+            AND ( cg.balance_status = '2' OR cg.balance_status = '3' )
+            AND ( ct.need_pay_status = '5' OR ct.need_pay_status = '6' )
+            AND (cg.create_time between date_sub(now(),interval 6 month) and now())
+            AND cg.driver_id = #{driverId}
+            AND cg.tenant_id = #{tenantId}
+            GROUP BY cg.driver_id
+    </select>
+
+
+    <select id="selectSomeTimeProfit" parameterType="com.zhkj.lc.order.dto.TruckProfit" resultMap="BaseResultMap">
+        SELECT
+            IFNULL(sum( kilometre ),0) kilometre,
+            count(oo.driver_id) orderSum,
+            IFNULL(sum(IFNULL( oo.receivables, 0 ) + IFNULL( oo.pickcn_fee, 0 ) + IFNULL( oo.parking_fee, 0 ) + IFNULL( ef.exception_fee, 0 )),0) receivable,
+            IFNULL(sum(oo.need_pay),0) needFee ,
+            IFNULL(sum(IFNULL( oo.pickcn_fee, 0 ) + IFNULL( oo.parking_fee, 0 ) + IFNULL( ef.exception_fee, 0 )),0) exceptionFee
+        FROM
+            ord_order oo
+            LEFT JOIN ord_exception_fee ef ON oo.order_id = ef.order_id and ef.del_flag = '0'
+        WHERE
+            oo.del_flag = '0'
+            AND ( oo.balance_status = '2' OR oo.balance_status = '3' )
+            AND ( oo.need_pay_status = '5' OR oo.need_pay_status = '6' )
+            AND oo.driver_id = #{driverId}
+            AND oo.tenant_id = #{tenantId}
+            <if test="beginTime != null"><!-- 开始时间检索 -->
+                and date_format(oo.create_time,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+            </if>
+            <if test="endTime != null"><!-- 结束时间检索 -->
+                and date_format(oo.create_time,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+            </if>
+            GROUP BY oo.driver_id
+        union all
+        select
+            IFNULL(sum( cg.charged_mileage ),0) kilometre,
+            count(cg.driver_id) orderSum,
+            IFNULL(sum(IFNULL( cg.transport_fee, 0 ) + IFNULL( cg.pick_fee, 0 ) + IFNULL( cg.pack_fee, 0 ) + IFNULL( cg.release_fee, 0 ) + IFNULL( cg.insurance_fee, 0 ) + IFNULL( cg.other_fee, 0 ) + IFNULL( ef.exception_fee, 0 )),0) receivable,
+            IFNULL(sum(ct.transport_fee),0) needFee,
+            IFNULL(sum(IFNULL( ct.pack_fee, 0 ) + IFNULL( ct.pack_fee, 0 ) + IFNULL( ct.release_fee, 0 ) + IFNULL( ef.exception_fee, 0 )),0) exceptionFee
+        FROM
+            ord_common_goods cg
+            LEFT JOIN ord_common_truck ct ON cg.order_id = ct.order_id
+            LEFT JOIN ord_exception_fee ef ON cg.order_id = ef.order_id and ef.del_flag = '0'
+        WHERE
+            cg.del_flag = '0'
+            AND ( cg.balance_status = '2' OR cg.balance_status = '3' )
+            AND ( ct.need_pay_status = '5' OR ct.need_pay_status = '6' )
+            AND cg.driver_id = #{driverId}
+            AND cg.tenant_id = #{tenantId}
+            <if test="beginTime != null"><!-- 开始时间检索 -->
+                and date_format(cg.create_time,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+            </if>
+            <if test="endTime != null"><!-- 结束时间检索 -->
+                and date_format(cg.create_time,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+            </if>
+            GROUP BY cg.driver_id
+    </select>
+
+    <select id="selectSomeTimeRate" resultType="BigDecimal">
+        SELECT IFNULL(sum(cg.transport_fee),0) rate
+        FROM ord_common_goods cg
+        left join ord_common_truck ct on cg.order_id = ct.order_id
+        WHERE
+            cg.del_flag = '0'
+            AND ( cg.balance_status = '2' OR cg.balance_status = '3' )
+            AND ( ct.need_pay_status = '5' OR ct.need_pay_status = '6' )
+            AND cg.driver_id = #{driverId}
+            AND cg.tenant_id = #{tenantId}
+            <if test="beginTime != null"><!-- 开始时间检索 -->
+                and date_format(cg.create_time,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+            </if>
+            <if test="endTime != null"><!-- 结束时间检索 -->
+                and date_format(cg.create_time,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+            </if>
+            GROUP BY cg.driver_id
+    </select>
+
+</mapper>

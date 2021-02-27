@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.oilcard.mapper.RechargeExternalMapper">
+    
+    <resultMap type="com.zhkj.lc.oilcard.model.RechargeExternal" id="BaseResultMap">
+        <id column="recharge_id" property="rechargeId"  />
+        <result column="oil_card_id" property="oilCardId"   />
+        <result column="oil_card_number" property="oilCardNumber"  />
+        <result column="card_type" property="cardType"   />
+        <result column="major_id" property="majorId"  />
+        <result column="major_number" property="majorNumber" />
+        <result column="truck_id" property="truckId"  />
+        <result column="plate_number" property="plateNumber"  />
+        <result column="attribute" property="attribute" />
+        <result column="truck_owner" property="truckOwner" />
+        <result column="apply_date" property="applyDate" />
+        <result column="recharge_sum" property="rechargeSum"  />
+        <result column="apply_remark" property="applyRemark"  />
+        <result column="recharge_type" property="rechargeType"  />
+        <result column="owner_driver_id" property="ownerDriverId" />
+        <result column="order_id" property="orderId" />
+        <result column="driver_name" property="driverName" />
+        <result column="is_owner" property="isOwner" />
+        <result column="start_place" property="startPlace"  />
+        <result column="pass_place" property="passPlace"  />
+        <result column="end_place" property="endPlace"  />
+        <result column="container_no" property="containerNo"  />
+        <result column="deposit" property="deposit"  />
+        <result column="is_passed" property="isPassed" />
+        <result column="fail_remark" property="failRemark"  />
+        <result column="recharge_date" property="rechargeDate" />
+        <result column="dept_name" property="deptName" />
+        <result column="reimburse_num" property="reimburseNum"  />
+        <result column="total_transport_cost" property="totalTransportCost"  />
+        <result column="del_flag" property="delFlag"  />
+        <result column="create_by" property="createBy"  />
+        <result column="create_time" property="createTime"  />
+        <result column="update_by" property="updateBy"   />
+        <result column="update_time" property="updateTime" />
+        <result column="tenant_id" property="tenantId" />
+    </resultMap>
+
+    <sql id="selectRechargeVo">
+        select recharge_id, oil_card_id, major_id, truck_id, apply_date, recharge_sum, apply_remark, recharge_type, owner_driver_id, order_id, start_place, pass_place, end_place, container_no, deposit, is_passed, fail_remark, recharge_date, dept_name, reimburse_num, total_transport_cost, del_flag, create_by, create_time, update_by, update_time,tenant_id from oil_recharge
+    </sql>
+
+    <sql id="selectRechargeVoJoin">
+        select recharge_id, a.oil_card_id, a.major_id, a.truck_id, a.apply_date, a.recharge_sum, a.apply_remark, a.recharge_type, a.owner_driver_id, a.order_id, a.start_place, a.pass_place, a.end_place, a.container_no, a.deposit, a.is_passed, a.fail_remark, a.recharge_date, a.dept_name, a.reimburse_num, a.total_transport_cost, a.del_flag, a.create_by, a.create_time, a.update_by, a.update_time, a.tenant_id
+          , b.oil_card_number, b.card_type, b.deposit
+          , d.major_number
+          , c.driver_name, c.is_owner
+--           , t.plate_number, t.truck_owner,t.attribute
+
+        from oil_recharge a
+        left join oil_card b on a.oil_card_id = b.oil_card_id and b.del_flag = '0'
+        left join oil_major AS d on b.major_id = d.major_id and d.del_flag = '0'
+        left join logistics_truckdb.tru_driver AS c on a.owner_driver_id = c.driver_id and c.del_flag = '0'
+--         left join logistics_truckdb.tru_truck t on a.truck_id = t.truck_id and t.del_flag = '0'
+
+    </sql>
+
+    <select id="selectRechargeExternalListByIds" resultMap="BaseResultMap">
+        <include refid="selectRechargeVoJoin"/>
+        where a.del_flag = '0' and a.recharge_id in
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        order by a.create_time desc
+    </select>
+
+    <select id="selectRechargeExternalList" resultMap="BaseResultMap">
+        <include refid="selectRechargeVoJoin"/>
+        <where>
+            <if test="rechargeId != null "> and a.recharge_id = #{rechargeId}</if>
+            <if test="oilCardId != null "> and a.oil_card_id = #{oilCardId}</if>
+            <if test="cardType != null  and cardType != '' "> and b.card_type = #{cardType}</if>
+            <if test="majorId != null "> and a.major_id = #{majorId}</if>
+            <if test="truckId != null "> and a.truck_id = #{truckId}</if>
+            <if test="oilCardNumber != null and oilCardNumber !='' "> and b.oil_card_number = #{oilCardNumber}</if>
+            <if test="containerNo != null and containerNo != '' "> and a.container_no= #{containerNo}</if>
+            <if test="driverName != null and driverName != '' "> and c.driver_name= #{driverName}</if>
+            <!--<if test="truckOwner != null "> and t.truck_owner = #{truckOwner}</if>-->
+            <if test="beginTime != null and beginTime != ''  "><!-- 开始时间检索 -->
+                and date_format(a.apply_date,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+            </if>
+            <if test="endTime != null and endTime != ''  "><!-- 结束时间检索 -->
+                and date_format(a.apply_date,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+            </if>
+            <if test="rechargeSum != null "> and a.recharge_sum = #{rechargeSum}</if>
+            <if test="applyRemark != null and applyRemark != ''  ">and a.apply_remark = #{applyRemark}</if>
+            <if test="rechargeType != null  and rechargeType != '' "> and a.recharge_type = #{rechargeType}</if>
+            <if test="ownerDriverId != null  "> and a.owner_driver_id = #{ownerDriverId}</if>
+            <!--<if test="driverIds != null and driverIds.length > 0   "> and a.owner_driver_id in
+              <foreach collection="driverIds" item="driverId" open="(" separator="," close=")">
+                  #{driverId}
+              </foreach>
+            </if>-->
+            <if test="orderId != null and orderId != ''  "> and a.order_id = #{orderId}</if>
+            <if test="startPlace != null  and startPlace != '' "> and a.start_place = #{startPlace}</if>
+            <if test="endPlace != null  and endPlace != '' "> and a.end_place = #{endPlace}</if>
+            <if test="containerNo != null  and containerNo != '' "> and a.container_no = #{containerNo}</if>
+            <if test="deposit != null "> and a.deposit = #{deposit}</if>
+            <if test="isPassed != null  and isPassed != '' "> and a.is_passed = #{isPassed}</if>
+            <if test="failRemark != null  and faiRremark != '' "> and a.fail_remark = #{failRemark}</if>
+            <if test="rechargeTime != null "> and date_format(a.recharge_date,'%Y-%m-%d') = #{rechargeTime}</if>
+            <if test="deptName != null  and deptName != '' "> and a.dept_name = #{deptName}</if>
+            <if test="reimburseNum != null  and reimburseNum != '' "> and a.reimburse_num = #{reimburseNum}</if>
+            <if test="totalTransportCost != null "> and a.total_transport_cost = #{totalTransportCost}</if>
+            <if test="createBy != null  and createBy != '' "> and a.create_by = #{createBy}</if>
+            <if test="createTime != null "> and a.create_time = #{createTime}</if>
+            <if test="updateBy != null  and updateBy != '' "> and a.update_by = #{updateBy}</if>
+            <if test="updateTime != null "> and a.update_time = #{updateTime}</if>
+            <if test="tenantId != null ">  and a.tenant_id = #{tenantId}</if>
+            <if test="majorNumber != null and majorNumber != '' ">  and d.major_number = #{majorNumber}</if>
+            and a.del_flag = '0'
+        </where>
+        order by a.create_time desc
+    </select>
+
+</mapper>

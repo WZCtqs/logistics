@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.order.mapper.OrderProfitMapper">
+    <resultMap id="BaseResultMapper" type="com.zhkj.lc.order.dto.OrderProfit">
+        <result column="orderId" property="orderId" />
+        <result column="customerId" property="customerId"/>
+        <result column="driverId" property="driverId"/>
+        <result column="plateNumber" property="plateNumber"/>
+        <result column="kilometre" property="kilometre"/>
+        <result column="receivable" property="receivable"/>
+        <result column="exYsFee" property="exYsFee"/>
+        <result column="exceptionFee" property="exceptionFee"/>
+        <result column="needFee" property="needFee"/>
+        <result column="isInvoice" property="isInvoice"/>
+        <result column="isYfInvoice" property="isYfInvoice"/>
+        <result column="tenantId" property="tenantId"/>
+        <result column="rate" property="rate"/>
+        <result column="payRate" property="payRate"/>
+        <association property="orderSettlementStatus" javaType="com.zhkj.lc.order.model.entity.OrderSettlement" column="orderId" select="com.zhkj.lc.order.mapper.OrderSettlementMapper.selectSettlementByOrderId"/>
+        <collection property="exceptionFeeList" column="orderId" select="com.zhkj.lc.order.mapper.OrdExceptionFeeMapper.selectByOrderIdForMoney"/>
+
+    </resultMap>
+
+    <!--订单近7天利润-->
+    <select id="selectLast7daysOrderProfit" parameterType="com.zhkj.lc.order.dto.OrderProfit" resultMap="BaseResultMapper">
+        SELECT orderId, kilometre, customerId, driverId, plateNumber, receivable, needFee, exYsFee, exceptionFee, isInvoice, isYfInvoice, tenantId, rate, payRate
+        FROM
+        (   SELECT
+                oo.order_id AS orderId,-- 订单编号
+                IFNULL(oo.kilometre, 0) AS kilometre,-- 公里
+                oo.customer_id AS customerId,-- 客户id
+                oo.driver_id AS driverId,-- 司机id
+                oo.plate_number AS plateNumber,-- 车牌号
+                CASE
+                    WHEN oo.upstream_id IS NOT NULL THEN
+                    IFNULL( oo.receivables, 0 )
+                        + IFNULL( oo.upstream_report_fee, 0 )
+                        + IFNULL( oo.upstream_yc_day, 0 ) * IFNULL( oo.upstream_yc_price, 0 )
+                    WHEN oo.upstream_id IS NULL THEN
+                    IFNULL( oo.receivables, 0 ) + IFNULL( oef.ex_fee, 0 )
+                END receivable,-- 应收
+                CASE
+                WHEN oo.upstream_id IS NOT NULL THEN
+                IFNULL( oo.upstream_report_fee, 0 )
+                + IFNULL( oo.upstream_yc_day, 0 ) * IFNULL( oo.upstream_yc_price, 0 )
+                WHEN oo.upstream_id IS NULL THEN
+                IFNULL( oef.ex_fee, 0 )
+                END exYsFee,-- 应收异常费
+                IFNULL( oef.ex_fee, 0 ) exceptionFee,-- 应付异常费
+                IFNULL( oo.need_pay, 0 ) needFee,-- 应付
+                IFNULL(oo.is_invoice, 0) isInvoice,-- 应收是否开票
+                oo.is_yf_invoice isYfInvoice, -- 应付是否开票
+                oo.tenant_id tenantId,
+                oo.pay_rate as payRate,
+                0 as rate
+            FROM
+              ord_order oo
+            LEFT JOIN ( SELECT order_id, sum( exception_fee ) ex_fee FROM ord_exception_fee WHERE del_flag = '0' AND auditing = '1' AND tenant_id = #{tenantId} GROUP BY order_id ) oef ON oo.order_id = oef.order_id
+            WHERE
+                oo.del_flag = '0'
+                AND ( oo.balance_status = '2' OR oo.balance_status = '3' )
+                AND oo.need_pay_status = '5'
+                AND oo.tenant_id = '0'
+                <if test="timeType != null and timeType == 'WEEK'.toString() ">
+                    AND date_sub( curdate(), INTERVAL 7 DAY ) &lt;= date( oo.create_time )
+                </if>
+                <if test="timeType != null and timeType == 'MONTH'.toString() ">
+                    AND date_format(oo.create_time,'%Y-%m') = date_format(now(),'%Y-%m')
+                </if>
+                <if test="timeType != null and timeType == 'SEASON'.toString() ">
+                    AND QUARTER(oo.create_time)=QUARTER(now())
+                </if>
+                <if test="timeType != null and timeType == 'HALF_A_YEAY'.toString() ">
+                    AND (oo.create_time between date_sub(now(),interval 6 month) and now())
+                </if>
+                <if test="beginTime != null"><!-- 开始时间检索 -->
+                    and date_format(oo.create_time,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+                </if>
+                <if test="endTime != null"><!-- 结束时间检索 -->
+                    and date_format(oo.create_time,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+                </if>
+                <if test="orderId != null and orderId != ''">
+                    and oo.order_id = #{orderId}
+                </if>
+                <if test="plateNumber != null and plateNumber != ''">
+                    and oo.plate_number = #{plateNumber}
+                </if>
+                <if test="list != null and list.size() > 0">
+                    and oo.customer_id in
+                    <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+                        #{item.customerId}
+                    </foreach>
+                </if>
+            ORDER BY oo.create_time ) cn
+        UNION
+        SELECT orderId, kilometre, customerId, driverId, plateNumber, receivable, needFee, exYsFee, exceptionFee, isInvoice, isYfInvoice, tenantId, rate, payRate
+        FROM
+        (   SELECT
+                ocg.order_id orderId,-- 订单号
+                IFNULL(ocg.charged_mileage, 0) kilometre,-- 公里数
+                ocg.customer_id customerId,-- 客户id
+                ocg.driver_id driverId,-- 主司机id
+                oct.plate_number plateNumber,-- 车牌
+                IFNULL( ocg.transport_fee, 0 ) + IFNULL( oef.ex_fee, 0 ) receivable,-- 应收
+                IFNULL( oct.transport_fee, 0 ) needFee,-- 应付
+                IFNULL( oef.ex_fee, 0 ) exYsFee,-- 应收异常费
+                IFNULL( oef.ex_fee, 0 ) exceptionFee,-- 应付异常费
+                IFNULL(ocg.is_invoice, 0) isInvoice,-- 应收是否发票
+                oct.is_yf_invoice isYfInvoice, -- 应付是否发票
+                ocg.tenant_id tenantId,
+                oct.pay_rate as payRate,
+                0 as rate
+            FROM
+                ord_common_goods ocg
+            LEFT JOIN ord_common_truck oct ON ocg.order_id = oct.order_id
+            LEFT JOIN ( SELECT order_id, sum( exception_fee ) ex_fee FROM ord_exception_fee WHERE del_flag = '0' AND auditing = '1' AND tenant_id = #{tenantId} GROUP BY order_id ) oef ON ocg.order_id = oef.order_id
+            WHERE
+                ocg.del_flag = '0'
+                AND ocg.tenant_id = '0'
+                AND ( ocg.balance_status = '2' OR ocg.balance_status = '3' )
+                AND oct.need_pay_status = '5'
+                <if test="timeType != null and timeType == 'WEEK'.toString() ">
+                    AND date_sub( curdate(), INTERVAL 7 DAY ) &lt;= date( ocg.create_time )
+                </if>
+                <if test="timeType != null and timeType == 'MONTH'.toString() ">
+                    AND date_format(ocg.create_time,'%Y-%m') = date_format(now(),'%Y-%m')
+                </if>
+                <if test="timeType != null and timeType == 'SEASON'.toString() ">
+                    AND QUARTER(ocg.create_time)=QUARTER(now())
+                </if>
+                <if test="timeType != null and timeType == 'HALF_A_YEAY'.toString() ">
+                    AND (ocg.create_time between date_sub(now(),interval 6 month) and now())
+                </if>
+                <if test="beginTime != null"><!-- 开始时间检索 -->
+                    and date_format(ocg.create_time,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+                </if>
+                <if test="endTime != null"><!-- 结束时间检索 -->
+                    and date_format(ocg.create_time,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+                </if>
+                <if test="orderId != null and orderId != ''">
+                    and ocg.order_id = #{orderId}
+                </if>
+                <if test="plateNumber != null and plateNumber != ''">
+                    and oct.plate_number = #{plateNumber}
+                </if>
+                <if test="list != null and list.size()>0">
+                    and ocg.customer_id in
+                    <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+                        #{item.customerId}
+                    </foreach>
+                </if>
+            ORDER BY ocg.create_time ) ph
+    </select>
+    <!--订单本月利润-->
+    <select id="selectMonthdaysOrderProfit" parameterType="com.zhkj.lc.order.dto.OrderProfit" resultMap="BaseResultMapper">
+        select orderId,kilometre,customerId,driverId,receivable,needFee,exceptionFee,rate
+        from
+        (SELECT
+        oo.order_id orderId,
+        oo.kilometre kilometre,
+        oo.customer_id customerId,
+        oo.driver_id driverId,
+        IFNULL( oo.receivables, 0 ) + IFNULL( oo.pickcn_fee, 0 ) + IFNULL( oo.parking_fee, 0 ) + IFNULL( ef.exception_fee, 0 ) receivable,
+        IFNULL( oo.need_pay, 0 ) needFee,
+        IFNULL( oo.pickcn_fee, 0 ) + IFNULL( oo.parking_fee, 0 ) + IFNULL( ef.exception_fee, 0 ) exceptionFee,
+        0 rate
+        FROM
+        ord_order oo
+        LEFT JOIN ord_exception_fee ef ON oo.order_id = ef.order_id
+        WHERE
+        oo.del_flag = '0'
+        AND ( oo.balance_status = '2' OR oo.balance_status = '3' )
+        AND ( oo.need_pay_status = '5' OR oo.need_pay_status = '6' )
+        AND oo.tenant_id = '0'
+        AND date_format(oo.create_time,'%Y-%m')=date_format(now(),'%Y-%m')
+        AND oo.tenant_id = #{tenantId}
+        <if test="list.size()>0 and list != null">
+            and oo.customer_id in
+            <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+                #{item.customerId}
+            </foreach>
+        </if>
+        order by oo.create_time) a
+        UNION ALL
+        select orderId,kilometre,customerId,driverId,receivable,needFee,exceptionFee,rate
+        from
+        (SELECT
+        cg.order_id orderId,
+        cg.charged_mileage kilometre,
+        cg.customer_id customerId,
+        cg.driver_id driverId,
+        IFNULL( cg.transport_fee, 0 ) + IFNULL( cg.pick_fee, 0 ) + IFNULL( cg.pack_fee, 0 ) + IFNULL( cg.release_fee, 0 ) + IFNULL( cg.insurance_fee, 0 ) + IFNULL( cg.other_fee, 0 ) + IFNULL( ef.exception_fee, 0 ) receivable,
+        IFNULL( ct.transport_fee, 0 ) needFee,
+        IFNULL( ct.pack_fee, 0 ) + IFNULL( ct.pack_fee, 0 ) + IFNULL( ct.release_fee, 0 ) + IFNULL( ef.exception_fee, 0 ) exceptionFee,
+        IFNULL( cg.transport_fee, 0 ) rate
+        FROM
+        ord_common_goods cg
+        LEFT JOIN ord_common_truck ct ON cg.order_id = ct.order_id
+        LEFT JOIN ord_exception_fee ef ON cg.order_id = ef.order_id
+        WHERE
+        cg.del_flag = '0'
+        AND ( cg.balance_status = '2' OR cg.balance_status = '3' )
+        AND ( ct.need_pay_status = '5' OR ct.need_pay_status = '6' )
+        AND date_format(cg.create_time,'%Y-%m')=date_format(now(),'%Y-%m')
+        AND cg.tenant_id = #{tenantId}
+        <if test="list.size()>0 and list != null">
+            and cg.customer_id in
+            <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+                #{item.customerId}
+            </foreach>
+        </if>
+        order by cg.create_time) b
+    </select>
+
+    <!--订单本季度利润-->
+    <select id="selectCurrentSeasonOrderProfit" parameterType="com.zhkj.lc.order.dto.OrderProfit" resultMap="BaseResultMapper">
+        select orderId,kilometre,customerId,driverId,receivable,needFee,exceptionFee,rate
+        from
+        (SELECT
+        oo.order_id orderId,
+        oo.kilometre kilometre,
+        oo.customer_id customerId,
+        oo.driver_id driverId,
+        IFNULL( oo.receivables, 0 ) + IFNULL( oo.pickcn_fee, 0 ) + IFNULL( oo.parking_fee, 0 ) + IFNULL( ef.exception_fee, 0 ) receivable,
+        IFNULL( oo.need_pay, 0 ) needFee,
+        IFNULL( oo.pickcn_fee, 0 ) + IFNULL( oo.parking_fee, 0 ) + IFNULL( ef.exception_fee, 0 ) exceptionFee,
+        0 rate
+        FROM
+        ord_order oo
+        LEFT JOIN ord_exception_fee ef ON oo.order_id = ef.order_id
+        WHERE
+        oo.del_flag = '0'
+        AND ( oo.balance_status = '2' OR oo.balance_status = '3' )
+        AND ( oo.need_pay_status = '5' OR oo.need_pay_status = '6' )
+        AND oo.tenant_id = '0'
+        AND QUARTER(oo.create_time)=QUARTER(now())
+        AND oo.tenant_id = #{tenantId}
+        <if test="list.size()>0 and list != null">
+            and oo.customer_id in
+            <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+                #{item.customerId}
+            </foreach>
+        </if>
+        order by oo.create_time) a
+        UNION ALL
+        select orderId,kilometre,customerId,driverId,receivable,needFee,exceptionFee,rate
+        from
+        (SELECT
+        cg.order_id orderId,
+        cg.charged_mileage kilometre,
+        cg.customer_id customerId,
+        cg.driver_id driverId,
+        IFNULL( cg.transport_fee, 0 ) + IFNULL( cg.pick_fee, 0 ) + IFNULL( cg.pack_fee, 0 ) + IFNULL( cg.release_fee, 0 ) + IFNULL( cg.insurance_fee, 0 ) + IFNULL( cg.other_fee, 0 ) + IFNULL( ef.exception_fee, 0 ) receivable,
+        IFNULL( ct.transport_fee, 0 ) needFee,
+        IFNULL( ct.pack_fee, 0 ) + IFNULL( ct.pack_fee, 0 ) + IFNULL( ct.release_fee, 0 ) + IFNULL( ef.exception_fee, 0 ) exceptionFee,
+        IFNULL( cg.transport_fee, 0 ) rate
+        FROM
+        ord_common_goods cg
+        LEFT JOIN ord_common_truck ct ON cg.order_id = ct.order_id
+        LEFT JOIN ord_exception_fee ef ON cg.order_id = ef.order_id
+        WHERE
+        cg.del_flag = '0'
+        AND ( cg.balance_status = '2' OR cg.balance_status = '3' )
+        AND ( ct.need_pay_status = '5' OR ct.need_pay_status = '6' )
+        AND QUARTER(cg.create_time)=QUARTER(now())
+        AND cg.tenant_id = #{tenantId}
+        <if test="list.size()>0 and list != null">
+            and cg.customer_id in
+            <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+                #{item.customerId}
+            </foreach>
+        </if>
+        order by cg.create_time) b
+    </select>
+
+    <!--订单近半年利润-->
+    <select id="selectLast6MonthsOrderProfit" parameterType="com.zhkj.lc.order.dto.OrderProfit" resultMap="BaseResultMapper">
+        select orderId,kilometre,customerId,driverId,receivable,needFee,exceptionFee,rate
+        from
+        (SELECT
+        oo.order_id orderId,
+        oo.kilometre kilometre,
+        oo.customer_id customerId,
+        oo.driver_id driverId,
+        IFNULL( oo.receivables, 0 ) + IFNULL( oo.pickcn_fee, 0 ) + IFNULL( oo.parking_fee, 0 ) + IFNULL( ef.exception_fee, 0 ) receivable,
+        IFNULL( oo.need_pay, 0 ) needFee,
+        IFNULL( oo.pickcn_fee, 0 ) + IFNULL( oo.parking_fee, 0 ) + IFNULL( ef.exception_fee, 0 ) exceptionFee,
+        0 rate
+        FROM
+        ord_order oo
+        LEFT JOIN ord_exception_fee ef ON oo.order_id = ef.order_id
+        WHERE
+        oo.del_flag = '0'
+        AND ( oo.balance_status = '2' OR oo.balance_status = '3' )
+        AND ( oo.need_pay_status = '5' OR oo.need_pay_status = '6' )
+        AND oo.tenant_id = '0'
+        AND (oo.create_time between date_sub(now(),interval 6 month) and now())
+        AND oo.tenant_id = #{tenantId}
+        <if test="list.size()>0 and list != null">
+            and oo.customer_id in
+            <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+                #{item.customerId}
+            </foreach>
+        </if>
+        order by oo.create_time) a
+        UNION ALL
+        select orderId,kilometre,customerId,driverId,receivable,needFee,exceptionFee,rate
+        from
+        (SELECT
+        cg.order_id orderId,
+        cg.charged_mileage kilometre,
+        cg.customer_id customerId,
+        cg.driver_id driverId,
+        IFNULL( cg.transport_fee, 0 ) + IFNULL( cg.pick_fee, 0 ) + IFNULL( cg.pack_fee, 0 ) + IFNULL( cg.release_fee, 0 ) + IFNULL( cg.insurance_fee, 0 ) + IFNULL( cg.other_fee, 0 ) + IFNULL( ef.exception_fee, 0 ) receivable,
+        IFNULL( ct.transport_fee, 0 ) needFee,
+        IFNULL( ct.pack_fee, 0 ) + IFNULL( ct.pack_fee, 0 ) + IFNULL( ct.release_fee, 0 ) + IFNULL( ef.exception_fee, 0 ) exceptionFee,
+        IFNULL( cg.transport_fee, 0 ) rate
+        FROM
+        ord_common_goods cg
+        LEFT JOIN ord_common_truck ct ON cg.order_id = ct.order_id
+        LEFT JOIN ord_exception_fee ef ON cg.order_id = ef.order_id
+        WHERE
+        cg.del_flag = '0'
+        AND ( cg.balance_status = '2' OR cg.balance_status = '3' )
+        AND ( ct.need_pay_status = '5' OR ct.need_pay_status = '6' )
+        AND (cg.create_time between date_sub(now(),interval 6 month) and now())
+        AND cg.tenant_id = #{tenantId}
+        <if test="list.size()>0 and list != null">
+            and cg.customer_id in
+            <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+                #{item.customerId}
+            </foreach>
+        </if>
+        order by cg.create_time) b
+    </select>
+
+    <!--订单某段时间内利润-->
+    <select id="selectSomeTimeOrderProfit" parameterType="com.zhkj.lc.order.dto.OrderProfit" resultMap="BaseResultMapper">
+        select orderId,kilometre,customerId,driverId,receivable,needFee,exceptionFee,rate
+        from
+        (SELECT
+        oo.order_id orderId,
+        oo.kilometre kilometre,
+        oo.customer_id customerId,
+        oo.driver_id driverId,
+        IFNULL( oo.receivables, 0 ) + IFNULL( oo.pickcn_fee, 0 ) + IFNULL( oo.parking_fee, 0 ) + IFNULL( ef.exception_fee, 0 ) receivable,
+        IFNULL( oo.need_pay, 0 ) needFee,
+        IFNULL( oo.pickcn_fee, 0 ) + IFNULL( oo.parking_fee, 0 ) + IFNULL( ef.exception_fee, 0 ) exceptionFee,
+        0 rate
+        FROM
+        ord_order oo
+        LEFT JOIN ord_exception_fee ef ON oo.order_id = ef.order_id
+        WHERE
+        oo.del_flag = '0'
+        AND ( oo.balance_status = '2' OR oo.balance_status = '3' )
+        AND ( oo.need_pay_status = '5' OR oo.need_pay_status = '6' )
+        AND oo.tenant_id = '0'
+        AND oo.tenant_id = #{tenantId}
+        <if test="beginTime != null"><!-- 开始时间检索 -->
+            and date_format(oo.create_time,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+        </if>
+        <if test="endTime != null"><!-- 结束时间检索 -->
+            and date_format(oo.create_time,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+        </if>
+        <if test="list.size()>0 and list != null">
+            and oo.customer_id in
+            <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+                #{item.customerId}
+            </foreach>
+        </if>
+        order by oo.create_time) a
+        UNION ALL
+        select orderId,kilometre,customerId,driverId,receivable,needFee,exceptionFee,rate
+        from
+        (SELECT
+        cg.order_id orderId,
+        cg.charged_mileage kilometre,
+        cg.customer_id customerId,
+        cg.driver_id driverId,
+        IFNULL( cg.transport_fee, 0 ) + IFNULL( cg.pick_fee, 0 ) + IFNULL( cg.pack_fee, 0 ) + IFNULL( cg.release_fee, 0 ) + IFNULL( cg.insurance_fee, 0 ) + IFNULL( cg.other_fee, 0 ) + IFNULL( ef.exception_fee, 0 ) receivable,
+        IFNULL( ct.transport_fee, 0 ) needFee,
+        IFNULL( ct.pack_fee, 0 ) + IFNULL( ct.pack_fee, 0 ) + IFNULL( ct.release_fee, 0 ) + IFNULL( ef.exception_fee, 0 ) exceptionFee,
+        IFNULL( cg.transport_fee, 0 ) rate
+        FROM
+        ord_common_goods cg
+        LEFT JOIN ord_common_truck ct ON cg.order_id = ct.order_id
+        LEFT JOIN ord_exception_fee ef ON cg.order_id = ef.order_id
+        WHERE
+        cg.del_flag = '0'
+        AND ( cg.balance_status = '2' OR cg.balance_status = '3' )
+        AND ( ct.need_pay_status = '5' OR ct.need_pay_status = '6' )
+        AND (cg.create_time between date_sub(now(),interval 6 month) and now())
+        AND cg.tenant_id = #{tenantId}
+        <if test="beginTime != null"><!-- 开始时间检索 -->
+            and date_format(cg.create_time,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+        </if>
+        <if test="endTime != null"><!-- 结束时间检索 -->
+            and date_format(cg.create_time,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+        </if>
+        <if test="list.size()>0 and list != null">
+            and cg.customer_id in
+            <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+                #{item.customerId}
+            </foreach>
+        </if>
+        order by cg.create_time) b
+    </select>
+
+</mapper>

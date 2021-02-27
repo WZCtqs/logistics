@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.trunk.mapper.TruCustomerMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zhkj.lc.trunk.model.TruCustomer">
+        <id column="customer_id" property="customerId" />
+        <result column="customer_name" property="customerName" />
+        <result column="saleman" property="saleman" />
+        <result column="contact" property="contact" />
+        <result column="contact_job" property="contactJob" />
+        <result column="phone" property="phone" />
+        <result column="email" property="email" />
+        <result column="customer_address" property="customerAddress" />
+        <result column="customer_type" property="customerType" />
+        <result column="pay_way" property="payWay" />
+        <result column="is_passed" property="isPassed" />
+        <result column="is_partner" property="isPartner" />
+        <result column="status" property="status" />
+        <result column="is_trust" property="isTrust" />
+        <result column="remark" property="remark" />
+        <result column="del_flag" property="delFlag" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="tenant_id" property="tenantId" />
+        <result column="gopen_id" property="gopenId" />
+        <result column="sex" property="sex" />
+        <result column="photo" property="photo" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        customer_id AS customerId, customer_name AS customerName, saleman, contact, contact_job AS contactJob, phone, email,
+        customer_address AS customerAddress,customer_type AS customerType,pay_way AS payWay, is_passed AS isPassed,
+         is_partner AS isPartner, status, is_trust AS isTrust, remark, del_flag AS delFlag, create_by AS createBy, create_time AS createTime,
+         update_by AS updateBy, update_time AS updateTime, tenant_id AS tenantId, gopen_id AS gopenId, sex AS sex, photo AS photo
+    </sql>
+
+    <sql id="Base_Column">
+        customer_id, customer_name, saleman, contact, contact_job, phone, email,customer_address,customer_type,pay_way, is_passed , is_partner , status, is_trust , remark, del_flag , create_by , create_time, update_by , update_time , tenant_id , gopen_id, sex, photo
+    </sql>
+
+    <select id="selectByPhone" parameterType="com.zhkj.lc.trunk.model.TruCustomer" resultMap="BaseResultMap">
+        select <include refid="Base_Column"/>
+        from tru_customer
+        <where>
+        <if test="customerId != null "> and customer_id = #{customerId}</if>
+        <if test="customerName != null  and customerName != '' ">
+            and customer_name like CONCAT('%',#{customerName},'%')
+        </if>
+        <if test="saleman != null  and saleman != '' "> and saleman = #{saleman}</if>
+        <if test="contact != null  and contact != '' "> and contact = #{contact}</if>
+        <if test="contactJob != null  and contactJob != '' "> and contact_job = #{contactJob}</if>
+        <if test="phone != null  and phone != '' "> and phone = #{phone}</if>
+        <if test="email != null  and email != '' "> and email = #{email}</if>
+        <if test="customerAddress != null  and customerAddress != ''"> and customer_address = #{customerAddress}</if>
+        <if test="customerType != null  and customerType != ''"> and customer_type = #{customerType}</if>
+        <if test="payWay != null  and payWay != ''"> and pay_way = #{payWay}</if>
+        <if test="isPassed != null  and isPassed != '' "> and is_passed = #{isPassed}</if>
+        <if test="isPartner != null  and isPartner != '' "> and is_partner = #{isPartner}</if>
+        <if test="status != null  and status != '' "> and status = #{status}</if>
+        <if test="isTrust != null  and isTrust != '' "> and is_trust = #{isTrust}</if>
+        <if test="remark != null  and remark != '' "> and remark = #{remark}</if>
+        <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+        and del_flag = '0'
+    </where>
+    </select>
+
+    <select id="selectCustomerById" resultMap="BaseResultMap">
+        select <include refid="Base_Column"/>
+        from tru_customer
+        <where>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+            and del_flag = '0'
+        </where>
+    </select>
+    <select id="selectCustomerByCustomerId" resultMap="BaseResultMap">
+        select <include refid="Base_Column"/>
+        from tru_customer
+        <where>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+            and del_flag = '0'
+        </where>
+    </select>
+
+    <select id="pageSearch" resultMap="BaseResultMap">
+        select <include refid="Base_Column"/>
+        from tru_customer
+        <where>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="customerName != null  and customerName != '' ">
+             and customer_name like CONCAT('%',#{customerName},'%')
+            </if>
+            <if test="saleman != null  and saleman != '' "> and saleman = #{saleman}</if>
+            <if test="contact != null  and contact != '' "> and contact = #{contact}</if>
+            <if test="contactJob != null  and contactJob != '' "> and contact_job = #{contactJob}</if>
+            <if test="phone != null  and phone != '' "> and phone = #{phone}</if>
+            <if test="email != null  and email != '' "> and email = #{email}</if>
+            <if test="customerAddress != null  and customerAddress != ''"> and customer_address = #{customerAddress}</if>
+            <if test="customerType != null  and customerType != ''"> and customer_type = #{customerType}</if>
+            <if test="payWay != null  and payWay != ''"> and pay_way = #{payWay}</if>
+            <if test="isPassed != null  and isPassed != '' "> and is_passed = #{isPassed}</if>
+            <if test="isPartner != null  and isPartner != '' "> and is_partner = #{isPartner}</if>
+            <if test="status != null  and status != '' "> and status = #{status}</if>
+            <if test="isTrust != null  and isTrust != '' "> and is_trust = #{isTrust}</if>
+            <if test="remark != null  and remark != '' "> and remark = #{remark}</if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+            and del_flag = '0'
+            and customer_name is not null
+        </where>
+    </select>
+
+    <select id="selectAllCustomer" resultMap="BaseResultMap">
+        select <include refid="Base_Column"/>
+        from tru_customer
+        <where>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="customerName != null  and customerName != '' ">
+                and customer_name like CONCAT('%',#{customerName},'%')
+            </if>
+            <if test="saleman != null  and saleman != '' "> and saleman = #{saleman}</if>
+            <if test="contact != null  and contact != '' "> and contact = #{contact}</if>
+            <if test="contactJob != null  and contactJob != '' "> and contact_job = #{contactJob}</if>
+            <if test="phone != null  and phone != '' "> and phone = #{phone}</if>
+            <if test="email != null  and email != '' "> and email = #{email}</if>
+            <if test="customerAddress != null  and customerAddress != ''"> and customer_address = #{customerAddress}</if>
+            <if test="customerType != null  and customerType != ''"> and customer_type = #{customerType}</if>
+            <if test="payWay != null  and payWay != ''"> and pay_way = #{payWay}</if>
+            <if test="isPassed != null  and isPassed != '' "> and is_passed = #{isPassed}</if>
+            <if test="isPartner != null  and isPartner != '' "> and is_partner = #{isPartner}</if>
+            <if test="status != null  and status != '' "> and status = #{status}</if>
+            <if test="isTrust != null  and isTrust != '' "> and is_trust = #{isTrust}</if>
+            <if test="remark != null  and remark != '' "> and remark = #{remark}</if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+            and del_flag = '0'
+            and customer_name is not null
+        </where>
+    </select>
+
+    <select id="selectAllForFegin" resultMap="BaseResultMap">
+        select <include refid="Base_Column"/>
+        from tru_customer
+        <where>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="customerName != null  and customerName != '' ">
+                and customer_name = #{customerName}
+            </if>
+            <if test="phone != null  and phone != '' "> and phone = #{phone}</if>
+            <if test="customerType != null  and customerType != ''"> and customer_type = #{customerType}</if>
+            <if test="payWay != null  and payWay != ''"> and pay_way = #{payWay}</if>
+            <if test="isPassed != null  and isPassed != '' "> and is_passed = #{isPassed}</if>
+            <if test="isPartner != null  and isPartner != '' "> and is_partner = #{isPartner}</if>
+            <if test="status != null  and status != '' "> and status = #{status}</if>
+            <if test="isTrust != null  and isTrust != '' "> and is_trust = #{isTrust}</if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+            <if test="delFlag != null "> and del_flag = #{delFlag}</if>
+            and customer_name is not null
+        </where>
+    </select>
+
+    <select id="selectLikeAllForFegin" resultMap="BaseResultMap">
+        select <include refid="Base_Column"/>
+        from tru_customer
+        <where>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="customerName != null  and customerName != '' ">
+                and customer_name like CONCAT('%',#{customerName},'%')
+            </if>
+            <if test="phone != null  and phone != '' "> and phone = #{phone}</if>
+            <if test="customerType != null  and customerType != ''"> and customer_type = #{customerType}</if>
+            <if test="payWay != null  and payWay != ''"> and pay_way = #{payWay}</if>
+            <if test="isPassed != null  and isPassed != '' "> and is_passed = #{isPassed}</if>
+            <if test="isPartner != null  and isPartner != '' "> and is_partner = #{isPartner}</if>
+            <if test="status != null  and status != '' "> and status = #{status}</if>
+            <if test="isTrust != null  and isTrust != '' "> and is_trust = #{isTrust}</if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+            and customer_name is not null
+        </where>
+    </select>
+
+    <select id="selectCustomerForPh" resultMap="BaseResultMap">
+        select <include refid="Base_Column"/>
+        from tru_customer
+        <where>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="customerName != null  and customerName != '' ">
+                and customer_name = #{customerName}
+            </if>
+            <if test="saleman != null  and saleman != '' "> and saleman = #{saleman}</if>
+            <if test="contact != null  and contact != '' "> and contact = #{contact}</if>
+            <if test="contactJob != null  and contactJob != '' "> and contact_job = #{contactJob}</if>
+            <if test="phone != null  and phone != '' "> and phone = #{phone}</if>
+            <if test="email != null  and email != '' "> and email = #{email}</if>
+            <if test="customerAddress != null  and customerAddress != ''"> and customer_address = #{customerAddress}</if>
+            <if test="customerType != null  and customerType != ''"> and customer_type = #{customerType}</if>
+            <if test="payWay != null  and payWay != ''"> and pay_way = #{payWay}</if>
+            <if test="isPassed != null  and isPassed != '' "> and is_passed = #{isPassed}</if>
+            <if test="isPartner != null  and isPartner != '' "> and is_partner = #{isPartner}</if>
+            <if test="isTrust != null  and isTrust != '' "> and is_trust = #{isTrust}</if>
+            <if test="remark != null  and remark != '' "> and remark = #{remark}</if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+            and del_flag = '0'
+            and is_trust='0'
+            and customer_name is not null
+        </where>
+    </select>
+
+    <select id="selectAll" parameterType="com.zhkj.lc.trunk.model.TruCustomer" resultMap="BaseResultMap">
+        select <include refid="Base_Column"/>
+        from tru_customer
+        <where>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="customerName != null  and customerName != '' ">
+                and customer_name like CONCAT('%',#{customerName},'%')
+            </if>
+            <if test="saleman != null  and saleman != '' "> and saleman = #{saleman}</if>
+            <if test="contact != null  and contact != '' "> and contact = #{contact}</if>
+            <if test="contactJob != null  and contactJob != '' "> and contact_job = #{contactJob}</if>
+            <if test="phone != null  and phone != '' "> and phone = #{phone}</if>
+            <if test="email != null  and email != '' "> and email = #{email}</if>
+            <if test="customerAddress != null  and customerAddress != ''"> and customer_address = #{customerAddress}</if>
+            <if test="customerType != null  and customerType != ''"> and customer_type = #{customerType}</if>
+            <if test="payWay != null  and payWay != ''"> and pay_way = #{payWay}</if>
+            <if test="isPassed != null  and isPassed != '' "> and is_passed = #{isPassed}</if>
+            <if test="isPartner != null  and isPartner != '' "> and is_partner = #{isPartner}</if>
+            <if test="status != null  and status != '' "> and status = #{status}</if>
+            <if test="isTrust != null  and isTrust != '' "> and is_trust = #{isTrust}</if>
+            <if test="remark != null  and remark != '' "> and remark = #{remark}</if>
+            <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+            and del_flag = '0'
+            and customer_name is not null
+        </where>
+    </select>
+
+
+    <update id="deleteByIds" parameterType="com.zhkj.lc.trunk.model.TruCustomer">
+        update tru_customer
+        set del_flag='1',update_time=#{updateTime}
+        <if test="updateBy != null  and updateBy != ''  ">,update_by = #{updateBy}</if>
+        where customer_id in
+        <foreach item="id" collection="customerIds" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <select id="selectByIds" parameterType="com.zhkj.lc.trunk.model.TruCustomer" resultMap="BaseResultMap">
+        select <include refid="Base_Column"/>
+        from tru_customer
+        where del_flag = '0' and customer_id in
+        <foreach item="id" collection="customerIds" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- 批量设置黑名单/白名单 -->
+    <update id="setTrustByIds" parameterType="com.zhkj.lc.trunk.model.TruCustomer">
+        update tru_customer
+        set update_time=#{updateTime}
+        <if test="isTrust != null  and isTrust != ''  ">,is_trust = #{isTrust}</if>
+        where customer_id in
+        <foreach item="id" collection="customerIds" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!-- 根据openid查询用户 -->
+    <select id="selectByOpenid" parameterType="String" resultMap="BaseResultMap">
+        select <include refid="Base_Column"/>
+        from tru_customer
+        where del_flag='0' and gopen_id=#{gopenId}
+    </select>
+
+    <!-- 新增返回主键id -->
+    <insert id="saveCustomer" parameterType="com.zhkj.lc.trunk.model.TruCustomer">
+        <selectKey keyColumn="customer_id" keyProperty="customerId" resultType="int" order="AFTER">
+            select LAST_INSERT_ID()
+        </selectKey>
+        insert into tru_customer
+        (customer_id, phone, customer_type, status, is_trust ,
+        del_flag , create_time, update_time , tenant_id , gopen_id)
+        value (#{customerId},#{phone},#{customerType},#{status},#{isTrust},
+        '0',sysdate(),sysdate(),#{tenantId},#{gopenId})
+    </insert>
+
+    <!--新增修改前客户名不可重复验证查询-->
+    <select id="checkCustomerName" resultType="Integer" >
+        select count(customer_id) from tru_customer where customer_name = #{customerName} and tenant_id = #{tenantId} and del_flag = '0'
+    </select>
+    <!--新增修改前客户名不可重复验证查询-->
+    <select id="checkCustomerNameById" resultType="Integer" >
+        select customer_id from tru_customer where customer_name = #{customerName} and tenant_id = #{tenantId} and del_flag = '0'
+    </select>
+
+    <!--查找手机号是否重复-->
+    <select id="findByPhone" resultType="Integer">
+        select count(customer_id) from tru_customer where phone = #{phone} and tenant_id = #{tenantId} and del_flag = '0'
+    </select>
+    <!--查找手机号是否重复-->
+    <select id="findByPhoneById" resultType="Integer">
+        select customer_id from tru_customer where phone = #{phone} and tenant_id = #{tenantId} and del_flag = '0'
+    </select>
+
+    <insert id="insertCustomer" useGeneratedKeys="true" keyProperty="customerId" parameterType="com.zhkj.lc.trunk.model.TruCustomer">
+        insert into tru_customer
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="customerName != null  and customerName != ''  ">customer_name,</if>
+            <if test="saleman != null  and saleman != ''  ">saleman,</if>
+            <if test="contact != null  and contact != ''  ">contact,</if>
+            <if test="contactJob != null  and contactJob != ''  ">contact_job,</if>
+            <if test="phone != null  and phone != ''  ">phone,</if>
+            <if test="email != null  and email != ''  ">email,</if>
+            <if test="customerAddress != null  and customerAddress != ''  ">customer_address,</if>
+            <if test="customerType != null  and customerType != ''  ">customer_type,</if>
+            <if test="payWay != null  and payWay != ''  ">pay_way,</if>
+            <if test="isPassed != null  and isPassed != ''  ">is_passed,</if>
+            <if test="isPartner != null  and isPartner != ''  ">is_partner,</if>
+            <if test="status != null  and status != ''  ">status,</if>
+            <if test="isTrust != null  and isTrust != ''  ">is_trust,</if>
+            <if test="remark != null  and remark != ''  ">remark,</if>
+            del_flag,
+            <if test="createBy != null  and createBy != ''  ">create_by,</if>
+            create_time,
+            <if test="updateBy != null  and updateBy != ''  ">update_by,</if>
+            update_time,
+            <if test="tenantId != null  ">tenant_id,</if>
+            <if test="gopenId != null  and gopenId != ''  ">gopen_id,</if>
+            <if test="sex != null  and sex != ''  ">sex,</if>
+            <if test="photo != null  and photo != ''  ">photo,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="customerName != null  and customerName != ''  ">#{customerName},</if>
+            <if test="saleman != null  and saleman != ''  ">#{saleman},</if>
+            <if test="contact != null  and contact != ''  ">#{contact},</if>
+            <if test="contactJob != null  and contactJob != ''  ">#{contactJob},</if>
+            <if test="phone != null  and phone != ''  ">#{phone},</if>
+            <if test="email != null  and email != ''  ">#{email},</if>
+            <if test="customerAddress != null  and customerAddress != ''  ">#{customerAddress},</if>
+            <if test="customerType != null  and customerType != ''  ">#{customerType},</if>
+            <if test="payWay != null  and payWay != ''  ">#{payWay},</if>
+            <if test="isPassed != null  and isPassed != ''  ">#{isPassed},</if>
+            <if test="isPartner != null  and isPartner != ''  ">#{isPartner},</if>
+            <if test="status != null  and status != ''  ">#{status},</if>
+            <if test="isTrust != null  and isTrust != ''  ">#{isTrust},</if>
+            <if test="remark != null  and remark != ''  ">#{remark},</if>
+             '0',
+            <if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+            sysdate(),
+            <if test="updateBy != null  and updateBy != ''  ">#{updateBy},</if>
+            sysdate(),
+            <if test="tenantId != null  ">#{tenantId},</if>
+            <if test="gopenId != null  and gopenId != ''  ">#{gopenId},</if>
+            <if test="sex != null  and sex != ''  ">#{sex},</if>
+            <if test="photo != null  and photo != ''  ">#{photo},</if>
+        </trim>
+    </insert>
+
+</mapper>

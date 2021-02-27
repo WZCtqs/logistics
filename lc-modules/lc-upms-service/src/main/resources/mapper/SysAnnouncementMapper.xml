@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.admin.mapper.SysAnnouncementMapper">
+
+    <resultMap id="AnnouncementResultMap" type="com.zhkj.lc.admin.model.entity.SysAnnouncement">
+        <result column="announcement_id" property="announcementId" />
+        <result column="content" property="content" />
+        <result column="type" property="type" />
+        <result column="driver_ower_id" property="driverOwerId" />
+        <result column="driver_name" property="driverName" />
+
+        <result column="del_flag" property="delFlag" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="remarks" property="remarks" />
+        <result column="tenant_id" property="tenantId" />
+    </resultMap>
+
+    <sql id="selectVoJoin">
+        select a.announcement_id, a.content, a.type, a.driver_ower_id, a.del_flag, a.create_by, a.create_time, a.update_by, a.update_time, a.remarks, a.tenant_id
+        ,d.driver_name
+        from sys_announcement AS a
+        left join logistics_truckdb.tru_driver AS d on a.driver_ower_id = d.driver_id and d.del_flag = '0'
+    </sql>
+
+    <select id="selectTop3" resultMap="AnnouncementResultMap">
+        <include refid="selectVoJoin"/>
+        <where>
+            a.del_flag = '0'
+              and (a.driver_ower_id is null
+                <if test="driverOwerId != null"> or a.driver_ower_id = #{driverOwerId}</if>
+              )
+        </where>
+        ORDER BY a.update_time DESC LIMIT 3
+    </select>
+
+    <select id="selectAll" resultMap="AnnouncementResultMap">
+        <include refid="selectVoJoin"/>
+        <where>
+            a.del_flag = '0'
+            and (a.driver_ower_id is null
+            <if test="driverOwerId != null"> or a.driver_ower_id = #{driverOwerId}</if>
+            )
+            <if test="announcementId != null"> and a.announcement_id = #{announcementId}</if>
+            <if test="content != null and type != '' "> and a.content = #{content}</if>
+            <if test="type != null and type != '' "> and a.type = #{type}</if>
+        </where>
+        ORDER BY a.update_time DESC
+    </select>
+
+    <insert id="insert" parameterType="com.zhkj.lc.admin.model.entity.SysAnnouncement">
+        insert into sys_announcement
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="content != null  and content != ''  ">content,</if>
+            <if test="type != null  and type != ''  ">type,</if>
+            <if test="driverOwerId != null "> driver_ower_id,</if>
+            <if test="delFlag != null  and delFlag != ''  ">del_flag,</if>
+            <if test="createBy != null  and createBy != ''  ">create_by,</if>
+            create_time,
+            update_time,
+            <if test="remarks != null  and remarks != '' ">remarks,</if>
+            <if test="tenantId != null "> tenant_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="content != null  and content != ''  ">#{content},</if>
+            <if test="type != null  and type != ''  ">#{type},</if>
+            <if test="driverOwerId != null ">#{driverOwerId},</if>
+            <if test="delFlag != null  and delFlag != ''  ">#{delFlag},</if>
+            <if test="createBy != null  and createBy != ''  ">#{createBy},</if>
+            sysdate(),
+            sysdate(),
+            <if test="remarks != null  and remarks != '' ">#{remarks},</if>
+            <if test="tenantId != null "> #{tenantId},</if>
+        </trim>
+    </insert>
+
+    <update id="updateById" parameterType="com.zhkj.lc.admin.model.entity.SysAnnouncement">
+        update sys_announcement
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="content != null  and content != ''  ">content = #{content},</if>
+            <if test="type != null  and type != ''  ">type = #{type},</if>
+            <if test="driverOwerId != null ">driver_ower_id = #{driverOwerId},</if>
+            <if test="delFlag != null  and delFlag != ''  ">del_flag = #{delFlag},</if>
+            <if test="createBy != null  and createBy != ''  ">create_by = #{createBy},</if>
+            <if test="createTime != null  ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            <if test="updateTime != null  ">update_time = #{updateTime},</if>
+            <if test="remarks != null  and remarks != '' ">remarks = #{remarks},</if>
+            <if test="tenantId != null "> tenant_id = #{tenantId},</if>
+        </trim>
+        where announcement_id = #{announcementId}
+    </update>
+
+    <update id="deleteByIds" parameterType="String">
+        update sys_announcement
+        set del_flag=#{delFlag}, update_time=sysdate()
+        <if test="updateBy != null  and updateBy != ''  ">,update_by = #{updateBy}</if>
+        where announcement_id in
+        <foreach item="announcementId" collection="announcementIds" open="(" separator="," close=")">
+            #{announcementId}
+        </foreach>
+    </update>
+
+</mapper>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.oilcard.mapper.OilExceptionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zhkj.lc.oilcard.model.OilException">
+        <id column="exception_id" property="exceptionId" />
+        <result column="oil_card_id" property="oilCardId" />
+        <result column="exception_date" property="exceptionDate" />
+        <result column="exception_type" property="exceptionType" />
+        <result column="collar_date" property="collarDate" />
+        <result column="collar_people" property="collarPeople" />
+        <result column="makeup_card_number" property="makeupCardNumber" />
+        <result column="makeup_place" property="makeupPlace" />
+        <result column="status" property="status" />
+        <result column="remark" property="remark" />
+        <result column="del_flag" property="delFlag" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="tenant_id" property="tenantId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        exception_id AS exceptionId, oil_card_id AS oilCardId, exception_date AS exceptionDate, exception_type AS exceptionType, collar_date AS collarDate, collar_people AS collarPeople, makeup_card_number AS makeupCardNumber, makeup_place AS makeupPlace, status, remark, del_flag AS delFlag, create_by AS createBy, create_time AS createTime, update_by AS updateBy, update_time AS updateTime, tenant_id AS tenantId
+    </sql>
+
+    <sql id="selectExceptionJoin">
+        select a.exception_id, a.oil_card_id, a.exception_date, a.exception_type,
+        a.collar_date, a.collar_people, a.makeup_card_number, a.makeup_place, a.status
+        , a.remark, a.del_flag, a.create_by, a.create_time, a.update_by, a.update_time
+--         , t.plate_number plateNumber, t.attribute attribute, t.truck_owner truckOwner, t.truck_owner_phone truckOwnerPhone
+        , b.card_type cardType,b.oil_card_number oilCardNumber,b.amount
+        , b.truck_id truckId, b.owner_driver_id ownerDriverId
+        , d.major_number majorNumber,d.major_id AS majorId
+        from oil_exception as a
+        left join oil_card as b on a.oil_card_id = b.oil_card_id and b.del_flag='0'
+        left join oil_major AS d on b.major_id = d.major_id and b.del_flag='0'
+--         left join logistics_truckdb.tru_truck as t on b.truck_id = t.truck_id and t.del_flag='0'
+    </sql>
+
+   <sql id="selectExceptionJoinDriver">
+        select a.exception_id, a.oil_card_id, a.exception_date, a.exception_type
+        , a.collar_date, a.collar_people, a.makeup_card_number, a.makeup_place, a.status
+        , a.remark, a.del_flag, a.create_by, a.create_time, a.update_by, a.update_time
+        , b.card_type cardType, b.oil_card_number oilCardNumber, b.amount, b.owner_driver_id ownerDriverId
+        , d.major_number majorNumber
+        from oil_exception as a
+        left join oil_card as b on a.oil_card_id = b.oil_card_id and b.del_flag='0'
+        left join oil_major AS d on b.major_id = d.major_id and b.del_flag='0'
+    </sql>
+
+    <select id="selectByExceptionId" parameterType="Integer" resultMap="BaseResultMap">
+        <include refid="selectExceptionJoin"/>
+        where a.del_flag='0' and exception_id = #{exceptionId}
+    </select>
+
+    <select id="selectListByIds" resultMap="BaseResultMap">
+        <include refid="selectExceptionJoin"/>
+        where a.del_flag='0' and a.exception_id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        order by a.create_time desc
+    </select>
+
+    <!-- 搜索加分页 -->
+    <select id="selectPageList" resultMap="BaseResultMap">
+        <include refid="selectExceptionJoin"/>
+        <where>
+            <if test="exceptionId != null "> and a.exception_id = #{exceptionId}</if>
+            <if test="oilCardId != null  and oilCardId != '' "> and a.oil_card_id = #{oilCardId}</if>
+            <if test="oilCardNumber != null  and oilCardNumber != '' "> and b.oil_card_number = #{oilCardNumber}</if>
+            <if test="truckIds != null and truckIds.length > 0 "> and b.truck_id in
+                <foreach collection="truckIds" item="truckId" open="(" separator="," close=")">
+                    #{truckId}
+                </foreach>
+            </if>
+            <!--<if test="plateNumber != null  and plateNumber != '' "> and t.plate_number = #{plateNumber}</if>-->
+            <!--<if test="attribute != null  and attribute != '' "> and t.attribute = #{attribute}</if>-->
+            <if test="beginTime != null and beginTime != '' ">
+                and date_format(a.exception_date,'%y%m%d') &gt;= date_format(#{beginTime},'%y%m%d')
+            </if>
+            <if test="endTime != null and endTime != '' ">
+                and date_format(a.exception_date,'%y%m%d') &lt;= date_format(#{endTime},'%y%m%d')
+            </if>
+            <if test="exceptionType != null  and exceptionType != '' "> and a.exception_type = #{exceptionType}</if>
+            <if test="collarDate != null "> and collar_date = #{collarDate}</if>
+            <if test="collarPeople != null  and collarPeople != '' "> and collar_people = #{collarPeople}</if>
+            <if test="makeupCardNumber != null  and makeupCardNumber != '' "> and a.makeup_card_number = #{makeupCardNumber}</if>
+            <if test="makeupPlace != null  and makeupPlace != '' "> and a.makeup_place = #{makeupPlace}</if>
+            <if test="status != null  and status != '' "> and a.status = #{status}</if>
+            <if test="remark != null  and remark != '' "> and a.remark = #{remark}</if>
+            <if test="tenantId != null "> and a.tenant_id = #{tenantId}</if>
+            <if test="createBy != null  and createBy != '' "> and a.create_by = #{createBy}</if>
+            <if test="createTime != null "> and a.create_time = #{createTime}</if>
+            <if test="updateBy != null  and updateBy != '' "> and a.update_by = #{updateBy}</if>
+            <if test="updateTime != null "> and a.update_time = #{updateTime}</if>
+            and a.del_flag='0'
+        </where>
+        order by a.create_time desc
+    </select>
+
+    <!-- 根据车主姓名查询油卡信息 -->
+    <select id="selectByOwner" parameterType="String" resultMap="BaseResultMap">
+        <include refid="selectExceptionJoin"/>
+        where t.truck_owner = #{truckOwner}
+    </select>
+
+    <select id="selectByDriver" parameterType="Integer" resultMap="BaseResultMap">
+        <include refid="selectExceptionJoinDriver"/>
+        where b.owner_driver_id = #{ownerDriverId}
+    </select>
+    
+    <!-- 批量删除 -->
+    <update id="deleteExceptionByIds" parameterType="String">
+        update oil_exception  set del_flag='1',update_time = sysdate()
+        where del_flag = '0'
+        <if test="null != array and array.length > 0 "> and exception_id in
+            <foreach item="exceptionId" collection="array" open="(" separator="," close=")">
+                #{exceptionId}
+            </foreach>
+        </if>
+    </update>
+</mapper>

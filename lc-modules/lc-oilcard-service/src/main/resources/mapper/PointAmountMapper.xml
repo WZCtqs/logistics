@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhkj.lc.oilcard.mapper.PointAmountMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zhkj.lc.oilcard.model.PointAmount">
+        <id column="id" property="id" />
+        <result column="year_month" property="yearMonth" />
+        <result column="company" property="company" />
+        <result column="last_point" property="lastPoint" />
+        <result column="add_point" property="addPoint" />
+        <result column="distribute_point" property="distributePoint" />
+        <result column="del_flag" property="delFlag" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+        <result column="tenant_id" property="tenantId" />
+        <result column="remark" property="remark" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, `year_month` AS yearMonth, company, last_point AS lastPoint, add_point AS addPoint, distribute_point AS distributePoint, del_flag AS delFlag, create_by AS createBy, create_time AS createTime, update_by AS updateBy, update_time AS updateTime, tenant_id AS tenantId, remark
+    </sql>
+
+    <sql id="selectVO">
+        select id, `year_month`, company, last_point, add_point, distribute_point
+        , IF((last_point + add_point - distribute_point) &lt;= 0, 0, (last_point + add_point - distribute_point)) pointAmount
+        , remark, del_flag, create_by, create_time, update_by, update_time, tenant_id
+        from point_amount
+    </sql>
+
+    <select id="selectPointAmount" resultMap="BaseResultMap" parameterType="Integer">
+        <include refid="selectVO"/>
+        where del_flag = '0' and id = #{id}
+        order by create_time desc
+    </select>
+
+    <select id="selectPointAmountListByIds" resultMap="BaseResultMap" parameterType="String">
+        <include refid="selectVO"/>
+        where del_flag = '0' and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        order by create_time desc
+    </select>
+
+    <select id="selectPointAmountList" resultMap="BaseResultMap" parameterType="Integer">
+        <include refid="selectVO"/>
+        where del_flag = '0'
+        <if test="id != null "> and id = #{id}</if>
+        <if test="yearMonth != null  and yearMonth != ''  "> and `year_month` = #{yearMonth}</if>
+        <if test="company != null  and company != ''  "> and company = #{company}</if>
+        <if test="lastPoint != null   "> and last_point = #{lastPoint}</if>
+        <if test="addPoint != null "> and add_point = #{addPoint}</if>
+        <if test="distributePoint != null "> and distribute_point = #{distributePoint}</if>
+        <if test="tenantId != null "> and tenant_id = #{tenantId}</if>
+        <if test="remark != null  and remark != ''  "> and remark = #{remark}</if>
+        order by create_time desc
+    </select>
+
+    <select id="pointAmount2" resultMap="BaseResultMap">
+        select id, `year_month`, company, last_point, add_point, distribute_point
+        from point_amount
+        where del_flag = '0' and tenant_id = #{tenantId}
+        and `year_month` = #{yearMonth} and company = #{company}
+        order by create_time desc
+    </select>
+
+    <update id="updatePointAmount" parameterType="com.zhkj.lc.oilcard.model.PointAmount">
+        update point_amount
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="yearMonth != null  and yearMonth != ''  ">`year_month` = #{yearMonth},</if>
+            <if test="company != null  and company != ''  ">company = #{company},</if>
+            <if test="lastPoint != null   ">last_point = #{lastPoint},</if>
+            <if test="addPoint != null "> add_point = #{addPoint},</if>
+            <if test="distributePoint != null "> distribute_point = #{distributePoint},</if>
+            <if test="delFlag != null  and delFlag != ''  ">del_flag = #{delFlag},</if>
+            <if test="createBy != null  and createBy != ''  ">create_by = #{createBy},</if>
+            <if test="createTime != null  ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''  ">update_by = #{updateBy},</if>
+            update_time = sysdate(),
+            <if test="tenantId != null "> tenant_id = #{tenantId},</if>
+            <if test="remark != null and remark != '' "> remark = #{remark}, </if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <insert id="insertPointAmount" parameterType="com.zhkj.lc.oilcard.model.PointAmount">
+        insert into point_amount
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="yearMonth != null  and yearMonth != ''  "> `year_month`,</if>
+            <if test="company != null  and company != ''  "> company,</if>
+            <if test="lastPoint != null   "> last_point,</if>
+            <if test="addPoint != null "> add_point,</if>
+            <if test="distributePoint != null "> distribute_point,</if>
+            <if test="delFlag != null  and delFlag != ''  "> del_flag,</if>
+            <if test="createBy != null  and createBy != ''  "> create_by,</if>
+            create_time,
+            <if test="tenantId != null "> tenant_id,</if>
+            <if test="remark != null and remark != '' "> remark, </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="yearMonth != null  and yearMonth != ''  "> #{yearMonth},</if>
+            <if test="company != null  and company != ''  "> #{company},</if>
+            <if test="lastPoint != null   "> #{lastPoint},</if>
+            <if test="addPoint != null "> #{addPoint},</if>
+            <if test="distributePoint != null "> #{distributePoint},</if>
+            <if test="delFlag != null  and delFlag != ''  "> #{delFlag},</if>
+            <if test="createBy != null  and createBy != ''  "> #{createBy},</if>
+            sysdate(),
+            <if test="tenantId != null "> #{tenantId}, </if>
+            <if test="remark != null and remark != '' "> #{remark}, </if>
+        </trim>
+    </insert>
+
+    <update id="deletePointAmount" parameterType="String">
+        update point_amount
+        set del_flag = #{delFlag}, update_time=sysdate()
+        <if test="updateBy != null  and updateBy != ''  ">,update_by = #{updateBy}</if>
+        where del_flag = '0'
+        <if test="null != ids and ids.length > 0 "> and id in
+            <foreach item="id" collection="ids" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+    </update>
+
+</mapper>
